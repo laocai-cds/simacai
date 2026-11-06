@@ -167,19 +167,10 @@
     var btn = 'border:0;border-radius:9px;padding:6px 12px;font:700 13px system-ui,sans-serif;cursor:pointer;';
     el.innerHTML = '<span id="xaPillT"></span>' +
       '<button type="button" id="xaStop" style="' + btn + 'background:#fff;color:#12335c">⏹ Tắt loa</button>' +
-      (lastAuto ? '<button type="button" id="xaNever" style="' + btn + 'background:transparent;color:#fff;border:1px solid #ffffff88">Không tự đọc nữa</button>' : '');
+      '';
     el.querySelector('#xaPillT').textContent = msg;
     el.hidden = false;
     el.querySelector('#xaStop').onclick = function () { safe(function () { speechSynthesis.cancel(); }); speaking = false; paintSpk(); };
-    var nv = el.querySelector('#xaNever');
-    if (nv) nv.onclick = function () {
-      safe(function () { localStorage.setItem('xa_bar_noauto', '1'); });
-      safe(function () { speechSynthesis.cancel(); }); speaking = false; paintSpk();
-      holdPill = true;
-      pill(true, 'Đã tắt tự đọc trên máy này. Bấm vào loa “Thông báo” khi muốn nghe.');
-      el.querySelectorAll('button').forEach(function (x) { x.remove(); });
-      setTimeout(function () { holdPill = false; pill(false); }, 4500);
-    };
   }
   function paintSpk() {
     var b = document.querySelector('#notice .nt-badge'); if (!b) return;
@@ -203,19 +194,19 @@
   /* ===== Tự động đọc khi mở trang ===== */
   var AR = 'xa_bar_read', armed = false, tried = false;
   function readDone() { safe(function () { sessionStorage.setItem(AR, '1'); }); }
-  function noAuto() { return safe(function () { return localStorage.getItem('xa_bar_noauto') === '1'; }, false); }
+  safe(function () { localStorage.removeItem('xa_bar_noauto'); });
   function readSeen() { return safe(function () { return sessionStorage.getItem(AR) === '1'; }, false); }
   function armGesture() {
     if (armed) return; armed = true;
     var h = function (e) {
       ['pointerdown', 'keydown', 'touchend'].forEach(function (t) { document.removeEventListener(t, h, true); });
       if (e.target && e.target.closest && e.target.closest('#notice .nt-badge')) { readDone(); return; }
-      if (cfg.autoread && !noAuto() && !readSeen()) { readDone(); speak(true); }
+      if (cfg.autoread && !readSeen()) { readDone(); speak(true); }
     };
     ['pointerdown', 'keydown', 'touchend'].forEach(function (t) { document.addEventListener(t, h, true); });
   }
   function autoRead() {
-    if (tried || noAuto() || !cfg.autoread || !cfg.speak || !window.speechSynthesis || readSeen()) return;
+    if (tried || !cfg.autoread || !cfg.speak || !window.speechSynthesis || readSeen()) return;
     tried = true; readDone();
     speak(true);
     /* nếu chưa phát được thì bắt cú bấm đầu tiên */
