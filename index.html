@@ -2988,10 +2988,27 @@ if(M&&F&&B){const sync=()=>{B.hidden=F.hidden;if(F.hidden)M._go('a')};new Mutati
 <div class="aip-ov" id="aipOv" role="dialog" aria-modal="true" aria-label="Trợ lý AI TTHC"><div class="aip-box"><button class="aip-x" id="aipX" type="button" aria-label="Đóng">✕</button><div class="aip-load" id="aipLoad">Đang mở Trợ lý AI…</div></div></div>
 <script>
 (function(){var URL_AI='https://laocai-cds.github.io/tthc/?ai=1&embed=1',made=false;
+var ORIGIN='https://laocai-cds.github.io';
+function siteName(){var t=(document.title||'').split('·').pop().trim();return t||'Đảng bộ xã'}
+function ctx(){try{
+ if(typeof units==='undefined'||!units.length)return '';
+ var t=totals(),L=[],rate=t.due?t.paidCount/t.due:0,left=Math.max(0,t.declared-t.paid),
+ done=units.filter(function(r){return cls(r)==='complete'}).length,part=units.filter(function(r){return cls(r)==='partial'}).length,
+ noRec=Math.max(0,t.due-(t.pending+t.approved+t.paidCount));
+ var now=new Date(),vk=(typeof viewKey!=='undefined'&&viewKey)||(now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'));
+ L.push('Kỳ: Tháng '+(+vk.slice(5))+'/'+vk.slice(0,4)+' (dữ liệu: '+(dataStamp||'—')+(dataSrc==='sheet'?', lấy từ Google Sheet của site xã':'')+').');
+ L.push('Toàn Đảng bộ: '+units.length+' đơn vị, '+num(t.members)+' đảng viên (miễn giảm '+num(t.exempt)+'); phải nộp '+num(t.due)+'; ĐÃ NỘP '+num(t.paidCount)+'/'+num(t.due)+' = '+pct(rate)+'; đã thu '+money(t.paid)+' trên số kê khai '+money(t.declared)+' ('+pct(t.declared>0?t.paid/t.declared:0)+'); còn phải thu '+money(left)+'.');
+ L.push('Hồ sơ: chưa có hồ sơ '+num(noRec)+', chưa duyệt '+num(t.pending)+', đã duyệt chưa nộp '+num(t.approved)+'. Đơn vị hoàn thành '+done+', đang thu '+part+', chưa phát sinh '+(units.length-done-part)+'.');
+ L.push('Từng đơn vị, xếp theo tỷ lệ nộp giảm dần (đã nộp/phải nộp, tỷ lệ, tiền đã thu, chưa có hồ sơ, chưa duyệt, đã duyệt chưa nộp):');
+ units.map(function(r){var d=v(r,'due');return{r:r,p:d>0?v(r,'paidCount')/d:0}}).sort(function(a,b){return b.p-a.p||v(b.r,'paid')-v(a.r,'paid')}).forEach(function(o,i){var r=o.r;
+  L.push((i+1)+'. '+nm(r)+': '+num(v(r,'paidCount'))+'/'+num(v(r,'due'))+' ('+pct(o.p)+'), thu '+money(v(r,'paid'))+', chưa có HS '+num(v(r,'noRecord'))+', chưa duyệt '+num(v(r,'pending'))+', duyệt chưa nộp '+num(v(r,'approved')))});
+ return L.join('\n').slice(0,8500)}catch(e){return ''}}
+function send(){var f=document.querySelector('#aipOv iframe');if(!f||!f.contentWindow)return;try{f.contentWindow.postMessage({type:'aic-site-ctx',name:siteName(),ctx:ctx()},ORIGIN)}catch(e){}}
+window.addEventListener('message',function(e){if(e.origin!==ORIGIN)return;var f=document.querySelector('#aipOv iframe');if(!f||e.source!==f.contentWindow)return;var d=e.data;if(d&&(d.type==='aic-ready'||d.type==='aic-need-ctx'))send()});
 function ov(){return document.getElementById('aipOv')}
 function openAi(){var o=ov();if(!o)return;
- if(!made){made=true;var f=document.createElement('iframe');f.title='Trợ lý AI TTHC';f.setAttribute('allow','clipboard-write');f.onload=function(){var l=document.getElementById('aipLoad');if(l)l.style.display='none'};f.src=URL_AI;o.querySelector('.aip-box').appendChild(f)}
- o.classList.add('on');document.body.style.overflow='hidden'}
+ if(!made){made=true;var f=document.createElement('iframe');f.title='Trợ lý AI TTHC';f.setAttribute('allow','clipboard-write');f.onload=function(){var l=document.getElementById('aipLoad');if(l)l.style.display='none';send()};f.src=URL_AI;o.querySelector('.aip-box').appendChild(f)}
+ o.classList.add('on');document.body.style.overflow='hidden';if(made)send()}
 function closeAi(){var o=ov();if(o)o.classList.remove('on');document.body.style.overflow=''}
 window.openAi=openAi;window.closeAi=closeAi;
 document.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)return;
