@@ -1137,7 +1137,7 @@ go();document.addEventListener('DOMContentLoaded',go);
    Trang vẫn xem công khai. Đăng nhập chỉ để mở mục "Quản trị". Quyền do Google Apps Script quyết định
    (kiểm tra mã đăng nhập idToken và danh sách Gmail quản trị), không dựa vào trình duyệt. */
 window.AUTH=(function(){
-  const CFG=null;/* TODO: dán cấu hình Firebase Auth riêng của Si Ma Cai để bật đăng nhập Gmail quản trị */
+  const CFG={apiKey:"AIzaSyBq0seR72wXRdE7S8w8A6secIF0aGdXR4k",authDomain:"muongkhuong-54acc.firebaseapp.com",projectId:"muongkhuong-54acc",appId:"1:5952941601:web:37d396dd98732ac6cf3d60"};
   const V='https://www.gstatic.com/firebasejs/10.12.2/';
   const H=document.documentElement,g=id=>document.getElementById(id);
   let auth=null,user=null,tok='',loading=null,role=null,gen=0;
@@ -2291,7 +2291,7 @@ thBuild();setTimeout(thLoad,1200);
 AUTH.init();
 
 /* ===== Đang online & Tổng truy cập (Firebase Realtime Database) ===== */
-const FB_CFG=null;/* TODO: dán cấu hình Firebase (Realtime Database) riêng của Si Ma Cai để bật "Đang online / Tổng truy cập" */
+const FB_CFG={apiKey:"AIzaSyBq0seR72wXRdE7S8w8A6secIF0aGdXR4k",authDomain:"muongkhuong-54acc.firebaseapp.com",databaseURL:"https://muongkhuong-54acc-default-rtdb.firebaseio.com",projectId:"muongkhuong-54acc",appId:"1:5952941601:web:37d396dd98732ac6cf3d60"};
 (function liveStats(){
   const set=(k,n)=>document.querySelectorAll('[data-live="'+k+'"]').forEach(e=>{e.textContent=nf.format(n)});
   const show=()=>{const a=document.getElementById('liveBar'),b=document.getElementById('livePill');if(a)a.hidden=false;if(b)b.hidden=false};
