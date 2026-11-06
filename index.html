@@ -2290,31 +2290,26 @@ async function thLoad(){const ep=sheetEndpoint();if(!ep)return;
 thBuild();setTimeout(thLoad,1200);
 AUTH.init();
 
-/* ===== Đang online & Tổng truy cập (Firebase Realtime Database) ===== */
-const FB_CFG={apiKey:"AIzaSyBq0seR72wXRdE7S8w8A6secIF0aGdXR4k",authDomain:"muongkhuong-54acc.firebaseapp.com",databaseURL:"https://muongkhuong-54acc-default-rtdb.firebaseio.com",projectId:"muongkhuong-54acc",appId:"1:5952941601:web:37d396dd98732ac6cf3d60"};
+/* ===== Đang online & Tổng truy cập (Cloudflare Pages Function + D1) ===== */
 (function liveStats(){
+  const API='https://simacaicds.pages.dev/api/stats';
   const set=(k,n)=>document.querySelectorAll('[data-live="'+k+'"]').forEach(e=>{e.textContent=nf.format(n)});
   const show=()=>{const a=document.getElementById('liveBar'),b=document.getElementById('livePill');if(a)a.hidden=false;if(b)b.hidden=false};
-  const load=u=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=u;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
-  const base='https://www.gstatic.com/firebasejs/10.12.2/';
-  const go=()=>load(base+'firebase-app-compat.js').then(()=>load(base+'firebase-database-compat.js')).then(()=>{
-    firebase.initializeApp(FB_CFG);const db=firebase.database();
-    let sid='';try{sid=sessionStorage.getItem('sm_sid')||'';if(!sid){sid=Math.random().toString(36).slice(2,10)+Date.now().toString(36);sessionStorage.setItem('sm_sid',sid)}}catch(_){sid=Math.random().toString(36).slice(2,10)}
-    const me=db.ref('presence/'+sid),vr=db.ref('stats/visits'),pr=db.ref('presence');
-    // Chỉ hiện số đã được máy chủ xác nhận (không dùng giá trị tạm trên máy khách)
-    let pOn=false,vOn=false;
-    const startPresence=()=>{if(pOn)return;pOn=true;pr.on('value',s=>{if(s.exists()){set('online',Math.max(1,s.numChildren()));gate('p')}},()=>{})};
-    const startVisits=()=>{if(vOn)return;vOn=true;vr.on('value',s=>{if(s.exists()){set('total',Number(s.val())||0);gate('v')}},()=>{})};
-    const ok={p:false,v:false};const gate=k=>{ok[k]=true;if(ok.p&&ok.v)show()};
-    db.ref('.info/connected').on('value',s=>{if(s.val()===true){
-      me.onDisconnect().remove().then(()=>me.set(true)).then(startPresence).catch(()=>{});
-    }});
-    let counted=false;try{counted=sessionStorage.getItem('sm_counted')==='1'}catch(_){}
-    if(!counted){vr.transaction(n=>(n||0)+1,(err,committed)=>{if(!err&&committed){try{sessionStorage.setItem('sm_counted','1')}catch(_){}startVisits()}})}
-    else{vr.get().then(()=>startVisits()).catch(()=>{})}
-  }).catch(()=>{});
-  if(!FB_CFG)return;
-  if('requestIdleCallback' in window)requestIdleCallback(go,{timeout:3000});else setTimeout(go,1500);
+  let sid='';try{sid=sessionStorage.getItem('sm_sid')||'';if(!sid){sid=Math.random().toString(36).slice(2,10)+Date.now().toString(36);sessionStorage.setItem('sm_sid',sid)}}catch(_){sid=Math.random().toString(36).slice(2,10)+Date.now().toString(36)}
+  let counted=false;try{counted=sessionStorage.getItem('sm_counted')==='1'}catch(_){}
+  const beat=async()=>{
+    try{
+      const hit=!counted;
+      const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({sid:sid,hit:hit}),keepalive:true});
+      const d=await r.json();
+      if(d&&d.ok){
+        if(hit){counted=true;try{sessionStorage.setItem('sm_counted','1')}catch(_){}}
+        set('online',d.online);set('total',d.total);show();
+      }
+    }catch(_){}
+  };
+  const start=()=>{beat();setInterval(()=>{if(!document.hidden)beat()},30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)beat()})};
+  if('requestIdleCallback' in window)requestIdleCallback(start,{timeout:3000});else setTimeout(start,1500);
 })();
 </script>
 <script>window.RSS_PRAISE_ONLY=true;window.RSS_UNIT='xã Si Ma Cai';window.RSS_POOL='https://laocai-cds.github.io/tthc/news/pool.json';</script>
