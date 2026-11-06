@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#3475c4">
+<meta name="theme-color" content="#305d93">
 <title>Bảng tỷ giá USD & giá vàng trong nước</title>
 <style>
 :root{
-  --navy:#3475c4;--navy-2:#3c7bc6;--ink:#1b2a3d;--muted:#64748b;--line:#e2e8f0;--bg:#f3f5f9;--card:#fff;
-  --blue:#5679dd;--gold:#a16207;--gold-bg:#fef9e7;--up:#047857;--up-bg:#e7f7f0;--down:#b91c1c;--down-bg:#fdecec;
-  --radius:12px;--shadow:0 1px 2px rgba(52,117,196,.06),0 4px 14px rgba(52,117,196,.05)
+  --navy:#305d93;--navy-2:#37649a;--ink:#1b2a3d;--muted:#64748b;--line:#e2e8f0;--bg:#f3f5f9;--card:#fff;
+  --blue:#4669ce;--gold:#a16207;--gold-bg:#fef9e7;--up:#047857;--up-bg:#e7f7f0;--down:#b91c1c;--down-bg:#fdecec;
+  --radius:12px;--shadow:0 1px 2px rgba(48,93,147,.06),0 4px 14px rgba(48,93,147,.05)
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -24,7 +24,7 @@ a{color:var(--blue)}
 .logo{width:40px;height:40px;border-radius:10px;background:#d4a437;color:#3b2a05;display:grid;place-items:center;font-weight:800;font-size:20px}
 .brand b{display:block;font-size:15px;letter-spacing:.03em}
 .brand small{display:block;color:#a9bdd6;font-size:12px}
-.back{color:#d5e2f3;text-decoration:none;font-size:13px;font-weight:600;padding:8px 12px;border:1px solid #5e83b6;border-radius:8px}
+.back{color:#d5e2f3;text-decoration:none;font-size:13px;font-weight:600;padding:8px 12px;border:1px solid #4e6f9b;border-radius:8px}
 .back:hover{background:var(--navy-2);color:#fff}
 
 .wrap{max-width:1200px;margin:auto;padding:24px 24px 48px}
@@ -44,7 +44,7 @@ h1{margin:0;font-size:26px;line-height:1.25;letter-spacing:-.01em}
 /* KPI */
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;border-top:4px solid var(--c,#64748b)}
-.kpi.usd{--c:#5679dd}.kpi.gold{--c:#d4a437}.kpi.world{--c:#0f766e}
+.kpi.usd{--c:#4669ce}.kpi.gold{--c:#d4a437}.kpi.world{--c:#0f766e}
 .kpi h2{margin:0;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .kpi .val{margin:10px 0 2px;font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1;color:var(--navy)}
 .kpi .unit{font-size:12.5px;color:var(--muted)}
@@ -87,8 +87,8 @@ tbody tr:last-child td{border-bottom:0}
 label{display:block;font-size:13px;font-weight:700;margin-bottom:8px}
 .row{display:flex;gap:8px}
 input[type=number]{flex:1;min-width:0;font:inherit;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;color:var(--ink);background:#fff}
-input[type=number]:focus{outline:2px solid #93b4f5;border-color:#5679dd}
-.result{margin-top:10px;padding:12px 14px;border-radius:10px;background:#eef4ff;color:#496ccc;font-weight:700;font-size:15px}
+input[type=number]:focus{outline:2px solid #93b4f5;border-color:#4669ce}
+.result{margin-top:10px;padding:12px 14px;border-radius:10px;background:#eef4ff;color:#3c5aaf;font-weight:700;font-size:15px}
 .chart-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .chart-h h3{margin:0;font-size:14px}
 .legend{display:flex;gap:12px;font-size:12px;color:var(--muted)}
@@ -112,7 +112,7 @@ input[type=number]:focus{outline:2px solid #93b4f5;border-color:#5679dd}
 /* ===== Thu gọn vừa khung hình + màu sắc sinh động ===== */
 html,body{height:100%}
 body{display:flex;flex-direction:column;height:100vh;overflow:hidden;background:linear-gradient(135deg,#eef2ff 0,#fdf2f8 45%,#ecfeff 100%)}
-.header{background:linear-gradient(90deg,#3475c4,#496ccc 55%,#6d28d9)}
+.header{background:linear-gradient(90deg,#305d93,#3c5aaf 55%,#6d28d9)}
 .header-in{padding:8px 20px}
 .logo{width:32px;height:32px;font-size:16px;border-radius:9px;background:linear-gradient(135deg,#fbbf24,#f97316 55%,#ec4899);color:#fff}
 .brand b{font-size:13px}.brand small{font-size:11px}.back{padding:6px 10px;font-size:12px}
@@ -121,12 +121,12 @@ body{display:flex;flex-direction:column;height:100vh;overflow:hidden;background:
 h1{font-size:20px}.title-row p{font-size:12px;margin:0}
 .clock{font-size:12px;padding:3px 9px;background:linear-gradient(90deg,#e0e7ff,#fce7f3);border:0;color:#3730a3}
 .status{font-size:12px}
-.btn{padding:7px 12px;font-size:12px;background:linear-gradient(90deg,#5984e5,#7c3aed)}
-.btn:hover{filter:brightness(1.1);background:linear-gradient(90deg,#5984e5,#7c3aed)}
+.btn{padding:7px 12px;font-size:12px;background:linear-gradient(90deg,#4b76d7,#7c3aed)}
+.btn:hover{filter:brightness(1.1);background:linear-gradient(90deg,#4b76d7,#7c3aed)}
 .btn.ghost{background:#fff;color:#4338ca;border:1px solid #c7d2fe}
 .kpis{gap:10px}
-.kpi{padding:10px 14px;border:0;color:#fff;box-shadow:0 6px 16px rgba(88,115,159,.18)}
-.kpi:nth-child(1){background:linear-gradient(135deg,#5993f0,#4f6ed5)}
+.kpi{padding:10px 14px;border:0;color:#fff;box-shadow:0 6px 16px rgba(73,91,122,.18)}
+.kpi:nth-child(1){background:linear-gradient(135deg,#4e87e3,#3b5bc4)}
 .kpi:nth-child(2){background:linear-gradient(135deg,#f59e0b,#b45309)}
 .kpi:nth-child(3){background:linear-gradient(135deg,#fb7185,#be123c)}
 .kpi:nth-child(4){background:linear-gradient(135deg,#2dd4bf,#0f766e)}
@@ -147,7 +147,7 @@ thead th{padding:6px 12px;font-size:11px}
 tbody td{padding:5px 12px;font-size:13px}
 tbody tr.grp td{padding:3px 12px;font-size:11.5px;color:#fff;letter-spacing:.08em}
 tr.grp[data-b="SJC"] td{background:linear-gradient(90deg,#dc2626,#f87171)}
-tr.grp[data-b="DOJI"] td{background:linear-gradient(90deg,#5984e5,#60a5fa)}
+tr.grp[data-b="DOJI"] td{background:linear-gradient(90deg,#4b76d7,#60a5fa)}
 tr.grp[data-b="Bảo Tín"] td{background:linear-gradient(90deg,#059669,#34d399)}
 tr.grp[data-b="PNJ"] td{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
 .chg{min-width:68px;padding:2px 8px;font-size:12px}
