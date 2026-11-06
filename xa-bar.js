@@ -109,7 +109,7 @@
   setInterval(tick, 3000);
 
   /* ===== Đọc to (nút loa trên thanh, ai cũng dùng được) ===== */
-  var speaking = false;
+  var speaking = false, lastAuto = false, holdPill = false;
   function plain() {
     var t = document.getElementById('ntText');
     return (t ? t.textContent : '').replace(/✦/g, '. ').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim();
@@ -133,6 +133,7 @@
       safe(function () { toast('Máy này chưa có giọng đọc tiếng Việt. Dùng Chrome/Edge trên Android hoặc Windows, hoặc cài giọng tiếng Việt trong cài đặt hệ thống.'); });
       return;
     }
+    lastAuto = auto === true;
     var u = new SpeechSynthesisUtterance(plain());
     u.lang = 'vi-VN'; u.rate = 0.95;
     if (r.v) u.voice = r.v;
@@ -155,10 +156,36 @@
       '@media (prefers-reduced-motion:reduce){.nt-badge.xa-talk svg,.nt-badge.xa-talk svg path{animation:none}}';
     document.head.appendChild(st);
   }
+  function pill(show, msg) {
+    var el = document.getElementById('xaPill');
+    if (!show) { if (el) el.hidden = true; return; }
+    if (!el) {
+      el = document.createElement('div'); el.id = 'xaPill'; el.setAttribute('role', 'status');
+      el.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99999;max-width:calc(100% - 24px);display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:10px 14px;border-radius:14px;background:#12335c;color:#fff;font:600 13.5px/1.35 system-ui,sans-serif;box-shadow:0 8px 24px -6px #0007';
+      document.body.appendChild(el);
+    }
+    var btn = 'border:0;border-radius:9px;padding:6px 12px;font:700 13px system-ui,sans-serif;cursor:pointer;';
+    el.innerHTML = '<span id="xaPillT"></span>' +
+      '<button type="button" id="xaStop" style="' + btn + 'background:#fff;color:#12335c">⏹ Tắt loa</button>' +
+      (lastAuto ? '<button type="button" id="xaNever" style="' + btn + 'background:transparent;color:#fff;border:1px solid #ffffff88">Không tự đọc nữa</button>' : '');
+    el.querySelector('#xaPillT').textContent = msg;
+    el.hidden = false;
+    el.querySelector('#xaStop').onclick = function () { safe(function () { speechSynthesis.cancel(); }); speaking = false; paintSpk(); };
+    var nv = el.querySelector('#xaNever');
+    if (nv) nv.onclick = function () {
+      safe(function () { localStorage.setItem('xa_bar_noauto', '1'); });
+      safe(function () { speechSynthesis.cancel(); }); speaking = false; paintSpk();
+      holdPill = true;
+      pill(true, 'Đã tắt tự đọc trên máy này. Bấm vào loa “Thông báo” khi muốn nghe.');
+      el.querySelectorAll('button').forEach(function (x) { x.remove(); });
+      setTimeout(function () { holdPill = false; pill(false); }, 4500);
+    };
+  }
   function paintSpk() {
     var b = document.querySelector('#notice .nt-badge'); if (!b) return;
     injectCss();
     b.classList.toggle('xa-talk', !!speaking);
+    if (speaking) pill(true, 'Đang đọc thông báo bằng loa.'); else if (!holdPill) pill(false);
     var on = cfg.speak && !!window.speechSynthesis;
     b.style.cursor = on ? 'pointer' : '';
     b.style.opacity = speaking ? '.85' : '';
@@ -176,18 +203,19 @@
   /* ===== Tự động đọc khi mở trang ===== */
   var AR = 'xa_bar_read', armed = false, tried = false;
   function readDone() { safe(function () { sessionStorage.setItem(AR, '1'); }); }
+  function noAuto() { return safe(function () { return localStorage.getItem('xa_bar_noauto') === '1'; }, false); }
   function readSeen() { return safe(function () { return sessionStorage.getItem(AR) === '1'; }, false); }
   function armGesture() {
     if (armed) return; armed = true;
     var h = function (e) {
       ['pointerdown', 'keydown', 'touchend'].forEach(function (t) { document.removeEventListener(t, h, true); });
       if (e.target && e.target.closest && e.target.closest('#notice .nt-badge')) { readDone(); return; }
-      if (cfg.autoread && !readSeen()) { readDone(); speak(true); }
+      if (cfg.autoread && !noAuto() && !readSeen()) { readDone(); speak(true); }
     };
     ['pointerdown', 'keydown', 'touchend'].forEach(function (t) { document.addEventListener(t, h, true); });
   }
   function autoRead() {
-    if (tried || !cfg.autoread || !cfg.speak || !window.speechSynthesis || readSeen()) return;
+    if (tried || noAuto() || !cfg.autoread || !cfg.speak || !window.speechSynthesis || readSeen()) return;
     tried = true; readDone();
     speak(true);
     /* nếu chưa phát được thì bắt cú bấm đầu tiên */
