@@ -661,8 +661,13 @@ label.f{display:block;font-size:13px;font-weight:600;margin:14px 0 6px;color:var
 /* ảnh phong cảnh dưới dải thông báo */
 .scenic-box{margin-left:var(--side);padding-top:24px}
 .scenic{position:relative;margin:0;height:clamp(150px,17vw,280px);overflow:hidden;background:var(--son-d);border-radius:var(--r);box-shadow:var(--sh)}
-.scenic img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 52%}
+.scenic img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
 .scenic::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(180deg,rgba(0,0,0,0) 65%,rgba(10,27,49,.28) 100%)}
+.scenic-t{position:absolute;inset:0;z-index:1;display:grid;place-items:center;text-align:center;pointer-events:none;padding:0 12px}
+.scenic-t b{display:block;font:italic 800 clamp(24px,4.4vw,62px)/1.12 Georgia,'Times New Roman','Liberation Serif',serif;letter-spacing:.01em;color:#fff;text-shadow:0 2px 4px rgba(8,30,70,.75),0 0 26px rgba(8,30,70,.8)}
+.scenic-t b::after{content:'';display:block;width:clamp(60px,9vw,130px);height:3px;margin:10px auto 0;border-radius:2px;background:var(--vang-l);box-shadow:0 1px 3px rgba(8,30,70,.6)}
+.scenic::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 60% 90% at 50% 50%,rgba(16,58,117,.42),rgba(16,58,117,.12) 70%,rgba(16,58,117,.22))}
+@media(max-width:760px){.scenic-t b::after{margin-top:6px;height:2px}}
 .scenic figcaption{position:absolute;right:14px;bottom:10px;z-index:1;font:500 11px var(--sans);color:#fff;opacity:.9;text-shadow:0 1px 3px #000c}
 @media(max-width:760px){.scenic-box{padding-top:14px}.scenic{height:120px}.scenic img{object-position:50% 52%}.scenic figcaption{font-size:10px;right:10px;bottom:7px}}
 @media print{.scenic-box{display:none}}
@@ -838,7 +843,7 @@ go();document.addEventListener('DOMContentLoaded',go);
   <button class="nt-set admin-only" id="ntSet" type="button" title="Cài đặt thông báo" aria-label="Cài đặt thông báo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
 </section>
 
-<div class="scenic-box"><div class="wrap"><figure class="scenic"><img src="banner-si-ma-cai.jpg" alt="Đảng bộ xã Si Ma Cai" width="1920" height="420" decoding="async" fetchpriority="high"></figure></div></div>
+<div class="scenic-box"><div class="wrap"><figure class="scenic"><img src="banner-si-ma-cai.jpg" alt="Điểm hẹn Si Ma Cai — cánh đồng hoa tam giác mạch" width="1920" height="725" decoding="async" fetchpriority="high"><div class="scenic-t"><b>Điểm hẹn Si Ma Cai</b></div></figure></div></div>
 
 <main>
 <section class="page on" id="overview" aria-label="Tổng quan">
