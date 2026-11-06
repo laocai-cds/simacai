@@ -161,16 +161,25 @@
     if (!show) { if (el) el.hidden = true; return; }
     if (!el) {
       el = document.createElement('div'); el.id = 'xaPill'; el.setAttribute('role', 'status');
-      el.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99999;max-width:calc(100% - 24px);display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:10px 14px;border-radius:14px;background:#12335c;color:#fff;font:600 13.5px/1.35 system-ui,sans-serif;box-shadow:0 8px 24px -6px #0007';
-      document.body.appendChild(el);
+      el.style.cssText = 'width:calc(100% - 56px);max-width:calc(var(--wrap,1100px) - 56px);margin:6px auto 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:7px 12px;border-radius:10px;background:#12335c;color:#fff;font:600 13px/1.35 system-ui,sans-serif;box-shadow:0 2px 8px -4px #12335c88';
+      var n = document.getElementById('notice');
+      if (n && n.parentNode) n.parentNode.insertBefore(el, n.nextSibling); else document.body.appendChild(el);
     }
     var btn = 'border:0;border-radius:9px;padding:6px 12px;font:700 13px system-ui,sans-serif;cursor:pointer;';
-    el.innerHTML = '<span id="xaPillT"></span>' +
+    el.innerHTML = '<span id="xaPillT" style="flex:1;min-width:140px"></span>' +
       '<button type="button" id="xaStop" style="' + btn + 'background:#fff;color:#12335c">⏹ Tắt loa</button>' +
-      '';
+      '<button type="button" id="xaNever" style="' + btn + 'background:transparent;color:#fff;border:1px solid #ffffff88">Không tự đọc nữa</button>';
     el.querySelector('#xaPillT').textContent = msg;
     el.hidden = false;
     el.querySelector('#xaStop').onclick = function () { safe(function () { speechSynthesis.cancel(); }); speaking = false; paintSpk(); };
+    el.querySelector('#xaNever').onclick = function () {
+      safe(function () { localStorage.setItem('xa_bar_noauto', '1'); });
+      safe(function () { speechSynthesis.cancel(); }); speaking = false;
+      holdPill = true; paintSpk();
+      pill(true, 'Đã tắt tự đọc trên máy này. Bấm vào loa “Thông báo” khi muốn nghe.');
+      el.querySelectorAll('button').forEach(function (x) { x.remove(); });
+      setTimeout(function () { holdPill = false; pill(false); }, 4500);
+    };
   }
   function paintSpk() {
     var b = document.querySelector('#notice .nt-badge'); if (!b) return;
@@ -194,19 +203,19 @@
   /* ===== Tự động đọc khi mở trang ===== */
   var AR = 'xa_bar_read', armed = false, tried = false;
   function readDone() { safe(function () { sessionStorage.setItem(AR, '1'); }); }
-  safe(function () { localStorage.removeItem('xa_bar_noauto'); });
+  function noAuto() { return safe(function () { return localStorage.getItem('xa_bar_noauto') === '1'; }, false); }
   function readSeen() { return safe(function () { return sessionStorage.getItem(AR) === '1'; }, false); }
   function armGesture() {
     if (armed) return; armed = true;
     var h = function (e) {
       ['pointerdown', 'keydown', 'touchend'].forEach(function (t) { document.removeEventListener(t, h, true); });
       if (e.target && e.target.closest && e.target.closest('#notice .nt-badge')) { readDone(); return; }
-      if (cfg.autoread && !readSeen()) { readDone(); speak(true); }
+      if (cfg.autoread && !noAuto() && !readSeen()) { readDone(); speak(true); }
     };
     ['pointerdown', 'keydown', 'touchend'].forEach(function (t) { document.addEventListener(t, h, true); });
   }
   function autoRead() {
-    if (tried || !cfg.autoread || !cfg.speak || !window.speechSynthesis || readSeen()) return;
+    if (tried || noAuto() || !cfg.autoread || !cfg.speak || !window.speechSynthesis || readSeen()) return;
     tried = true; readDone();
     speak(true);
     /* nếu chưa phát được thì bắt cú bấm đầu tiên */
