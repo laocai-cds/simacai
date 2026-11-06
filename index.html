@@ -2243,7 +2243,7 @@ function fcForecast(ym,key,t,D,pt){
   return{f:f(add),lo:f(lo),hi:f(hi),mode,n:gr.length,prev:cmp.length?cmp[0]:null,cur}}
 const fcP=x=>Math.round(x*100)+'%';
 function fcRender(){const P=$('#fcPanel');if(!P)return;
-  const late=units.filter(r=>v(r,'due')>0);if(!late.length||viewingPast()){P.hidden=true;return}
+  if(viewingPast()){P.hidden=true;return}
   const now=new Date(),ym=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'),t=now.getDate(),dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),D=Math.min(fcDl,dim);
   const T=totals(),pt=T.due?T.paidCount/T.due:0;
   if(!fcHist)fcHist={};
