@@ -145,16 +145,16 @@
     };
     speaking = true; paintSpk(); ss.cancel(); ss.speak(u);
   }
-  var SVG_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h3l6 4V6L7 10H4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>';
-  var SVG_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h3l6 4V6L7 10H4z"/><path d="M3 3l18 18" stroke="#b0222b" stroke-width="2.4"/></svg>';
+  var IN_ON = '<path d="M4 10v4h3l6 4V6L7 10H4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/>';
+  var IN_OFF = '<path d="M4 10v4h3l6 4V6L7 10H4z"/><path d="M3 3l18 18" stroke="#fff" stroke-width="2.6"/>';
   function injectCss() {
     if (document.getElementById('xaCss')) return;
     var st = document.createElement('style'); st.id = 'xaCss';
     st.textContent =
       '@keyframes xaShake{0%,100%{transform:rotate(0) scale(1)}15%{transform:rotate(-14deg) scale(1.18)}30%{transform:rotate(12deg) scale(1.22)}45%{transform:rotate(-10deg) scale(1.18)}60%{transform:rotate(8deg) scale(1.2)}75%{transform:rotate(-5deg) scale(1.12)}}' +
-      '#xaMute[hidden]{display:none}#xaMute{width:44px;display:grid;place-items:center;border:0;border-left:1px solid #e6edf7;background:#f6f9fd;color:#12335c;cursor:pointer;padding:0}#xaMute:hover{background:#eaf1fb}#xaMute:focus-visible{outline:2px solid #1f5fae;outline-offset:-2px}#xaMute svg{width:18px;height:18px;transition:transform .25s ease,color .2s}#xaMute.on svg{color:#b0222b}#xaMute.talk svg{transform:scale(1.55);animation:xaShake .7s ease-in-out infinite}#xaMute.off{color:#8a94a6}' +
+      '.nt-badge svg{width:24px!important;height:24px!important;flex:none}' +
       '@keyframes xaWave{0%,100%{opacity:.25}50%{opacity:1}}' +
-      '.nt-badge svg{transition:transform .25s ease}.nt-badge.xa-talk svg{transform:scale(1.5);animation:xaShake .7s ease-in-out infinite;transform-origin:50% 50%}' +
+      '.nt-badge svg{transition:transform .25s ease}.nt-badge.xa-talk svg{transform:scale(1.25);animation:xaShake .7s ease-in-out infinite;transform-origin:50% 50%}' +
       '.nt-badge.xa-talk svg path:nth-of-type(2){animation:xaWave .7s ease-in-out infinite}' +
       '@media (prefers-reduced-motion:reduce){.nt-badge.xa-talk svg,.nt-badge.xa-talk svg path{animation:none}}';
     document.head.appendChild(st);
@@ -164,28 +164,21 @@
     var b = document.querySelector('#notice .nt-badge'); if (!b) return;
     injectCss();
     b.classList.toggle('xa-talk', !!speaking);
-    var m = document.getElementById('xaMute');
-    if (m) {
-      var muted = noAuto();
-      m.className = (muted ? 'off' : 'on') + (speaking ? ' talk' : '');
-      m.innerHTML = muted ? SVG_OFF : SVG_ON;
-      m.title = muted ? 'Đang tắt tự đọc. Bấm để bật và nghe đọc' : (speaking ? 'Đang đọc. Bấm để tắt loa' : 'Tự đọc đang bật. Bấm để tắt loa');
-      m.setAttribute('aria-label', m.title); m.setAttribute('aria-pressed', muted ? 'false' : 'true');
-      m.hidden = !cfg.speak || !window.speechSynthesis;
-    }
-    var on = cfg.speak && !!window.speechSynthesis;
+    var on = cfg.speak && !!window.speechSynthesis, muted = noAuto();
     b.style.cursor = on ? 'pointer' : '';
-    b.style.opacity = speaking ? '.85' : '';
+    var svg = b.querySelector('svg');
+    if (svg) { svg.innerHTML = muted ? IN_OFF : IN_ON; svg.setAttribute('viewBox', '0 0 24 24'); }
     if (on) {
-      b.setAttribute('role', 'button'); b.setAttribute('tabindex', '0');
-      b.title = speaking ? 'Bấm để dừng đọc' : 'Bấm để nghe đọc thông báo';
+      b.setAttribute('role', 'button'); b.setAttribute('tabindex', '0'); b.setAttribute('aria-pressed', muted ? 'false' : 'true');
+      b.title = muted ? 'Đang tắt tự đọc. Bấm để bật và nghe đọc'
+        : (speaking ? 'Đang đọc. Bấm để tắt loa' : 'Tự đọc đang bật. Bấm để tắt loa');
       b.setAttribute('aria-label', b.title);
     } else {
-      ['role', 'tabindex', 'title', 'aria-label'].forEach(function (k) { b.removeAttribute(k); });
+      ['role', 'tabindex', 'title', 'aria-label', 'aria-pressed'].forEach(function (k) { b.removeAttribute(k); });
     }
     var sp = b.querySelector('span');
     if (sp) { if (!sp.dataset.o) sp.dataset.o = sp.textContent; sp.textContent = speaking ? 'Đang đọc…' : sp.dataset.o; }
-    var old = document.getElementById('xaSpk'); if (old) old.remove();
+    ['xaSpk', 'xaMute', 'xaPill'].forEach(function (id) { var o = document.getElementById(id); if (o) o.remove(); });
   }
   /* ===== Tự động đọc khi mở trang ===== */
   var AR = 'xa_bar_read', armed = false, tried = false;
@@ -220,22 +213,17 @@
     var b = document.querySelector('#notice .nt-badge');
     if (!b || b.dataset.xa) return;
     b.dataset.xa = '1';
-    var go = function () { if (cfg.speak && window.speechSynthesis) speak(); };
+    var go = function () {
+      if (!cfg.speak || !window.speechSynthesis) return;
+      if (noAuto()) {
+        safe(function () { localStorage.removeItem('xa_bar_noauto'); });
+        paintSpk(); speak();
+      } else {
+        safe(function () { localStorage.setItem('xa_bar_noauto', '1'); });
+        safe(function () { speechSynthesis.cancel(); }); speaking = false; paintSpk();
+      }
+    };
     b.addEventListener('click', go);
-    var n = document.getElementById('notice');
-    if (n && !document.getElementById('xaMute')) {
-      var m = document.createElement('button'); m.id = 'xaMute'; m.type = 'button';
-      m.onclick = function () {
-        if (noAuto()) {
-          safe(function () { localStorage.removeItem('xa_bar_noauto'); });
-          paintSpk(); speak();
-        } else {
-          safe(function () { localStorage.setItem('xa_bar_noauto', '1'); });
-          safe(function () { speechSynthesis.cancel(); }); speaking = false; paintSpk();
-        }
-      };
-      n.insertBefore(m, document.getElementById('ntSet') || null);
-    }
     b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
     paintSpk();
   }
@@ -251,7 +239,7 @@
       '<label style="display:flex;gap:8px;align-items:center;margin:4px 0"><input type="checkbox" id="xaAuto"> Bật nội dung tự động (chạy sau thông báo riêng ở trên)</label>' +
       '<div id="xaSegs" style="margin:6px 0 6px 22px;display:grid;gap:3px">' +
       SEGS.map(function (g) { return '<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-seg="' + g[0] + '"> ' + g[1] + '</label>'; }).join('') + '</div>' +
-      '<label style="display:flex;gap:8px;align-items:center;margin:8px 0 4px"><input type="checkbox" id="xaSpeak"> Bấm vào biểu tượng loa “Thông báo” để nghe đọc to</label>' +
+      '<label style="display:flex;gap:8px;align-items:center;margin:8px 0 4px"><input type="checkbox" id="xaSpeak"> Bấm vào biểu tượng loa ở nhãn “Thông báo” để bật/tắt tự đọc</label>' +
       '<label style="display:flex;gap:8px;align-items:center;margin:4px 0 4px 22px"><input type="checkbox" id="xaAr"> Tự động đọc khi mở trang (mỗi lần mở một lượt; nếu trình duyệt chặn thì đọc sau cú bấm đầu tiên)</label>' +
       '<div style="font-size:12px;color:#556;margin:4px 0 8px">Hạn nộp lấy từ cài đặt “Nhắc việc” (mặc định ngày 25).</div>' +
       '<button class="btn" id="xaTry" type="button">🔊 Nghe thử</button> ' +
