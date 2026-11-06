@@ -2064,7 +2064,7 @@ function apiBookmarklet(C){
         if(!found)throw new Error('Không lấy được danh sách con của '+C.name+'. donVi='+JSON.stringify(me.donVi)+'; đã thử: '+cand.join(', '));
         R=found;
       }
-      const raw=R.raw,tC=performance.now(),j=null,list=C.max?R.list.slice(0,C.max):R.list;/* C.max=0: lấy hết */
+      const raw=R.raw,tC=performance.now(),j=null,list=(C.max?R.list.slice(0,C.max):R.list).filter(x=>!C.skip0||Number(x.tongSoLuongDangVien)||Number(x.tongSoHoSoDaDuyetDaNop)||Number(x.tongSoTienDaNop)||Number(x.tongSoTienDaKhaiBao));/* bỏ đơn vị 0/0 *//* C.max=0: lấy hết */
       if(!list.length)throw new Error('API không trả đơn vị nào.');
       if(list.some(x=>/tỉnh Lào Cai/i.test(String(x.tenDonVi||''))||String(x.tenDonVi||'').trim()===C.name))throw new Error('Dữ liệu KHÔNG phải của các chi bộ/đảng bộ trực thuộc '+C.name+' (nhận '+list.length+' đơn vị, đầu tiên: '+(list[0]&&list[0].tenDonVi)+'). Đã dừng, chưa ghi vào Google Sheet.');
       const n=x=>Number(x)||0;
@@ -2096,7 +2096,7 @@ function apiBookmarklet(C){
     }catch(e){say('✕ '+(e&&e.name==='AbortError'?'API phản hồi quá chậm (đã thử 3 lần, mỗi lần 60 giây). Tải lại trang gqtthc, đăng nhập lại rồi bấm lại.':e.message)+'   (sau '+f1(performance.now()-T0)+')',true);setTimeout(()=>box.remove(),20000)}
   })();
 }
-function apiBmSrc(){return '('+apiBookmarklet.toString()+')('+JSON.stringify({pid:2122408,name:'Đảng bộ xã Si Ma Cai',max:0,k:'sm_apipw',src:'website-si-ma-cai-api',m:true,ep:(sheetEndpoint())||''})+');void 0'}
+function apiBmSrc(){return '('+apiBookmarklet.toString()+')('+JSON.stringify({pid:2122408,name:'Đảng bộ xã Si Ma Cai',max:0,skip0:true,k:'sm_apipw',src:'website-si-ma-cai-api',m:true,ep:(sheetEndpoint())||''})+');void 0'}
 (function(){
   const a=document.getElementById('apiBm'),c=document.getElementById('apiCopy'),cj=document.getElementById('apiCopyJs'),m=document.getElementById('apiMsg');if(!a)return;
   const say=t=>{m.hidden=false;m.textContent=t};
