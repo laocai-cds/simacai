@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#305d93">
+<meta name="theme-color" content="#254770">
 <title>Bảng tỷ giá USD & giá vàng trong nước</title>
 <style>
 :root{
-  --navy:#305d93;--navy-2:#37649a;--ink:#1b2a3d;--muted:#64748b;--line:#e2e8f0;--bg:#f3f5f9;--card:#fff;
-  --blue:#4669ce;--gold:#a16207;--gold-bg:#fef9e7;--up:#047857;--up-bg:#e7f7f0;--down:#b91c1c;--down-bg:#fdecec;
-  --radius:12px;--shadow:0 1px 2px rgba(48,93,147,.06),0 4px 14px rgba(48,93,147,.05)
+  --navy:#254770;--navy-2:#2b4e78;--ink:#1b2a3d;--muted:#64748b;--line:#e2e8f0;--bg:#f3f5f9;--card:#fff;
+  --blue:#3153b8;--gold:#a16207;--gold-bg:#fef9e7;--up:#047857;--up-bg:#e7f7f0;--down:#b91c1c;--down-bg:#fdecec;
+  --radius:12px;--shadow:0 1px 2px rgba(37,71,112,.06),0 4px 14px rgba(37,71,112,.05)
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -23,8 +23,8 @@ a{color:var(--blue)}
 .brand{display:flex;align-items:center;gap:12px}
 .logo{width:40px;height:40px;border-radius:10px;background:#d4a437;color:#3b2a05;display:grid;place-items:center;font-weight:800;font-size:20px}
 .brand b{display:block;font-size:15px;letter-spacing:.03em}
-.brand small{display:block;color:#a9bdd6;font-size:12px}
-.back{color:#d5e2f3;text-decoration:none;font-size:13px;font-weight:600;padding:8px 12px;border:1px solid #4e6f9b;border-radius:8px}
+.brand small{display:block;color:#9cb3d0;font-size:12px}
+.back{color:#d3e0f2;text-decoration:none;font-size:13px;font-weight:600;padding:8px 12px;border:1px solid #3f597c;border-radius:8px}
 .back:hover{background:var(--navy-2);color:#fff}
 
 .wrap{max-width:1200px;margin:auto;padding:24px 24px 48px}
@@ -33,18 +33,18 @@ h1{margin:0;font-size:26px;line-height:1.25;letter-spacing:-.01em}
 .title-row p{margin:4px 0 0;color:var(--muted);font-size:14px}
 .actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
-.dot{width:9px;height:9px;border-radius:50%;background:#94a3b8;flex:none}
+.dot{width:9px;height:9px;border-radius:50%;background:#8193ac;flex:none}
 .dot.ok{background:#10b981}.dot.warn{background:#f59e0b}
 .btn{font:600 13px inherit;font-family:inherit;color:#fff;background:var(--navy);border:0;border-radius:8px;padding:10px 16px;cursor:pointer}
 .btn:hover{background:var(--navy-2)}
 .btn:disabled{opacity:.6;cursor:wait}
-.btn.ghost{background:#fff;color:var(--navy);border:1px solid #cbd5e1}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid #c5d0de}
 .btn.ghost:hover{background:#f1f5f9}
 
 /* KPI */
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;border-top:4px solid var(--c,#64748b)}
-.kpi.usd{--c:#4669ce}.kpi.gold{--c:#d4a437}.kpi.world{--c:#0f766e}
+.kpi.usd{--c:#3153b8}.kpi.gold{--c:#d4a437}.kpi.world{--c:#0f766e}
 .kpi h2{margin:0;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .kpi .val{margin:10px 0 2px;font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1;color:var(--navy)}
 .kpi .unit{font-size:12.5px;color:var(--muted)}
@@ -86,16 +86,16 @@ tbody tr:last-child td{border-bottom:0}
 .sep{height:1px;background:var(--line);margin:20px 0}
 label{display:block;font-size:13px;font-weight:700;margin-bottom:8px}
 .row{display:flex;gap:8px}
-input[type=number]{flex:1;min-width:0;font:inherit;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;color:var(--ink);background:#fff}
-input[type=number]:focus{outline:2px solid #93b4f5;border-color:#4669ce}
-.result{margin-top:10px;padding:12px 14px;border-radius:10px;background:#eef4ff;color:#3c5aaf;font-weight:700;font-size:15px}
+input[type=number]{flex:1;min-width:0;font:inherit;padding:10px 12px;border:1px solid #c5d0de;border-radius:8px;color:var(--ink);background:#fff}
+input[type=number]:focus{outline:2px solid #83a9f4;border-color:#3153b8}
+.result{margin-top:10px;padding:12px 14px;border-radius:10px;background:#eef4ff;color:#30488d;font-weight:700;font-size:15px}
 .chart-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .chart-h h3{margin:0;font-size:14px}
 .legend{display:flex;gap:12px;font-size:12px;color:var(--muted)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 .chart{height:150px}
 .chart svg{width:100%;height:100%;display:block}
-.chart-empty{height:100%;display:grid;place-items:center;text-align:center;padding:14px;border:1px dashed #cbd5e1;border-radius:10px;color:var(--muted);font-size:13px}
+.chart-empty{height:100%;display:grid;place-items:center;text-align:center;padding:14px;border:1px dashed #c5d0de;border-radius:10px;color:var(--muted);font-size:13px}
 
 .notice{display:none;margin-top:16px;padding:12px 16px;border-radius:10px;background:#fffbeb;border:1px solid #f5dd9b;color:#78510a;font-size:13.5px}
 .notice.show{display:block}
@@ -112,21 +112,21 @@ input[type=number]:focus{outline:2px solid #93b4f5;border-color:#4669ce}
 /* ===== Thu gọn vừa khung hình + màu sắc sinh động ===== */
 html,body{height:100%}
 body{display:flex;flex-direction:column;height:100vh;overflow:hidden;background:linear-gradient(135deg,#eef2ff 0,#fdf2f8 45%,#ecfeff 100%)}
-.header{background:linear-gradient(90deg,#305d93,#3c5aaf 55%,#6d28d9)}
+.header{background:linear-gradient(90deg,#254770,#30488d 55%,#6d28d9)}
 .header-in{padding:8px 20px}
 .logo{width:32px;height:32px;font-size:16px;border-radius:9px;background:linear-gradient(135deg,#fbbf24,#f97316 55%,#ec4899);color:#fff}
 .brand b{font-size:13px}.brand small{font-size:11px}.back{padding:6px 10px;font-size:12px}
 .wrap{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;max-width:1280px;padding:12px 20px 10px}
 .title-row{margin-bottom:10px;gap:8px}
 h1{font-size:20px}.title-row p{font-size:12px;margin:0}
-.clock{font-size:12px;padding:3px 9px;background:linear-gradient(90deg,#e0e7ff,#fce7f3);border:0;color:#3730a3}
+.clock{font-size:12px;padding:3px 9px;background:linear-gradient(90deg,#e0e7ff,#fce7f3);border:0;color:#2b2680}
 .status{font-size:12px}
-.btn{padding:7px 12px;font-size:12px;background:linear-gradient(90deg,#4b76d7,#7c3aed)}
-.btn:hover{filter:brightness(1.1);background:linear-gradient(90deg,#4b76d7,#7c3aed)}
-.btn.ghost{background:#fff;color:#4338ca;border:1px solid #c7d2fe}
+.btn{padding:7px 12px;font-size:12px;background:linear-gradient(90deg,#2d5ecc,#7c3aed)}
+.btn:hover{filter:brightness(1.1);background:linear-gradient(90deg,#2d5ecc,#7c3aed)}
+.btn.ghost{background:#fff;color:#362da7;border:1px solid #c3cffe}
 .kpis{gap:10px}
-.kpi{padding:10px 14px;border:0;color:#fff;box-shadow:0 6px 16px rgba(73,91,122,.18)}
-.kpi:nth-child(1){background:linear-gradient(135deg,#4e87e3,#3b5bc4)}
+.kpi{padding:10px 14px;border:0;color:#fff;box-shadow:0 6px 16px rgba(56,70,93,.18)}
+.kpi:nth-child(1){background:linear-gradient(135deg,#2e71de,#304ba1)}
 .kpi:nth-child(2){background:linear-gradient(135deg,#f59e0b,#b45309)}
 .kpi:nth-child(3){background:linear-gradient(135deg,#fb7185,#be123c)}
 .kpi:nth-child(4){background:linear-gradient(135deg,#2dd4bf,#0f766e)}
@@ -140,24 +140,24 @@ h1{font-size:20px}.title-row p{font-size:12px;margin:0}
 @keyframes kfd{0%,35%{background:rgba(0,0,0,.3);box-shadow:0 0 0 2px #f87171}100%{background:transparent;box-shadow:0 0 0 2px transparent}}
 .layout{flex:1;min-height:0;margin-top:10px;gap:10px;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr)}
 .panel{display:flex;flex-direction:column;min-height:0;border-top:3px solid #f59e0b}
-.panel.side{border-top-color:#6366f1}
+.panel.side{border-top-color:#484cef}
 .panel-h{padding:8px 14px}.panel-h h2{font-size:14px}.panel-h p{font-size:11.5px;margin:0}
 .tw{flex:1;min-height:0;overflow:auto}
 thead th{padding:6px 12px;font-size:11px}
 tbody td{padding:5px 12px;font-size:13px}
 tbody tr.grp td{padding:3px 12px;font-size:11.5px;color:#fff;letter-spacing:.08em}
 tr.grp[data-b="SJC"] td{background:linear-gradient(90deg,#dc2626,#f87171)}
-tr.grp[data-b="DOJI"] td{background:linear-gradient(90deg,#4b76d7,#60a5fa)}
+tr.grp[data-b="DOJI"] td{background:linear-gradient(90deg,#2d5ecc,#4596f9)}
 tr.grp[data-b="Bảo Tín"] td{background:linear-gradient(90deg,#059669,#34d399)}
-tr.grp[data-b="PNJ"] td{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+tr.grp[data-b="PNJ"] td{background:linear-gradient(90deg,#7c3aed,#9a7af9)}
 .chg{min-width:68px;padding:2px 8px;font-size:12px}
 .panel-b{padding:10px 14px;flex:1;min-height:0;overflow:auto}
-.fx{gap:8px}.fx div{padding:7px 10px}.fx div:first-child{background:#eff6ff;border-color:#bfdbfe}.fx div:last-child{background:#fdf4ff;border-color:#f5d0fe}
+.fx{gap:8px}.fx div{padding:7px 10px}.fx div:first-child{background:#eff6ff;border-color:#bad8fe}.fx div:last-child{background:#fdf4ff;border-color:#f5d0fe}
 .fx b{font-size:15px}
 .sep{margin:10px 0}
 label{margin-bottom:5px;font-size:12px}
 input[type=number]{padding:7px 10px;font-size:13px}
-.result{margin-top:7px;padding:8px 10px;font-size:14px;background:linear-gradient(90deg,#dbeafe,#ede9fe);color:#3730a3}
+.result{margin-top:7px;padding:8px 10px;font-size:14px;background:linear-gradient(90deg,#dbeafe,#ede9fe);color:#2b2680}
 .chart-h{margin-bottom:4px}.chart-h h3{font-size:13px}
 .chart{height:100px}
 .notice{margin-top:8px;padding:6px 12px;font-size:12px}
@@ -191,7 +191,7 @@ tr.grp[data-b="LC"] td{background:linear-gradient(90deg,#db2777,#f472b6)}
 .lcform{padding:10px 14px;border-top:1px solid var(--line);background:#fffbeb}
 .lcform b{font-size:12.5px;color:#92400e}
 .lcrow{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
-.lcrow input{flex:1;min-width:110px;font:inherit;font-size:13px;padding:7px 10px;border:1px solid #cbd5e1;border-radius:8px}
+.lcrow input{flex:1;min-width:110px;font:inherit;font-size:13px;padding:7px 10px;border:1px solid #c5d0de;border-radius:8px}
 .lcrow input:focus{outline:2px solid #fbbf24;border-color:#f59e0b}
 .lcnote{margin:8px 0 0;font-size:11px;line-height:1.45;color:#78510a}
 @media(max-width:900px),(max-height:600px){
