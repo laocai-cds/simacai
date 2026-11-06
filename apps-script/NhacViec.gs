@@ -1,5 +1,5 @@
 /**
- * NHẮC VIỆC TỰ ĐỘNG – Đảng bộ xã Nghĩa Đô
+ * NHẮC VIỆC TỰ ĐỘNG – Đảng bộ xã Si Ma Cai
  * Dán file này vào dự án Apps Script của xã (thêm file mới, ví dụ NhacViec.gs), rồi:
  *   1) Chạy hàm nvSetup() một lần (cấp quyền gửi mail) -> tạo bộ hẹn giờ chạy mỗi ngày.
  *   2) Chạy thử nvTest() để gửi 1 thư thử về chính tài khoản Google đang chạy.
@@ -9,7 +9,7 @@
  */
 const NV = {
   setTab: 'Nhắc việc', ctTab: 'Liên hệ nhắc việc', logTab: 'Nhật ký nhắc việc',
-  org: 'Đảng ủy xã Nghĩa Đô', site: 'https://laocai-cds.github.io/nghiado/',
+  org: 'Đảng ủy xã Si Ma Cai', site: 'https://laocai-cds.github.io/simacai/',
   tz: 'Asia/Ho_Chi_Minh', y0: 2026
 };
 const NV_COLS = { name: 'Tên đơn vị', members: 'Tổng sl đảng viên (1)', pending: 'Chưa duyệt (6)', paidCount: 'Đã duyệt, đã nộp (8)',

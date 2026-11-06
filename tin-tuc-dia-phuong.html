@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#4f7717">
-<title>Tin tức địa phương - Đảng bộ xã Nghĩa Đô</title>
+<title>Tin tức địa phương - Đảng bộ xã Si Ma Cai</title>
 <style>
 :root{--son:#59891a;--son-d:#3d5d11;--vang:#e8c86a;--ink:#202936;--muted:#667085;--line:#e6e8ec;--giay:#fdf8ec}
 *{box-sizing:border-box}
@@ -39,14 +39,14 @@ main{flex:1;min-height:0;overflow:auto;padding:12px 16px 8px}
 </style>
 </head>
 <body>
-<header><small>Đảng bộ xã Nghĩa Đô</small><h1>Tin tức địa phương</h1><p>Tin tích cực về xã Nghĩa Đô từ báo chính thống · tự cập nhật mỗi 15 phút</p></header>
+<header><small>Đảng bộ xã Si Ma Cai</small><h1>Tin tức địa phương</h1><p>Tin tích cực về xã Si Ma Cai từ báo chính thống · tự cập nhật mỗi 15 phút</p></header>
 <main><ul class="nw-list" id="newsList"></ul></main>
 <p class="nw-foot" id="newsFoot"></p>
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
 /* ===== Tin tức địa phương: dùng chung nguồn và bộ lọc với khối tin ở trang Tổng quan ===== */
-const NEWS_UNIT='xã Nghĩa Đô',NEWS_POOL='https://laocai-cds.github.io/tthc/news/pool.json';
+const NEWS_UNIT='xã Si Ma Cai',NEWS_POOL='https://laocai-cds.github.io/tthc/news/pool.json';
 const VN7=7*36e5,vnDay=ms=>Math.floor((ms+VN7)/864e5);
 const nkeep=t=>' '+String(t||'').normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()+' ';
 const nplain=t=>nkeep(String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[đĐ]/g,'d'));
@@ -109,7 +109,7 @@ async function loadNews(force){
   if(!force&&newsState==='ok'&&Date.now()-newsAt<10*60*1000)return;
   newsState='loading';ul.replaceChildren(newsEl('li','nw-empty','Đang tải tin tức…'));foot.textContent='';
   try{
-    let r=await fetch(NEWS_POOL.replace(/pool\.json$/,'units/xa-nghia-do.json'),{cache:'no-cache'}).catch(()=>null);
+    let r=await fetch(NEWS_POOL.replace(/pool\.json$/,'units/xa-si-ma-cai.json'),{cache:'no-cache'}).catch(()=>null);
     if(!r||!r.ok)r=await fetch(NEWS_POOL,{cache:'no-cache'}); /* file riêng của xã nhỏ, tải nhanh; thiếu thì dùng file chung */
     if(!r.ok)throw Error('HTTP '+r.status);
     const d=await r.json();if(!Array.isArray(d.items))throw Error('bad');
@@ -118,7 +118,7 @@ async function loadNews(force){
     const items=ok.filter(i=>!i.bad&&/^https?:\/\//i.test(i.url||'')&&((i.us||[]).includes(NEWS_UNIT)||mentions(firstSent(i),NEWS_UNIT)||headMention(i.title||'',bare)))
       .sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0)).slice(0,30);
     ul.replaceChildren();
-    if(!items.length){ul.append(newsEl('li','nw-empty','Chưa có tin nào nhắc tới xã Nghĩa Đô. Dữ liệu tự cập nhật mỗi 15 phút.'))}
+    if(!items.length){ul.append(newsEl('li','nw-empty','Chưa có tin nào nhắc tới xã Si Ma Cai. Dữ liệu tự cập nhật mỗi 15 phút.'))}
     else{
       const SHOW=8;
       items.forEach((it,i)=>{const c=newsCard(it,i===0);if(i>=SHOW){c.hidden=true;c.classList.add('nw-x')}ul.append(c)});
@@ -129,7 +129,7 @@ async function loadNews(force){
       }
     }
     const t=d.updatedAt?new Date(d.updatedAt).toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',timeZone:'Asia/Ho_Chi_Minh'}):'';
-    foot.textContent='Tin tổng hợp từ báo chính thống có RSS, chỉ gồm bài nhắc tới xã Nghĩa Đô; bấm vào để đọc bài gốc.'+(t?' Dữ liệu cập nhật '+t+'.':'');
+    foot.textContent='Tin tổng hợp từ báo chính thống có RSS, chỉ gồm bài nhắc tới xã Si Ma Cai; bấm vào để đọc bài gốc.'+(t?' Dữ liệu cập nhật '+t+'.':'');
     newsState='ok';newsAt=Date.now();
   }catch(e){
     newsState='idle';ul.replaceChildren();

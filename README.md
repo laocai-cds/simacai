@@ -1,5 +1,5 @@
-# nghiado
+# simacai
 
-Hệ thống theo dõi thu nộp đảng phí · Đảng bộ xã Nghĩa Đô
+Hệ thống theo dõi thu nộp đảng phí · Đảng bộ xã Si Ma Cai
 
-Trang: https://laocai-cds.github.io/nghiado/
+Trang: https://laocai-cds.github.io/simacai/
