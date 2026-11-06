@@ -145,47 +145,34 @@
     };
     speaking = true; paintSpk(); ss.cancel(); ss.speak(u);
   }
+  var SVG_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h3l6 4V6L7 10H4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>';
+  var SVG_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h3l6 4V6L7 10H4z"/><path d="M3 3l18 18" stroke="#b0222b" stroke-width="2.4"/></svg>';
   function injectCss() {
     if (document.getElementById('xaCss')) return;
     var st = document.createElement('style'); st.id = 'xaCss';
     st.textContent =
       '@keyframes xaShake{0%,100%{transform:rotate(0) scale(1)}15%{transform:rotate(-14deg) scale(1.18)}30%{transform:rotate(12deg) scale(1.22)}45%{transform:rotate(-10deg) scale(1.18)}60%{transform:rotate(8deg) scale(1.2)}75%{transform:rotate(-5deg) scale(1.12)}}' +
+      '#xaMute[hidden]{display:none}#xaMute{width:44px;display:grid;place-items:center;border:0;border-left:1px solid #e6edf7;background:#f6f9fd;color:#12335c;cursor:pointer;padding:0}#xaMute:hover{background:#eaf1fb}#xaMute:focus-visible{outline:2px solid #1f5fae;outline-offset:-2px}#xaMute svg{width:18px;height:18px;transition:transform .25s ease,color .2s}#xaMute.on svg{color:#b0222b}#xaMute.talk svg{transform:scale(1.55);animation:xaShake .7s ease-in-out infinite}#xaMute.off{color:#8a94a6}' +
       '@keyframes xaWave{0%,100%{opacity:.25}50%{opacity:1}}' +
-      '.nt-badge.xa-talk svg{animation:xaShake .7s ease-in-out infinite;transform-origin:50% 50%}' +
+      '.nt-badge svg{transition:transform .25s ease}.nt-badge.xa-talk svg{transform:scale(1.5);animation:xaShake .7s ease-in-out infinite;transform-origin:50% 50%}' +
       '.nt-badge.xa-talk svg path:nth-of-type(2){animation:xaWave .7s ease-in-out infinite}' +
       '@media (prefers-reduced-motion:reduce){.nt-badge.xa-talk svg,.nt-badge.xa-talk svg path{animation:none}}';
     document.head.appendChild(st);
   }
-  function pill(show, msg) {
-    var el = document.getElementById('xaPill');
-    if (!show) { if (el) el.hidden = true; return; }
-    if (!el) {
-      el = document.createElement('div'); el.id = 'xaPill'; el.setAttribute('role', 'status');
-      el.style.cssText = 'width:calc(100% - 56px);max-width:calc(var(--wrap,1100px) - 56px);margin:6px auto 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:7px 12px;border-radius:10px;background:#12335c;color:#fff;font:600 13px/1.35 system-ui,sans-serif;box-shadow:0 2px 8px -4px #12335c88';
-      var n = document.getElementById('notice');
-      if (n && n.parentNode) n.parentNode.insertBefore(el, n.nextSibling); else document.body.appendChild(el);
-    }
-    var btn = 'border:0;border-radius:9px;padding:6px 12px;font:700 13px system-ui,sans-serif;cursor:pointer;';
-    el.innerHTML = '<span id="xaPillT" style="flex:1;min-width:140px"></span>' +
-      '<button type="button" id="xaStop" style="' + btn + 'background:#fff;color:#12335c">⏹ Tắt loa</button>' +
-      '<button type="button" id="xaNever" style="' + btn + 'background:transparent;color:#fff;border:1px solid #ffffff88">Không tự đọc nữa</button>';
-    el.querySelector('#xaPillT').textContent = msg;
-    el.hidden = false;
-    el.querySelector('#xaStop').onclick = function () { safe(function () { speechSynthesis.cancel(); }); speaking = false; paintSpk(); };
-    el.querySelector('#xaNever').onclick = function () {
-      safe(function () { localStorage.setItem('xa_bar_noauto', '1'); });
-      safe(function () { speechSynthesis.cancel(); }); speaking = false;
-      holdPill = true; paintSpk();
-      pill(true, 'Đã tắt tự đọc trên máy này. Bấm vào loa “Thông báo” khi muốn nghe.');
-      el.querySelectorAll('button').forEach(function (x) { x.remove(); });
-      setTimeout(function () { holdPill = false; pill(false); }, 4500);
-    };
-  }
+  function pill() { /* đã thay bằng nút loa bật/tắt trên thanh */ }
   function paintSpk() {
     var b = document.querySelector('#notice .nt-badge'); if (!b) return;
     injectCss();
     b.classList.toggle('xa-talk', !!speaking);
-    if (speaking) pill(true, 'Đang đọc thông báo bằng loa.'); else if (!holdPill) pill(false);
+    var m = document.getElementById('xaMute');
+    if (m) {
+      var muted = noAuto();
+      m.className = (muted ? 'off' : 'on') + (speaking ? ' talk' : '');
+      m.innerHTML = muted ? SVG_OFF : SVG_ON;
+      m.title = muted ? 'Đang tắt tự đọc. Bấm để bật và nghe đọc' : (speaking ? 'Đang đọc. Bấm để tắt loa' : 'Tự đọc đang bật. Bấm để tắt loa');
+      m.setAttribute('aria-label', m.title); m.setAttribute('aria-pressed', muted ? 'false' : 'true');
+      m.hidden = !cfg.speak || !window.speechSynthesis;
+    }
     var on = cfg.speak && !!window.speechSynthesis;
     b.style.cursor = on ? 'pointer' : '';
     b.style.opacity = speaking ? '.85' : '';
@@ -235,6 +222,20 @@
     b.dataset.xa = '1';
     var go = function () { if (cfg.speak && window.speechSynthesis) speak(); };
     b.addEventListener('click', go);
+    var n = document.getElementById('notice');
+    if (n && !document.getElementById('xaMute')) {
+      var m = document.createElement('button'); m.id = 'xaMute'; m.type = 'button';
+      m.onclick = function () {
+        if (noAuto()) {
+          safe(function () { localStorage.removeItem('xa_bar_noauto'); });
+          paintSpk(); speak();
+        } else {
+          safe(function () { localStorage.setItem('xa_bar_noauto', '1'); });
+          safe(function () { speechSynthesis.cancel(); }); speaking = false; paintSpk();
+        }
+      };
+      n.insertBefore(m, document.getElementById('ntSet') || null);
+    }
     b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
     paintSpk();
   }
