@@ -1231,7 +1231,7 @@ let payments=[];try{payments=JSON.parse(localStorage.getItem('sm_payments')||'[]
 const state={filter:'all',sort:{k:'rank',dir:1},played:false};
 
 // ---- Đọc số liệu từ Google Sheet (Apps Script doGet?action=read) ----
-const SHEET_EP_DEFAULT='';// dán URL Web App /exec ở đây để mọi người mở trang đều đọc từ Google Sheet
+const SHEET_EP_DEFAULT='https://script.google.com/macros/s/AKfycbyb0fvQHdmdDwKMOnF4qM-K5CniGORlNzRKjKaxKe6Whc19PLj8myU3yQ7aiYXPYlcylQ/exec';// dán URL Web App /exec ở đây để mọi người mở trang đều đọc từ Google Sheet
 function sheetEndpoint(){let e='';try{e=localStorage.getItem('sm_endpoint')||''}catch(_){}const r=normEndpoint(SHEET_EP_DEFAULT||e);return r.url||null}
 function jsonp(url,ms){return new Promise((res,rej)=>{const cb='__bt_'+Date.now()+Math.random().toString(36).slice(2),sc=document.createElement('script');let ok=false;
   const fin=(e,v)=>{clearTimeout(tm);delete window[cb];sc.remove();e?rej(e):res(v)};const tm=setTimeout(()=>fin(new Error('timeout')),ms||12000);
