@@ -247,7 +247,8 @@
   /* ===== Tự động đọc khi mở trang ===== */
   var AR = 'xa_bar_read', armed = false, tried = false;
   function readDone() { safe(function () { sessionStorage.setItem(AR, '1'); }); }
-  function noAuto() { return safe(function () { return localStorage.getItem('xa_bar_noauto') === '1'; }, false); }
+  safe(function () { localStorage.removeItem('xa_bar_noauto'); }); /* xóa trạng thái tắt của bản cũ */
+  function noAuto() { return safe(function () { return localStorage.getItem('xa_bar_mute2') === '1'; }, false); }
   function readSeen() { return safe(function () { return sessionStorage.getItem(AR) === '1'; }, false); }
   function armGesture() {
     if (armed) return; armed = true;
@@ -276,10 +277,10 @@
     var go = function () {
       if (!cfg.speak) return;
       if (noAuto()) {
-        safe(function () { localStorage.removeItem('xa_bar_noauto'); });
+        safe(function () { localStorage.removeItem('xa_bar_mute2'); });
         paintSpk(); speak();
       } else {
-        safe(function () { localStorage.setItem('xa_bar_noauto', '1'); });
+        safe(function () { localStorage.setItem('xa_bar_mute2', '1'); });
         stop();
       }
     };
