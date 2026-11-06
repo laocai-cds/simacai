@@ -821,6 +821,7 @@ go();document.addEventListener('DOMContentLoaded',go);
       <button class="tab" id="newsBtn" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h13a1 1 0 0 1 1 1v12a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M18 9h2v9a2 2 0 0 1-2 2"/><path d="M8 9h6M8 13h6M8 16h4"/></svg><span>Tin tức địa phương</span></button>
       <button class="tab" id="mktBtn" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg><span>Bản tin thị trường</span></button>
       <button class="tab" id="lnkBtn" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg><span>Liên kết website</span></button>
+      <button class="tab" id="aiBtn" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4"/><circle cx="12" cy="3.5" r="1"/><circle cx="9" cy="13" r="1.2"/><circle cx="15" cy="13" r="1.2"/><path d="M9.5 16.5h5"/></svg><span>Trợ lý AI TTHC</span></button>
       <button class="tab admin-only" data-page="import"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.3-8 9-4.8-.7-8-4.5-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg><span>Quản trị</span></button>
     </nav>
     <div class="barright">
@@ -2973,5 +2974,32 @@ const hash=()=>{const h=location.hash;if(h==='#tien-trinh-ho-so'){S._go('b');S.s
 addEventListener('hashchange',hash);hash();
 const M=document.getElementById('tabMonth'),F=document.getElementById('fcPanel'),B=document.getElementById('tabFcBtn');
 if(M&&F&&B){const sync=()=>{B.hidden=F.hidden;if(F.hidden)M._go('a')};new MutationObserver(sync).observe(F,{attributes:true,attributeFilter:['hidden']});sync()}})()</script>
+<style id="aipCss">
+.aip-ov{position:fixed;inset:0;z-index:210;display:none;align-items:center;justify-content:center;background:#0b1220b8;backdrop-filter:blur(3px);padding:2.5vh 16px}
+.aip-ov.on{display:flex}
+.aip-box{position:relative;width:min(470px,100%);height:min(740px,95vh);background:#f7f8fb;border-radius:18px;box-shadow:0 30px 80px -20px #000a;overflow:hidden}
+.aip-box iframe{display:block;width:100%;height:100%;border:0;background:#f7f8fb}
+.aip-x{position:absolute;top:12px;right:56px;z-index:2;width:32px;height:32px;border-radius:9px;border:0;background:rgba(255,255,255,.18);color:#fff;font-size:16px;cursor:pointer}
+.aip-x:hover{background:rgba(255,255,255,.34)}
+.aip-load{position:absolute;inset:0;display:grid;place-items:center;color:#6b7a90;font:600 14px system-ui,sans-serif;pointer-events:none}
+@media(max-width:760px){.aip-ov{padding:0}.aip-box{width:100%;height:100%;border-radius:0}}
+@media print{.aip-ov{display:none!important}}
+</style>
+<div class="aip-ov" id="aipOv" role="dialog" aria-modal="true" aria-label="Trợ lý AI TTHC"><div class="aip-box"><button class="aip-x" id="aipX" type="button" aria-label="Đóng">✕</button><div class="aip-load" id="aipLoad">Đang mở Trợ lý AI…</div></div></div>
+<script>
+(function(){var URL_AI='https://laocai-cds.github.io/tthc/?ai=1&embed=1',made=false;
+function ov(){return document.getElementById('aipOv')}
+function openAi(){var o=ov();if(!o)return;
+ if(!made){made=true;var f=document.createElement('iframe');f.title='Trợ lý AI TTHC';f.setAttribute('allow','clipboard-write');f.onload=function(){var l=document.getElementById('aipLoad');if(l)l.style.display='none'};f.src=URL_AI;o.querySelector('.aip-box').appendChild(f)}
+ o.classList.add('on');document.body.style.overflow='hidden'}
+function closeAi(){var o=ov();if(o)o.classList.remove('on');document.body.style.overflow=''}
+window.openAi=openAi;window.closeAi=closeAi;
+document.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)return;
+ if(t.closest('#aiBtn')){e.preventDefault();e.stopPropagation();openAi();return}
+ var c=t.closest('a.lnk-card');if(c&&/tthc\/\?ai=1/.test(c.getAttribute('href')||'')){e.preventDefault();e.stopPropagation();if(window.closeLnk)window.closeLnk();openAi();return}
+ if(t.closest('#aipX')||t===ov())closeAi()},true);
+document.addEventListener('keydown',function(e){var o=ov();if(e.key==='Escape'&&o&&o.classList.contains('on'))closeAi()});
+})();
+</script>
 </body>
 </html>
