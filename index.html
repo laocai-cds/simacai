@@ -2022,16 +2022,35 @@ function apiBookmarklet(C){
       const tA=performance.now();
       const p2=n=>String(n).padStart(2,'0'),mm=p2(SM),yy=cy;
       const kS='01/'+mm+'/'+yy,kE=new Date(yy,SM,0).getDate()+'/'+mm+'/'+yy;
+      let HD={Authorization:'Bearer '+tk,'Content-Type':'application/json',Accept:'application/json'};
+      /* khi gateway trả 401: chờ người dùng bấm "Tìm kiếm" một lần trên trang, bắt đúng header mà chính trang gqtthc gửi rồi dùng lại */
+      const capHd=()=>new Promise(res=>{
+        const GW=/gateway-gqtthc\.dcs\.vn/,of=window.fetch,xo=XMLHttpRequest.prototype.open,xs=XMLHttpRequest.prototype.setRequestHeader;
+        let fin=false;const done=h=>{if(fin)return;fin=true;window.fetch=of;XMLHttpRequest.prototype.open=xo;XMLHttpRequest.prototype.setRequestHeader=xs;clearTimeout(to);res(h)};
+        const to=setTimeout(()=>done(null),90000);
+        const take=h=>{const o={};h.forEach((v,k)=>{o[k]=v});if(o.authorization||o.Authorization)done(o)};
+        window.fetch=function(u,o){try{if(GW.test(String(u&&u.url||u)))take(new Headers((o&&o.headers)||(u&&u.headers)||{}))}catch(e){}return of.apply(this,arguments)};
+        XMLHttpRequest.prototype.open=function(m,u){this.__gw=GW.test(String(u));this.__h=new Headers();return xo.apply(this,arguments)};
+        XMLHttpRequest.prototype.setRequestHeader=function(k,v){try{if(this.__gw){this.__h.set(k,v);if(/^authorization$/i.test(k))take(this.__h)}}catch(e){}return xs.apply(this,arguments)};
+      });
+      let capTried=false;
       const getL=async pid=>{
         let r;
         for(let a=1;a<=3;a++){
           const ac=new AbortController(),to=setTimeout(()=>ac.abort(),60000);
           try{
-            r=await fetch('https://gateway-gqtthc.dcs.vn/report/dashboard/danh-sach-theo-doi-dang-phi',{signal:ac.signal,method:'POST',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({kyNopStart:kS,kyNopEnd:kE,parentId:pid,hasChildren:true,page:1,size:1000})});
-            clearTimeout(to);break;
+            r=await fetch('https://gateway-gqtthc.dcs.vn/report/dashboard/danh-sach-theo-doi-dang-phi',{signal:ac.signal,method:'POST',headers:HD,body:JSON.stringify({kyNopStart:kS,kyNopEnd:kE,parentId:pid,hasChildren:true,page:1,size:1000})});
+            clearTimeout(to);
+            if(r.status===401&&!capTried){
+              capTried=true;
+              say('API từ chối mã đăng nhập (401).\nHãy bấm nút TÌM KIẾM trên trang gqtthc MỘT LẦN, nút sẽ tự lấy phiên đang dùng và chạy tiếp (chờ tối đa 90 giây).',false,true);
+              const h=await capHd();
+              if(h){HD=Object.assign({},h,{'content-type':'application/json'});say('Đã lấy phiên của trang, đang thử lại…',false,true);a--;continue}
+            }
+            break;
           }catch(e){clearTimeout(to);if(a===3)throw e;say('API chậm, đang thử lại lần '+(a+1)+'/3…',false,true)}
         }
-        if(!r.ok)throw new Error('API trả lỗi '+r.status+(r.status===401?' — hãy đăng nhập lại.':''));
+        if(!r.ok)throw new Error('API trả lỗi '+r.status+(r.status===401?' — hãy đăng xuất, đăng nhập lại gqtthc rồi bấm lại.':''));
         const raw=await r.text();return{raw,list:JSON.parse(raw).data||[]};
       };
       let R=await getL(C.pid);const tB=performance.now();
