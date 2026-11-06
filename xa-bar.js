@@ -13,11 +13,12 @@
   var CK = 'xa_bar_cfg', CTAB = 'Thông báo tự động';
   var SEGS = [['tq', '📊 Tổng quan tiến độ'], ['han', '⏰ Số ngày đến hạn'], ['chuc', '🎉 Chúc mừng chi bộ đạt 100%'],
               ['nhac', '🔔 Nhắc chi bộ còn thiếu'], ['chua', '📌 Chi bộ chưa có người nộp']];
-  var cfg = { auto: true, speak: true, seg: { tq: 1, han: 1, chuc: 1, nhac: 1, chua: 1 } };
+  var cfg = { auto: true, speak: true, autoread: true, seg: { tq: 1, han: 1, chuc: 1, nhac: 1, chua: 1 } };
   function mergeCfg(o) {
     if (!o || typeof o !== 'object') return;
     if ('auto' in o) cfg.auto = !!o.auto;
     if ('speak' in o) cfg.speak = !!o.speak;
+    if ('autoread' in o) cfg.autoread = !!o.autoread;
     if (o.seg) SEGS.forEach(function (g) { if (g[0] in o.seg) cfg.seg[g[0]] = o.seg[g[0]] ? 1 : 0; });
   }
   safe(function () { mergeCfg(JSON.parse(localStorage.getItem(CK) || '{}')); });
@@ -120,20 +121,27 @@
     vi.sort(function (a, b) { var f = function (v) { return /natural|online|google/i.test(v.name) ? 0 : 1; }; return f(a) - f(b); });
     return { all: all, v: vi[0] || null };
   }
-  function speak() {
+  function speak(auto) {
     var ss = window.speechSynthesis;
+    if (auto === true && (!ss || ss.speaking)) return;
     if (!ss) { safe(function () { toast('Trình duyệt này không hỗ trợ đọc to.'); }); return; }
     if (speaking || ss.speaking) { ss.cancel(); speaking = false; paintSpk(); return; }
     var r = viVoice();
     /* Có danh sách giọng mà không có giọng tiếng Việt: không đọc (sẽ bị đọc bằng giọng Anh) */
     if (r.all.length && !r.v) {
+      if (auto === true) return;
       safe(function () { toast('Máy này chưa có giọng đọc tiếng Việt. Dùng Chrome/Edge trên Android hoặc Windows, hoặc cài giọng tiếng Việt trong cài đặt hệ thống.'); });
       return;
     }
     var u = new SpeechSynthesisUtterance(plain());
     u.lang = 'vi-VN'; u.rate = 0.95;
     if (r.v) u.voice = r.v;
-    u.onend = u.onerror = function () { speaking = false; paintSpk(); };
+    u.onend = function () { speaking = false; paintSpk(); };
+    u.onerror = function (e) {
+      speaking = false; paintSpk();
+      /* trình duyệt chặn đọc khi chưa có thao tác: chờ cú bấm/chạm đầu tiên rồi đọc */
+      if (auto === true && e && /not-allowed/i.test(e.error || '')) armGesture();
+    };
     speaking = true; paintSpk(); ss.cancel(); ss.speak(u);
   }
   function paintSpk() {
@@ -152,6 +160,34 @@
     if (sp) { if (!sp.dataset.o) sp.dataset.o = sp.textContent; sp.textContent = speaking ? 'Đang đọc…' : sp.dataset.o; }
     var old = document.getElementById('xaSpk'); if (old) old.remove();
   }
+  /* ===== Tự động đọc khi mở trang ===== */
+  var AR = 'xa_bar_read', armed = false, tried = false;
+  function readDone() { safe(function () { sessionStorage.setItem(AR, '1'); }); }
+  function readSeen() { return safe(function () { return sessionStorage.getItem(AR) === '1'; }, false); }
+  function armGesture() {
+    if (armed) return; armed = true;
+    var h = function (e) {
+      ['pointerdown', 'keydown', 'touchend'].forEach(function (t) { document.removeEventListener(t, h, true); });
+      if (e.target && e.target.closest && e.target.closest('#notice .nt-badge')) { readDone(); return; }
+      if (cfg.autoread && !readSeen()) { readDone(); speak(true); }
+    };
+    ['pointerdown', 'keydown', 'touchend'].forEach(function (t) { document.addEventListener(t, h, true); });
+  }
+  function autoRead() {
+    if (tried || !cfg.autoread || !cfg.speak || !window.speechSynthesis || readSeen()) return;
+    tried = true; readDone();
+    speak(true);
+    /* nếu chưa phát được thì bắt cú bấm đầu tiên */
+    setTimeout(function () {
+      if (!speaking && !window.speechSynthesis.speaking) { safe(function () { sessionStorage.removeItem(AR); }); armGesture(); }
+    }, 1500);
+  }
+  var waitN = 0, waitT = setInterval(function () {
+    waitN++;
+    var ready = safe(function () { return units.length > 0; }, false);
+    if (ready || waitN > 20) { clearInterval(waitT); setTimeout(autoRead, 800); }
+  }, 500);
+
   function mountSpk() {
     var b = document.querySelector('#notice .nt-badge');
     if (!b || b.dataset.xa) return;
@@ -174,6 +210,7 @@
       '<div id="xaSegs" style="margin:6px 0 6px 22px;display:grid;gap:3px">' +
       SEGS.map(function (g) { return '<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-seg="' + g[0] + '"> ' + g[1] + '</label>'; }).join('') + '</div>' +
       '<label style="display:flex;gap:8px;align-items:center;margin:8px 0 4px"><input type="checkbox" id="xaSpeak"> Bấm vào biểu tượng loa “Thông báo” để nghe đọc to</label>' +
+      '<label style="display:flex;gap:8px;align-items:center;margin:4px 0 4px 22px"><input type="checkbox" id="xaAr"> Tự động đọc khi mở trang (mỗi lần mở một lượt; nếu trình duyệt chặn thì đọc sau cú bấm đầu tiên)</label>' +
       '<div style="font-size:12px;color:#556;margin:4px 0 8px">Hạn nộp lấy từ cài đặt “Nhắc việc” (mặc định ngày 25).</div>' +
       '<button class="btn" id="xaTry" type="button">🔊 Nghe thử</button> ' +
       '<button class="btn solid" id="xaSave" type="button">Lưu cài đặt tự động</button>' +
@@ -187,13 +224,14 @@
   function fillForm() {
     var q = function (s) { return document.querySelector(s); };
     if (!q('#xaAuto')) return;
-    q('#xaAuto').checked = cfg.auto; q('#xaSpeak').checked = cfg.speak;
+    q('#xaAuto').checked = cfg.auto; q('#xaSpeak').checked = cfg.speak; q('#xaAr').checked = cfg.autoread;
     document.querySelectorAll('#xaSegs [data-seg]').forEach(function (i) { i.checked = !!cfg.seg[i.dataset.seg]; });
     q('#xaMsg').textContent = ''; q('#xaMsg').className = 'fieldmsg';
   }
   function readForm() {
     cfg.auto = document.getElementById('xaAuto').checked;
     cfg.speak = document.getElementById('xaSpeak').checked;
+    cfg.autoread = document.getElementById('xaAr').checked;
     document.querySelectorAll('#xaSegs [data-seg]').forEach(function (i) { cfg.seg[i.dataset.seg] = i.checked ? 1 : 0; });
   }
   async function save() {
