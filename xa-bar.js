@@ -137,21 +137,28 @@
     speaking = true; paintSpk(); ss.cancel(); ss.speak(u);
   }
   function paintSpk() {
-    var b = document.getElementById('xaSpk'); if (!b) return;
-    b.hidden = !cfg.speak || !window.speechSynthesis;
-    b.textContent = speaking ? '⏹' : '🔊';
-    b.title = speaking ? 'Dừng đọc' : 'Nghe đọc thông báo';
-    b.setAttribute('aria-label', b.title);
+    var b = document.querySelector('#notice .nt-badge'); if (!b) return;
+    var on = cfg.speak && !!window.speechSynthesis;
+    b.style.cursor = on ? 'pointer' : '';
+    b.style.opacity = speaking ? '.85' : '';
+    if (on) {
+      b.setAttribute('role', 'button'); b.setAttribute('tabindex', '0');
+      b.title = speaking ? 'Bấm để dừng đọc' : 'Bấm để nghe đọc thông báo';
+      b.setAttribute('aria-label', b.title);
+    } else {
+      ['role', 'tabindex', 'title', 'aria-label'].forEach(function (k) { b.removeAttribute(k); });
+    }
+    var sp = b.querySelector('span');
+    if (sp) { if (!sp.dataset.o) sp.dataset.o = sp.textContent; sp.textContent = speaking ? 'Đang đọc…' : sp.dataset.o; }
+    var old = document.getElementById('xaSpk'); if (old) old.remove();
   }
   function mountSpk() {
-    var n = document.getElementById('notice');
-    if (!n || document.getElementById('xaSpk')) return;
-    var b = document.createElement('button');
-    b.id = 'xaSpk'; b.type = 'button'; b.className = 'nt-set';
-    b.style.cssText = 'font-size:15px;line-height:1;border-top:0;border-bottom:0;border-right:0';
-    b.onclick = speak;
-    var set = document.getElementById('ntSet');
-    n.insertBefore(b, set || null);
+    var b = document.querySelector('#notice .nt-badge');
+    if (!b || b.dataset.xa) return;
+    b.dataset.xa = '1';
+    var go = function () { if (cfg.speak && window.speechSynthesis) speak(); };
+    b.addEventListener('click', go);
+    b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
     paintSpk();
   }
 
@@ -166,7 +173,7 @@
       '<label style="display:flex;gap:8px;align-items:center;margin:4px 0"><input type="checkbox" id="xaAuto"> Bật nội dung tự động (chạy sau thông báo riêng ở trên)</label>' +
       '<div id="xaSegs" style="margin:6px 0 6px 22px;display:grid;gap:3px">' +
       SEGS.map(function (g) { return '<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-seg="' + g[0] + '"> ' + g[1] + '</label>'; }).join('') + '</div>' +
-      '<label style="display:flex;gap:8px;align-items:center;margin:8px 0 4px"><input type="checkbox" id="xaSpeak"> Hiện nút 🔊 đọc to thông báo trên thanh</label>' +
+      '<label style="display:flex;gap:8px;align-items:center;margin:8px 0 4px"><input type="checkbox" id="xaSpeak"> Bấm vào biểu tượng loa “Thông báo” để nghe đọc to</label>' +
       '<div style="font-size:12px;color:#556;margin:4px 0 8px">Hạn nộp lấy từ cài đặt “Nhắc việc” (mặc định ngày 25).</div>' +
       '<button class="btn" id="xaTry" type="button">🔊 Nghe thử</button> ' +
       '<button class="btn solid" id="xaSave" type="button">Lưu cài đặt tự động</button>' +
