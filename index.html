@@ -2023,9 +2023,14 @@ function apiBookmarklet(C){
       const p2=n=>String(n).padStart(2,'0'),mm=p2(SM),yy=cy;
       const kS='01/'+mm+'/'+yy,kE=new Date(yy,SM,0).getDate()+'/'+mm+'/'+yy;
       const getL=async pid=>{
-        const ac=new AbortController(),to=setTimeout(()=>ac.abort(),30000);
-        const r=await fetch('https://gateway-gqtthc.dcs.vn/report/dashboard/danh-sach-theo-doi-dang-phi',{signal:ac.signal,method:'POST',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({kyNopStart:kS,kyNopEnd:kE,parentId:pid,hasChildren:true,page:1,size:1000})});
-        clearTimeout(to);
+        let r;
+        for(let a=1;a<=3;a++){
+          const ac=new AbortController(),to=setTimeout(()=>ac.abort(),60000);
+          try{
+            r=await fetch('https://gateway-gqtthc.dcs.vn/report/dashboard/danh-sach-theo-doi-dang-phi',{signal:ac.signal,method:'POST',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({kyNopStart:kS,kyNopEnd:kE,parentId:pid,hasChildren:true,page:1,size:1000})});
+            clearTimeout(to);break;
+          }catch(e){clearTimeout(to);if(a===3)throw e;say('API chậm, đang thử lại lần '+(a+1)+'/3…',false,true)}
+        }
         if(!r.ok)throw new Error('API trả lỗi '+r.status+(r.status===401?' — hãy đăng nhập lại.':''));
         const raw=await r.text();return{raw,list:JSON.parse(raw).data||[]};
       };
@@ -2074,7 +2079,7 @@ function apiBookmarklet(C){
       const detail='\n⏱ Tổng '+f1(tF-T0)+' · Kết nối '+speed+'\nAPI '+f1(apiT)+' (chờ '+f1(tB-tA)+', tải '+Math.max(1,Math.round(raw.length/1024))+' KB) · Gửi Sheet '+f1(tE-tD)+' · Xác nhận '+f1(tF-tE)+(nc.effectiveType?'\nMạng: '+nc.effectiveType+(nc.rtt?' · rtt '+nc.rtt+' ms':''):'');
       say(ok?'✅ HOÀN THÀNH — đã đồng bộ '+list.length+' đơn vị tháng '+SM+'/'+cy+' lên Google Sheet ('+T+').'+detail:'Đã gửi '+list.length+' đơn vị nhưng chưa thấy Google Sheet cập nhật. Kiểm tra mã đồng bộ rồi bấm lại (sẽ hỏi lại mã).'+detail,!ok,false,!!ok);
       setTimeout(()=>box.remove(),ok?25000:30000);
-    }catch(e){say('✕ '+(e&&e.name==='AbortError'?'API phản hồi quá chậm (quá 30 giây). Kiểm tra mạng rồi bấm lại.':e.message)+'   (sau '+f1(performance.now()-T0)+')',true);setTimeout(()=>box.remove(),20000)}
+    }catch(e){say('✕ '+(e&&e.name==='AbortError'?'API phản hồi quá chậm (đã thử 3 lần, mỗi lần 60 giây). Tải lại trang gqtthc, đăng nhập lại rồi bấm lại.':e.message)+'   (sau '+f1(performance.now()-T0)+')',true);setTimeout(()=>box.remove(),20000)}
   })();
 }
 function apiBmSrc(){return '('+apiBookmarklet.toString()+')('+JSON.stringify({pid:2122408,name:'Đảng bộ xã Si Ma Cai',max:0,k:'sm_apipw',src:'website-si-ma-cai-api',m:true,ep:(sheetEndpoint())||''})+');void 0'}
