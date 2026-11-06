@@ -110,41 +110,105 @@
 
   /* ===== Đọc to (nút loa trên thanh, ai cũng dùng được) ===== */
   var speaking = false, lastAuto = false, holdPill = false;
+  var session = 0, audio = null, refMeta = null;
+  var synth = window.speechSynthesis;
+  /* Làm sạch chữ để máy đọc đúng: bỏ biểu tượng, đọc số, phần trăm, tiền, ngày */
   function plain() {
     var t = document.getElementById('ntText');
-    return (t ? t.textContent : '').replace(/✦/g, '. ').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim();
+    return (t ? t.textContent : '')
+      .replace(/[\u{1F000}-\u{1FAFF}\u{2300}-\u{23FF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, ' ')
+      .replace(/\s*✦\s*/g, '. ')
+      .replace(/\((\d{1,2})\/(\d{1,2})\)/g, 'ngày $1 tháng $2')
+      .replace(/ngày\s+(\d{1,2})\/(\d{1,2})/gi, 'ngày $1 tháng $2')
+      .replace(/(\d+)\/(\d+)/g, '$1 trên $2')
+      .replace(/(\d+),(\d+)\s*%/g, '$1 phẩy $2 phần trăm').replace(/(\d)\s*%/g, '$1 phần trăm')
+      .replace(/(\d)\s*(đ|₫)(?![a-zà-ỹ])/gi, '$1 đồng')
+      .replace(/\s+/g, ' ').trim();
+  }
+  function chunks(t) {
+    var out = [];
+    t.split(/(?<=[.!?;:])\s+|(?<=\),)\s+/).forEach(function (s) {
+      while (s.length > 180) {
+        var k = s.lastIndexOf(',', 180); if (k < 60) k = s.lastIndexOf(' ', 180); if (k < 1) k = 180;
+        out.push(s.slice(0, k + 1).trim()); s = s.slice(k + 1).trim();
+      }
+      if (s) out.push(s);
+    });
+    return out;
   }
   function viVoice() {
-    var all = (window.speechSynthesis.getVoices() || []);
+    var all = synth ? (synth.getVoices() || []) : [];
     var vi = all.filter(function (x) { return /^vi([-_]|$)/i.test(x.lang) || /vietnam|tiếng việt/i.test(x.name); });
-    /* ưu tiên giọng Natural/Google/Online (nghe tự nhiên hơn) */
     vi.sort(function (a, b) { var f = function (v) { return /natural|online|google/i.test(v.name) ? 0 : 1; }; return f(a) - f(b); });
-    return { all: all, v: vi[0] || null };
+    return vi[0] || null;
   }
-  function speak(auto) {
-    var ss = window.speechSynthesis;
-    if (auto === true && (!ss || ss.speaking)) return;
-    if (!ss) { safe(function () { toast('Trình duyệt này không hỗ trợ đọc to.'); }); return; }
-    if (speaking || ss.speaking) { ss.cancel(); speaking = false; paintSpk(); return; }
-    var r = viVoice();
-    /* Có danh sách giọng mà không có giọng tiếng Việt: không đọc (sẽ bị đọc bằng giọng Anh) */
-    if (r.all.length && !r.v) {
-      if (auto === true) return;
-      safe(function () { toast('Máy này chưa có giọng đọc tiếng Việt. Dùng Chrome/Edge trên Android hoặc Windows, hoặc cài giọng tiếng Việt trong cài đặt hệ thống.'); });
+  function noRef(v) {
+    if (v && !refMeta) { refMeta = document.createElement('meta'); refMeta.name = 'referrer'; refMeta.content = 'no-referrer'; document.head.appendChild(refMeta); }
+    else if (!v && refMeta) { refMeta.remove(); refMeta = null; }
+  }
+  function stop() {
+    session++;
+    safe(function () { synth && synth.cancel(); });
+    if (audio) { safe(function () { audio.pause(); }); audio.src = ''; audio = null; }
+    noRef(false); speaking = false; paintSpk();
+  }
+  /* Giọng trực tuyến (Google): chạy trên mọi trình duyệt, cần Internet */
+  function ttsUrl(t) { return 'https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&ttsspeed=1&q=' + encodeURIComponent(t); }
+  function playOnline(parts, my) {
+    return new Promise(function (resolve) {
+      noRef(true);
+      var i = 0, next = null;
+      function make(k) { var a = new Audio(); a.preload = 'auto'; a.src = ttsUrl(parts[k]); return a; }
+      function step() {
+        if (my !== session) return resolve(true);
+        if (i >= parts.length) { noRef(false); return resolve(true); }
+        var a = next || make(i); next = i + 1 < parts.length ? make(i + 1) : null; audio = a;
+        var started = false;
+        a.onplaying = function () { started = true; };
+        a.onended = function () { i++; step(); };
+        a.onerror = function () { if (my !== session) return resolve(true); noRef(false); resolve(i === 0 && !started ? false : true); };
+        var p = a.play();
+        if (p && p.catch) p.catch(function (err) {
+          if (my === session) { noRef(false); resolve(i === 0 ? (err && err.name === 'NotAllowedError' ? 'blocked' : false) : true); }
+        });
+      }
+      step();
+    });
+  }
+  /* Giọng có sẵn trong máy (nếu có giọng tiếng Việt) */
+  function playLocal(parts, my, voice) {
+    return new Promise(function (resolve) {
+      if (!synth || !window.SpeechSynthesisUtterance || !voice) return resolve(false);
+      synth.cancel();
+      parts.forEach(function (t, k) {
+        var u = new SpeechSynthesisUtterance(t); u.voice = voice; u.lang = voice.lang;
+        if (k === parts.length - 1) u.onend = function () { resolve(true); };
+        u.onerror = function () { resolve(true); };
+        if (my === session) synth.speak(u);
+      });
+    });
+  }
+  async function speak(auto) {
+    auto = auto === true;
+    if (speaking) { if (!auto) stop(); return; }
+    var text = plain();
+    if (!text) return;
+    var my = ++session, parts = chunks('Thông báo. ' + text);
+    speaking = true; paintSpk();
+    var ok = await playLocal(parts, my, viVoice());
+    if (my !== session) return;
+    if (!ok) ok = await playOnline(parts, my);
+    if (my !== session) return;
+    if (ok === 'blocked') {
+      speaking = false; noRef(false); paintSpk();
+      if (auto) { safe(function () { sessionStorage.removeItem(AR); }); armGesture(); }
+      else safe(function () { toast('Trình duyệt đang chặn phát âm thanh. Hãy bấm lại vào loa.'); });
       return;
     }
-    lastAuto = auto === true;
-    var u = new SpeechSynthesisUtterance(plain());
-    u.lang = 'vi-VN'; u.rate = 0.95;
-    if (r.v) u.voice = r.v;
-    u.onend = function () { speaking = false; paintSpk(); };
-    u.onerror = function (e) {
-      speaking = false; paintSpk();
-      /* trình duyệt chặn đọc khi chưa có thao tác: chờ cú bấm/chạm đầu tiên rồi đọc */
-      if (auto === true && e && /not-allowed/i.test(e.error || '')) armGesture();
-    };
-    speaking = true; paintSpk(); ss.cancel(); ss.speak(u);
+    if (!ok && !auto) safe(function () { toast('Không phát được giọng đọc: cần kết nối Internet hoặc cài giọng tiếng Việt cho máy.'); });
+    speaking = false; noRef(false); paintSpk();
   }
+
   var IN_ON = '<path d="M4 10v4h3l6 4V6L7 10H4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/>';
   var IN_OFF = '<path d="M4 10v4h3l6 4V6L7 10H4z"/><path d="M3 3l18 18" stroke="#fff" stroke-width="2.6"/>';
   function injectCss() {
@@ -164,7 +228,7 @@
     var b = document.querySelector('#notice .nt-badge'); if (!b) return;
     injectCss();
     b.classList.toggle('xa-talk', !!speaking);
-    var on = cfg.speak && !!window.speechSynthesis, muted = noAuto();
+    var on = cfg.speak, muted = noAuto();
     b.style.cursor = on ? 'pointer' : '';
     var svg = b.querySelector('svg');
     if (svg) { svg.innerHTML = muted ? IN_OFF : IN_ON; svg.setAttribute('viewBox', '0 0 24 24'); }
@@ -195,13 +259,9 @@
     ['pointerdown', 'keydown', 'touchend'].forEach(function (t) { document.addEventListener(t, h, true); });
   }
   function autoRead() {
-    if (tried || noAuto() || !cfg.autoread || !cfg.speak || !window.speechSynthesis || readSeen()) return;
+    if (tried || noAuto() || !cfg.autoread || !cfg.speak || readSeen()) return;
     tried = true; readDone();
     speak(true);
-    /* nếu chưa phát được thì bắt cú bấm đầu tiên */
-    setTimeout(function () {
-      if (!speaking && !window.speechSynthesis.speaking) { safe(function () { sessionStorage.removeItem(AR); }); armGesture(); }
-    }, 1500);
   }
   var waitN = 0, waitT = setInterval(function () {
     waitN++;
@@ -214,13 +274,13 @@
     if (!b || b.dataset.xa) return;
     b.dataset.xa = '1';
     var go = function () {
-      if (!cfg.speak || !window.speechSynthesis) return;
+      if (!cfg.speak) return;
       if (noAuto()) {
         safe(function () { localStorage.removeItem('xa_bar_noauto'); });
         paintSpk(); speak();
       } else {
         safe(function () { localStorage.setItem('xa_bar_noauto', '1'); });
-        safe(function () { speechSynthesis.cancel(); }); speaking = false; paintSpk();
+        stop();
       }
     };
     b.addEventListener('click', go);
