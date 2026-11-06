@@ -144,8 +144,21 @@
     };
     speaking = true; paintSpk(); ss.cancel(); ss.speak(u);
   }
+  function injectCss() {
+    if (document.getElementById('xaCss')) return;
+    var st = document.createElement('style'); st.id = 'xaCss';
+    st.textContent =
+      '@keyframes xaShake{0%,100%{transform:rotate(0) scale(1)}15%{transform:rotate(-14deg) scale(1.18)}30%{transform:rotate(12deg) scale(1.22)}45%{transform:rotate(-10deg) scale(1.18)}60%{transform:rotate(8deg) scale(1.2)}75%{transform:rotate(-5deg) scale(1.12)}}' +
+      '@keyframes xaWave{0%,100%{opacity:.25}50%{opacity:1}}' +
+      '.nt-badge.xa-talk svg{animation:xaShake .7s ease-in-out infinite;transform-origin:50% 50%}' +
+      '.nt-badge.xa-talk svg path:nth-of-type(2){animation:xaWave .7s ease-in-out infinite}' +
+      '@media (prefers-reduced-motion:reduce){.nt-badge.xa-talk svg,.nt-badge.xa-talk svg path{animation:none}}';
+    document.head.appendChild(st);
+  }
   function paintSpk() {
     var b = document.querySelector('#notice .nt-badge'); if (!b) return;
+    injectCss();
+    b.classList.toggle('xa-talk', !!speaking);
     var on = cfg.speak && !!window.speechSynthesis;
     b.style.cursor = on ? 'pointer' : '';
     b.style.opacity = speaking ? '.85' : '';
