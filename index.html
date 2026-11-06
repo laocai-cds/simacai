@@ -2733,9 +2733,10 @@ function fold(t){return String(t).normalize("NFD").replace(/[\u0300-\u036f]/g,""
 function clean(l){return(Array.isArray(l)?l:[]).map(function(u){return{name:String(u&&u.name||'').trim(),url:String(u&&u.url||'').trim()}}).filter(function(u){return u.name&&/^https?:\/\//i.test(u.url)&&!/(simacai|si\s*ma\s*cai)/i.test(fold(u.url+' '+u.name))})}
 try{var c=JSON.parse(localStorage.getItem(LS)||'null');if(Array.isArray(c)&&c.length)list=clean(c)}catch(_){}
 function esc(t){return String(t).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+var AI_CARD='<a class="lnk-card" href="https://laocai-cds.github.io/tthc/?ai=1" target="_blank" rel="noopener noreferrer"><i>🤖</i><span><b>Trợ lý AI TTHC</b><small>Hỏi đáp, tra cứu số liệu thủ tục hành chính (site DVC Lào Cai)</small></span></a>';
 function paint(){var g=document.getElementById('lnkGrid');if(!g)return;
  g.innerHTML=list.length?list.map(function(x){var n=x.name,ini=n.replace(/^(Đảng bộ|Đảng ủy)\s*(xã|phường)?\s*/i,'').trim().charAt(0).toUpperCase()||'•';
-  return '<a class="lnk-card" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer"><i>'+esc(ini)+'</i><span><b>'+esc(n)+'</b><small>'+esc(x.url.replace(/^https?:\/\//,'').replace(/\/$/,''))+'</small></span></a>'}).join(''):'<p class="lnk-sub">Chưa có liên kết nào.</p>'}
+  return '<a class="lnk-card" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer"><i>'+esc(ini)+'</i><span><b>'+esc(n)+'</b><small>'+esc(x.url.replace(/^https?:\/\//,'').replace(/\/$/,''))+'</small></span></a>'}).join(''):'<p class="lnk-sub">Chưa có liên kết nào.</p>';g.insertAdjacentHTML('afterbegin',AI_CARD)}
 function sync(){var cb='__lnk_'+Date.now(),sc=document.createElement('script'),done=false;
  function end(){done=true;clearTimeout(t);try{delete window[cb]}catch(_){}sc.remove()}
  var t=setTimeout(function(){if(!done)end()},12000);
