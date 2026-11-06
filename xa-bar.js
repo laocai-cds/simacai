@@ -113,16 +113,28 @@
     var t = document.getElementById('ntText');
     return (t ? t.textContent : '').replace(/✦/g, '. ').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim();
   }
+  function viVoice() {
+    var all = (window.speechSynthesis.getVoices() || []);
+    var vi = all.filter(function (x) { return /^vi([-_]|$)/i.test(x.lang) || /vietnam|tiếng việt/i.test(x.name); });
+    /* ưu tiên giọng Natural/Google/Online (nghe tự nhiên hơn) */
+    vi.sort(function (a, b) { var f = function (v) { return /natural|online|google/i.test(v.name) ? 0 : 1; }; return f(a) - f(b); });
+    return { all: all, v: vi[0] || null };
+  }
   function speak() {
     var ss = window.speechSynthesis;
     if (!ss) { safe(function () { toast('Trình duyệt này không hỗ trợ đọc to.'); }); return; }
     if (speaking || ss.speaking) { ss.cancel(); speaking = false; paintSpk(); return; }
+    var r = viVoice();
+    /* Có danh sách giọng mà không có giọng tiếng Việt: không đọc (sẽ bị đọc bằng giọng Anh) */
+    if (r.all.length && !r.v) {
+      safe(function () { toast('Máy này chưa có giọng đọc tiếng Việt. Dùng Chrome/Edge trên Android hoặc Windows, hoặc cài giọng tiếng Việt trong cài đặt hệ thống.'); });
+      return;
+    }
     var u = new SpeechSynthesisUtterance(plain());
     u.lang = 'vi-VN'; u.rate = 0.95;
-    var vi = (ss.getVoices() || []).filter(function (x) { return /^vi/i.test(x.lang); })[0];
-    if (vi) u.voice = vi;
+    if (r.v) u.voice = r.v;
     u.onend = u.onerror = function () { speaking = false; paintSpk(); };
-    speaking = true; paintSpk(); ss.speak(u);
+    speaking = true; paintSpk(); ss.cancel(); ss.speak(u);
   }
   function paintSpk() {
     var b = document.getElementById('xaSpk'); if (!b) return;
