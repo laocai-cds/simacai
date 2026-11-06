@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f2a4a">
+<title>Bảng tỷ giá USD & giá vàng trong nước</title>
+<style>
+:root{
+  --navy:#0f2a4a;--navy-2:#16375f;--ink:#1b2a3d;--muted:#64748b;--line:#e2e8f0;--bg:#f3f5f9;--card:#fff;
+  --blue:#1d4ed8;--gold:#a16207;--gold-bg:#fef9e7;--up:#047857;--up-bg:#e7f7f0;--down:#b91c1c;--down-bg:#fdecec;
+  --radius:12px;--shadow:0 1px 2px rgba(15,42,74,.06),0 4px 14px rgba(15,42,74,.05)
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Be Vietnam Pro",Inter,"Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+.num{font-variant-numeric:tabular-nums}
+a{color:var(--blue)}
+
+/* Header */
+.header{background:var(--navy);color:#fff}
+.header-in{max-width:1200px;margin:auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:10px;background:#d4a437;color:#3b2a05;display:grid;place-items:center;font-weight:800;font-size:20px}
+.brand b{display:block;font-size:15px;letter-spacing:.03em}
+.brand small{display:block;color:#a9bdd6;font-size:12px}
+.back{color:#d5e2f3;text-decoration:none;font-size:13px;font-weight:600;padding:8px 12px;border:1px solid #2f4d75;border-radius:8px}
+.back:hover{background:var(--navy-2);color:#fff}
+
+.wrap{max-width:1200px;margin:auto;padding:24px 24px 48px}
+.title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+h1{margin:0;font-size:26px;line-height:1.25;letter-spacing:-.01em}
+.title-row p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:#94a3b8;flex:none}
+.dot.ok{background:#10b981}.dot.warn{background:#f59e0b}
+.btn{font:600 13px inherit;font-family:inherit;color:#fff;background:var(--navy);border:0;border-radius:8px;padding:10px 16px;cursor:pointer}
+.btn:hover{background:var(--navy-2)}
+.btn:disabled{opacity:.6;cursor:wait}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid #cbd5e1}
+.btn.ghost:hover{background:#f1f5f9}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;border-top:4px solid var(--c,#64748b)}
+.kpi.usd{--c:#1d4ed8}.kpi.gold{--c:#d4a437}.kpi.world{--c:#0f766e}
+.kpi h2{margin:0;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi .val{margin:10px 0 2px;font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1;color:var(--navy)}
+.kpi .unit{font-size:12.5px;color:var(--muted)}
+.kpi .meta{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--muted)}
+.kpi .meta strong{color:var(--ink);font-weight:600}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:16px;margin-top:16px;align-items:start}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.panel-h{padding:16px 20px;border-bottom:1px solid var(--line)}
+.panel-h h2{margin:0;font-size:17px}
+.panel-h p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.panel-b{padding:18px 20px}
+
+/* Table */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:560px}
+thead th{position:sticky;top:0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:11px 16px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+thead th:first-child{text-align:left}
+tbody td{padding:13px 16px;text-align:right;border-bottom:1px solid #eef2f6;font-size:14.5px;white-space:nowrap}
+tbody td:first-child{text-align:left;white-space:normal}
+tbody tr.grp td{background:#f1f5f9;color:var(--navy);font-weight:800;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;padding:9px 16px}
+tbody tr:not(.grp):hover td{background:#fafcff}
+tbody tr:last-child td{border-bottom:0}
+.prod{font-weight:600}
+.buy{color:var(--up);font-weight:700}
+.sell{color:var(--navy);font-weight:700}
+.spread{color:var(--muted)}
+.chg{display:inline-block;min-width:78px;text-align:center;padding:3px 9px;border-radius:999px;font-size:12.5px;font-weight:700;background:#f1f5f9;color:var(--muted)}
+.chg.up{background:var(--up-bg);color:var(--up)}
+.chg.down{background:var(--down-bg);color:var(--down)}
+.empty{text-align:center!important;color:var(--muted);padding:28px 16px!important}
+
+/* Side */
+.fx{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fx div{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.fx span{display:block;font-size:12px;color:var(--muted)}
+.fx b{display:block;margin-top:2px;font-size:18px;color:var(--navy)}
+.sep{height:1px;background:var(--line);margin:20px 0}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:8px}
+.row{display:flex;gap:8px}
+input[type=number]{flex:1;min-width:0;font:inherit;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;color:var(--ink);background:#fff}
+input[type=number]:focus{outline:2px solid #93b4f5;border-color:#1d4ed8}
+.result{margin-top:10px;padding:12px 14px;border-radius:10px;background:#eef4ff;color:#1e3a8a;font-weight:700;font-size:15px}
+.chart-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.chart-h h3{margin:0;font-size:14px}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.chart{height:150px}
+.chart svg{width:100%;height:100%;display:block}
+.chart-empty{height:100%;display:grid;place-items:center;text-align:center;padding:14px;border:1px dashed #cbd5e1;border-radius:10px;color:var(--muted);font-size:13px}
+
+.notice{display:none;margin-top:16px;padding:12px 16px;border-radius:10px;background:#fffbeb;border:1px solid #f5dd9b;color:#78510a;font-size:13.5px}
+.notice.show{display:block}
+.foot{margin-top:18px;font-size:12.5px;color:var(--muted);line-height:1.7}
+
+.clock{font-weight:700;color:var(--navy);font-size:13px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:#fff}
+.dot.ok{animation:pulse 2s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(16,185,129,.55)}70%{box-shadow:0 0 0 8px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}
+.fu{animation:fup 2.4s ease-out}.fd{animation:fdn 2.4s ease-out}
+@keyframes fup{0%,35%{background:#bff0d8}100%{background:transparent}}
+@keyframes fdn{0%,35%{background:#fbcaca}100%{background:transparent}}
+.val.fu,.val.fd{border-radius:8px}
+@media(prefers-reduced-motion:reduce){.dot.ok,.fu,.fd{animation:none}}
+/* ===== Thu gọn vừa khung hình + màu sắc sinh động ===== */
+html,body{height:100%}
+body{display:flex;flex-direction:column;height:100vh;overflow:hidden;background:linear-gradient(135deg,#eef2ff 0,#fdf2f8 45%,#ecfeff 100%)}
+.header{background:linear-gradient(90deg,#0f2a4a,#1e3a8a 55%,#6d28d9)}
+.header-in{padding:8px 20px}
+.logo{width:32px;height:32px;font-size:16px;border-radius:9px;background:linear-gradient(135deg,#fbbf24,#f97316 55%,#ec4899);color:#fff}
+.brand b{font-size:13px}.brand small{font-size:11px}.back{padding:6px 10px;font-size:12px}
+.wrap{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;max-width:1280px;padding:12px 20px 10px}
+.title-row{margin-bottom:10px;gap:8px}
+h1{font-size:20px}.title-row p{font-size:12px;margin:0}
+.clock{font-size:12px;padding:3px 9px;background:linear-gradient(90deg,#e0e7ff,#fce7f3);border:0;color:#3730a3}
+.status{font-size:12px}
+.btn{padding:7px 12px;font-size:12px;background:linear-gradient(90deg,#2563eb,#7c3aed)}
+.btn:hover{filter:brightness(1.1);background:linear-gradient(90deg,#2563eb,#7c3aed)}
+.btn.ghost{background:#fff;color:#4338ca;border:1px solid #c7d2fe}
+.kpis{gap:10px}
+.kpi{padding:10px 14px;border:0;color:#fff;box-shadow:0 6px 16px rgba(30,41,59,.18)}
+.kpi:nth-child(1){background:linear-gradient(135deg,#3b82f6,#1e40af)}
+.kpi:nth-child(2){background:linear-gradient(135deg,#f59e0b,#b45309)}
+.kpi:nth-child(3){background:linear-gradient(135deg,#fb7185,#be123c)}
+.kpi:nth-child(4){background:linear-gradient(135deg,#2dd4bf,#0f766e)}
+.kpi h2{font-size:11px;color:rgba(255,255,255,.85)}
+.kpi .val{margin:5px 0 0;font-size:24px;color:#fff;padding:0 4px;margin-left:-4px;width:fit-content}
+.kpi .unit{font-size:11px;color:rgba(255,255,255,.8)}
+.kpi .meta{margin-top:7px;padding-top:6px;font-size:11.5px;border-top:1px solid rgba(255,255,255,.28);color:rgba(255,255,255,.85)}
+.kpi .meta strong{color:#fff}
+.val.fu{animation:kfu 2.4s ease-out}.val.fd{animation:kfd 2.4s ease-out}
+@keyframes kfu{0%,35%{background:rgba(0,0,0,.3);box-shadow:0 0 0 2px #4ade80}100%{background:transparent;box-shadow:0 0 0 2px transparent}}
+@keyframes kfd{0%,35%{background:rgba(0,0,0,.3);box-shadow:0 0 0 2px #f87171}100%{background:transparent;box-shadow:0 0 0 2px transparent}}
+.layout{flex:1;min-height:0;margin-top:10px;gap:10px;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr)}
+.panel{display:flex;flex-direction:column;min-height:0;border-top:3px solid #f59e0b}
+.panel.side{border-top-color:#6366f1}
+.panel-h{padding:8px 14px}.panel-h h2{font-size:14px}.panel-h p{font-size:11.5px;margin:0}
+.tw{flex:1;min-height:0;overflow:auto}
+thead th{padding:6px 12px;font-size:11px}
+tbody td{padding:5px 12px;font-size:13px}
+tbody tr.grp td{padding:3px 12px;font-size:11.5px;color:#fff;letter-spacing:.08em}
+tr.grp[data-b="SJC"] td{background:linear-gradient(90deg,#dc2626,#f87171)}
+tr.grp[data-b="DOJI"] td{background:linear-gradient(90deg,#2563eb,#60a5fa)}
+tr.grp[data-b="Bảo Tín"] td{background:linear-gradient(90deg,#059669,#34d399)}
+tr.grp[data-b="PNJ"] td{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+.chg{min-width:68px;padding:2px 8px;font-size:12px}
+.panel-b{padding:10px 14px;flex:1;min-height:0;overflow:auto}
+.fx{gap:8px}.fx div{padding:7px 10px}.fx div:first-child{background:#eff6ff;border-color:#bfdbfe}.fx div:last-child{background:#fdf4ff;border-color:#f5d0fe}
+.fx b{font-size:15px}
+.sep{margin:10px 0}
+label{margin-bottom:5px;font-size:12px}
+input[type=number]{padding:7px 10px;font-size:13px}
+.result{margin-top:7px;padding:8px 10px;font-size:14px;background:linear-gradient(90deg,#dbeafe,#ede9fe);color:#3730a3}
+.chart-h{margin-bottom:4px}.chart-h h3{font-size:13px}
+.chart{height:100px}
+.notice{margin-top:8px;padding:6px 12px;font-size:12px}
+.foot{margin:8px 0 0;font-size:10.5px;line-height:1.45;flex:none;position:relative;background:transparent}
+.kpis,.title-row,.notice{flex:none}
+.layout{grid-template-rows:minmax(0,1fr);overflow:hidden;padding-bottom:2px}
+.layout>.panel{min-height:0;max-height:100%}
+@media(max-height:900px) and (min-width:901px){
+  .wrap{padding-top:8px;padding-bottom:6px}
+  .title-row{margin-bottom:6px}h1{font-size:18px}.title-row p{display:none}
+  .kpi{padding:7px 12px}.kpi .val{font-size:20px;margin-top:2px}.kpi .unit{font-size:10.5px}.kpi .meta{margin-top:4px;padding-top:4px;font-size:11px}
+  .layout{margin-top:8px}
+  .foot{font-size:9.5px;margin-top:5px;line-height:1.35}
+}
+/* Thu nhỏ bảng giá */
+table{min-width:440px}
+thead th{padding:4px 9px;font-size:10px}
+tbody td{padding:3px 9px;font-size:12px;line-height:1.35}
+tbody tr.grp td{padding:2px 9px;font-size:10px}
+.chg{min-width:56px;padding:1px 6px;font-size:11px}
+.panel-h.tabs{padding:6px 12px}.panel-h h2{font-size:13px}.panel-h p{font-size:10.5px}
+.tab{padding:3px 10px;font-size:11px}
+.lcform{padding:8px 12px}.lcrow input{padding:5px 8px;font-size:12px}.lcnote{font-size:10px}
+.layout{grid-template-columns:minmax(0,1.35fr) minmax(280px,1fr)}
+[hidden]{display:none!important}
+.panel-h.tabs{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tabbar{display:flex;gap:4px;background:#f1f5f9;padding:3px;border-radius:999px}
+.tab{font:700 12px inherit;font-family:inherit;border:0;background:transparent;color:#475569;padding:5px 12px;border-radius:999px;cursor:pointer}
+.tab.on{background:linear-gradient(90deg,#f59e0b,#ef4444);color:#fff;box-shadow:0 2px 6px rgba(239,68,68,.3)}
+tr.grp[data-b="LC"] td{background:linear-gradient(90deg,#db2777,#f472b6)}
+.lcform{padding:10px 14px;border-top:1px solid var(--line);background:#fffbeb}
+.lcform b{font-size:12.5px;color:#92400e}
+.lcrow{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.lcrow input{flex:1;min-width:110px;font:inherit;font-size:13px;padding:7px 10px;border:1px solid #cbd5e1;border-radius:8px}
+.lcrow input:focus{outline:2px solid #fbbf24;border-color:#f59e0b}
+.lcnote{margin:8px 0 0;font-size:11px;line-height:1.45;color:#78510a}
+@media(max-width:900px),(max-height:600px){
+  body{height:auto;overflow:auto}.wrap{display:block;padding:12px}.layout{display:grid;grid-template-columns:1fr}
+  .panel{min-height:auto}.tw{overflow-x:auto}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi .val{font-size:20px}
+}
+@media(max-width:1000px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}}
+@media(max-width:560px){
+  .header-in,.wrap{padding-left:14px;padding-right:14px}
+  h1{font-size:22px}.kpis{gap:10px}.kpi{padding:14px}.kpi .val{font-size:22px}
+  .kpi .meta{flex-direction:column;gap:2px}.back{display:none}
+  .panel-b,.panel-h{padding-left:14px;padding-right:14px}
+}
+.embed .back{display:none}
+</style>
+<script>if(self!==top)document.documentElement.classList.add("embed")</script>
+</head>
+<body>
+<header class="header"><div class="header-in">
+  <div class="brand"><div class="logo">$</div><div><b>BẢN TIN THỊ TRƯỜNG</b><small>Tỷ giá ngoại tệ · Kim loại quý</small></div></div>
+  <a class="back" href="./">← Trang chính</a>
+</div></header>
+
+<main class="wrap">
+  <div class="title-row">
+    <div><h1>Tỷ giá USD &amp; giá vàng trong nước</h1><p>Giá tham khảo theo nguồn công bố, kèm thời điểm dữ liệu mới nhất.</p></div>
+    <div class="actions">
+      <div class="clock num" id="clock" title="Giờ hiện tại">--:--:--</div>
+      <div class="status"><span class="dot" id="dot"></span><span id="updated">Đang kết nối nguồn dữ liệu…</span></div>
+      <button class="btn" id="reload">↻ Cập nhật giá</button>
+    </div>
+  </div>
+
+  <section class="kpis" aria-label="Giá nổi bật">
+    <article class="kpi usd"><h2>USD / VND</h2><div class="val num" id="usd">—</div><div class="unit">đồng cho 1 USD · tham khảo</div><div class="meta"><span id="fxdate">Ngày: —</span><strong id="fxstatus">Đang tải</strong></div></article>
+    <article class="kpi gold"><h2>Vàng miếng SJC · bán ra</h2><div class="val num" id="sjc">—</div><div class="unit">đồng / lượng</div><div class="meta"><span>Mua vào</span><strong class="num" id="sjcbuy">—</strong></div></article>
+    <article class="kpi gold"><h2>Nhẫn SJC 9999 · bán ra</h2><div class="val num" id="ring">—</div><div class="unit">đồng / lượng</div><div class="meta"><span>Mua vào</span><strong class="num" id="ringbuy">—</strong></div></article>
+    <article class="kpi world"><h2>Vàng thế giới · XAU/USD</h2><div class="val num" id="xau">—</div><div class="unit">USD / ounce troy</div><div class="meta"><span>Biến động</span><strong class="num" id="xauchg">—</strong></div></article>
+  </section>
+
+  <div class="notice" id="message"></div>
+
+  <section class="layout">
+    <article class="panel">
+      <div class="panel-h tabs"><div><h2>Bảng giá vàng</h2><p id="tabSub">Giá mua – bán theo thương hiệu · đơn vị: đồng/lượng</p></div><div class="tabbar" role="tablist"><button class="tab on" data-t="all" role="tab">Cả nước</button><button class="tab" data-t="lc" role="tab">📍 Lào Cai</button></div></div>
+      <div class="tw" id="allBox"><table>
+        <thead><tr><th>Sản phẩm</th><th>Mua vào</th><th>Bán ra</th><th>Chênh lệch</th><th>Biến động</th></tr></thead>
+        <tbody id="goldRows"><tr><td colspan="5" class="empty">Đang tải dữ liệu…</td></tr></tbody>
+      </table></div>
+      <div class="tw" id="lcBox" hidden>
+        <table>
+          <thead><tr><th>Thương hiệu · giá tham chiếu</th><th>Mua vào</th><th>Bán ra</th><th>Chênh lệch</th><th>Biến động</th></tr></thead>
+          <tbody id="lcRows"></tbody>
+        </table>
+        <form class="lcform" id="lcForm">
+          <b>Giá cửa hàng tại Lào Cai (nhập tay)</b>
+          <div class="lcrow"><input id="lcName" type="text" maxlength="40" placeholder="Tên tiệm vàng"><input id="lcBuy" type="number" min="0" step="any" placeholder="Mua vào (đ/lượng)"><input id="lcSell" type="number" min="0" step="any" placeholder="Bán ra (đ/lượng)"><button class="btn" type="submit">Lưu</button><button class="btn ghost" type="button" id="lcClear">Xoá</button></div>
+          <p class="lcnote">Chưa có nguồn công khai nào công bố giá riêng cho Lào Cai nên các dòng trên là giá niêm yết tham chiếu của thương hiệu (khu vực Hà Nội/miền Bắc). Giá tại tiệm ở Lào Cai có thể lệch; hãy nhập giá tiệm bạn theo dõi để hiển thị cùng bảng.</p>
+        </form>
+      </div>
+    </article>
+
+    <aside class="panel side">
+      <div class="panel-h"><h2>Quy đổi USD</h2><p>Theo tỷ giá tham khảo hằng ngày</p></div>
+      <div class="panel-b">
+        <div class="fx"><div><span>1 USD</span><b class="num" id="usdBox">—</b></div><div><span>Ngày tỷ giá</span><b class="num" id="fxDay">—</b></div></div>
+        <div class="sep"></div>
+        <label for="amount">Số tiền (USD)</label>
+        <div class="row"><input id="amount" type="number" min="0" step="any" value="100" inputmode="decimal"><button class="btn ghost" id="convert">Quy đổi</button></div>
+        <div class="result num" id="converted">Nhập số USD để xem giá trị tham khảo.</div>
+        <div class="sep"></div>
+        <div class="chart-h"><h3>Xu hướng SJC trong phiên</h3><div class="legend"><span><i style="background:#047857"></i>Mua</span><span><i style="background:#b8860b"></i>Bán</span></div></div>
+        <div class="chart" id="chart"><div class="chart-empty">Biểu đồ hiển thị sau từ 2 lần cập nhật thành công.</div></div>
+      </div>
+    </aside>
+  </section>
+
+  <p class="foot">Nguồn: <a href="https://www.vang.today/vi/api" target="_blank" rel="noopener">Vang.today API</a> (dữ liệu vàng bên thứ ba, cập nhật khoảng 5 phút/lần) · <a href="https://api.frankfurter.dev/" target="_blank" rel="noopener">Frankfurter API</a> (tỷ giá tham khảo theo ngày). Không phải báo giá giao dịch hoặc tư vấn đầu tư; giá thực tế có thể khác theo cửa hàng và thời điểm. Tỷ giá ở đây không phải tỷ giá trung tâm do Ngân hàng Nhà nước công bố.</p>
+</main>
+
+<script>
+(()=>{
+const nf=new Intl.NumberFormat('vi-VN',{maximumFractionDigits:0}),nf2=new Intl.NumberFormat('vi-VN',{maximumFractionDigits:2});
+const $=s=>document.querySelector(s),vnd=n=>Number.isFinite(+n)&&n!=null?nf.format(+n):'—';
+let rate=null,history=[];
+
+const fallbackGold={time:'14:00',date:'2026-10-26',prices:{SJL1L10:{buy:138700000,sell:141700000,change_buy:0,change_sell:0},SJ9999:{buy:135000000,sell:139000000,change_buy:0,change_sell:0},DOHNL:{buy:138700000,sell:141700000,change_buy:-300000,change_sell:-300000},DOHCML:{buy:138700000,sell:141700000,change_buy:-300000,change_sell:-300000},DOJINHTV:{buy:137100000,sell:141100000,change_buy:-200000,change_sell:-200000},BTSJC:{buy:136800000,sell:141700000,change_buy:0,change_sell:0},BT9999NTT:{buy:136800000,sell:140800000,change_buy:0,change_sell:0},PQHNVM:{buy:137700000,sell:141700000,change_buy:0,change_sell:0},PQHN24NTT:{buy:137700000,sell:140700000,change_buy:0,change_sell:0},XAUUSD:{buy:4008.5,sell:0,change_buy:2.7,change_sell:0}}};
+
+const groups=[
+ {name:'SJC',items:[['SJL1L10','Vàng miếng 1 lượng'],['SJ9999','Nhẫn 9999']]},
+ {name:'DOJI',items:[['DOHNL','Hà Nội'],['DOHCML','TP. Hồ Chí Minh'],['DOJINHTV','Nữ trang']]},
+ {name:'Bảo Tín',items:[['BTSJC','Vàng miếng SJC'],['BT9999NTT','Vàng 9999']]},
+ {name:'PNJ',items:[['PQHNVM','Vàng miếng'],['PQHN24NTT','Vàng 24K']]}
+];
+
+function parseRows(p){const a=p?.data||p?.prices||p;if(Array.isArray(a))return a;if(a&&typeof a==='object')return Object.entries(a).filter(([,x])=>x&&typeof x==='object').map(([c,x])=>({type_code:c,...x}));return[]}
+const find=(rows,id)=>rows.find(x=>String(x.type_code||x.code||x.type||'').toUpperCase()===id)||null;
+
+function chip(x){const c=+x.change_sell||+x.change_buy||0;if(!c)return'<span class="chg">—</span>';return`<span class="chg num ${c>0?'up':'down'}">${c>0?'▲':'▼'} ${vnd(Math.abs(c))}</span>`}
+
+const lcIds=[['SJL1L10','SJC · vàng miếng'],['DOHNL','DOJI · Hà Nội'],['PQHNVM','PNJ · Hà Nội'],['BTSJC','Bảo Tín · SJC']];
+let lcShop=null,lastRows=[];
+try{lcShop=JSON.parse(localStorage.getItem('lcShop')||'null')}catch(e){}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function drawLC(rows){
+  let html=lcIds.map(([id,label])=>{const x=find(rows,id);if(!x)return'';return`<tr><td class="prod">${label}</td><td class="num buy${fl('lc'+id+'b',x.buy)}">${vnd(x.buy)}</td><td class="num sell${fl('lc'+id+'s',x.sell)}">${vnd(x.sell)}</td><td class="num spread">${vnd(x.sell-x.buy)}</td><td>${chip(x)}</td></tr>`}).join('');
+  if(lcShop)html+=`<tr class="grp" data-b="LC"><td colspan="5">Cửa hàng tại Lào Cai</td></tr><tr><td class="prod">${esc(lcShop.name||'Tiệm vàng Lào Cai')}</td><td class="num buy">${vnd(lcShop.buy)}</td><td class="num sell">${vnd(lcShop.sell)}</td><td class="num spread">${vnd(lcShop.sell-lcShop.buy)}</td><td><span class="chg">Nhập tay</span></td></tr>`;
+  $('#lcRows').innerHTML=html||'<tr><td colspan="5" class="empty">Chưa có dữ liệu.</td></tr>';
+}
+const prev={};
+function fl(k,v){const o=prev[k];prev[k]=v;return o!=null&&v!=null&&o!==v?(v>o?' fu':' fd'):''}
+function setVal(sel,num,text){const el=$(sel),o=prev[sel];prev[sel]=num;el.textContent=text;if(o!=null&&num!=null&&o!==num){el.classList.remove('fu','fd');void el.offsetWidth;el.classList.add(num>o?'fu':'fd')}}
+function drawGold(rows){
+  lastRows=rows;drawLC(rows);
+  let html='',n=0;
+  groups.forEach(g=>{
+    const r=g.items.map(([id,label])=>({id,label,...(find(rows,id)||{})})).filter(x=>x.buy!=null||x.sell!=null);
+    if(!r.length)return;n+=r.length;
+    html+=`<tr class="grp" data-b="${g.name}"><td colspan="5">${g.name}</td></tr>`;
+    r.forEach(x=>{html+=`<tr><td class="prod">${x.label}</td><td class="num buy${fl(x.id+'b',x.buy)}">${vnd(x.buy)}</td><td class="num sell${fl(x.id+'s',x.sell)}">${vnd(x.sell)}</td><td class="num spread">${x.buy!=null&&x.sell!=null?vnd(x.sell-x.buy):'—'}</td><td>${chip(x)}</td></tr>`});
+  });
+  $('#goldRows').innerHTML=n?html:'<tr><td colspan="5" class="empty">Nguồn chưa trả dữ liệu bảng giá.</td></tr>';
+  const sjc=find(rows,'SJL1L10'),ring=find(rows,'SJ9999'),xau=find(rows,'XAUUSD');
+  if(sjc){setVal('#sjc',sjc.sell,vnd(sjc.sell));$('#sjcbuy').textContent=vnd(sjc.buy);addHistory(sjc.buy,sjc.sell)}
+  if(ring){setVal('#ring',ring.sell,vnd(ring.sell));$('#ringbuy').textContent=vnd(ring.buy)}
+  if(xau){const xv=+xau.sell>0?+xau.sell:+xau.buy;setVal('#xau',xv,nf2.format(xv));const c=+xau.change_sell||+xau.change_buy||0;$('#xauchg').textContent=(c>0?'▲ ':c<0?'▼ ':'')+nf2.format(Math.abs(c));$('#xauchg').style.color=c>0?'var(--up)':c<0?'var(--down)':''}
+}
+
+function addHistory(b,s){if(b==null||s==null)return;history.push([Date.now(),+b,+s]);if(history.length>120)history.shift();drawChart()}
+function drawChart(){
+  if(history.length<2)return;
+  const w=400,h=150,px=8,py=14,all=history.flatMap(x=>x.slice(1)),lo=Math.min(...all),hi=Math.max(...all),span=hi-lo||1;
+  const pt=(i,k)=>[px+i*(w-2*px)/(history.length-1),h-py-(history[i][k]-lo)*(h-2*py)/span];
+  const path=k=>history.map((_,i)=>{const[a,b]=pt(i,k);return(i?'L':'M')+a.toFixed(1)+' '+b.toFixed(1)}).join(' ');
+  $('#chart').innerHTML=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="Biểu đồ giá mua và bán vàng SJC"><path d="M0 ${py}H${w}M0 ${h/2}H${w}M0 ${h-py}H${w}" stroke="#e2e8f0" stroke-width="1" fill="none"/><path d="${path(1)}" fill="none" stroke="#047857" stroke-width="2.2" vector-effect="non-scaling-stroke"/><path d="${path(2)}" fill="none" stroke="#b8860b" stroke-width="2.2" vector-effect="non-scaling-stroke"/></svg>`;
+}
+
+const GOLD_MS=15000,FX_MS=60000;
+let base='',next=Date.now()+GOLD_MS,nextFx=Date.now()+FX_MS,busy=false;
+function render(){const s=Math.max(0,Math.ceil((next-Date.now())/1000));$('#updated').textContent=base+(document.hidden?' · tạm dừng khi ẩn tab':` · làm mới sau ${s}s`)}
+function setStatus(text,state){base=text;$('#dot').className='dot '+(state||'');render()}
+function stampOf(g){return g?.time&&g?.date?`${g.time} · ${g.date}`:'14:00 · 26/10/2026 (gần nhất)'}
+const clockFmt=new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+async function pollGold(){
+  if(busy)return;busy=true;next=Date.now()+GOLD_MS;
+  try{const g=await loadGold();setStatus(`Giá vàng ${stampOf(g)} · trực tuyến`,'ok')}
+  catch(e){setStatus('Mất kết nối nguồn vàng · đang giữ giá gần nhất','warn')}
+  busy=false;
+}
+setInterval(()=>{
+  $('#clock').textContent=clockFmt.format(new Date());
+  if(!document.hidden){
+    if(Date.now()>=next)pollGold();
+    if(Date.now()>=nextFx){nextFx=Date.now()+FX_MS;loadFx().catch(()=>{})}
+  }
+  render();
+},1000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){next=0;nextFx=0}});
+$('#clock').textContent=clockFmt.format(new Date());
+
+async function loadGold(){
+  const r=await fetch('https://www.vang.today/api/prices',{cache:'no-store'});if(!r.ok)throw Error('gold');
+  const j=await r.json(),rows=parseRows(j);if(!rows.length)throw Error('gold-empty');drawGold(rows);return j;
+}
+async function loadFx(){
+  const r=await fetch('https://api.frankfurter.dev/v2/rates?base=USD&quotes=VND',{cache:'no-store'});if(!r.ok)throw Error('fx');
+  const j=await r.json(),x=Array.isArray(j)?j[0]:j;if(!x||!x.rate)throw Error('fx-empty');
+  setRate(+x.rate,x.date||'—','Tham khảo');
+}
+function setRate(v,date,status){rate=v;setVal('#usd',v,vnd(v));$('#usdBox').textContent=vnd(v)+' ₫';$('#fxdate').textContent='Ngày: '+date;$('#fxDay').textContent=date;$('#fxstatus').textContent=status;convert()}
+function convert(){const a=Number($('#amount').value);$('#converted').textContent=rate&&Number.isFinite(a)?`${nf2.format(a)} USD ≈ ${nf.format(a*rate)} VND`:'Chưa có tỷ giá để tính.'}
+
+// Dữ liệu hiển thị tạm trong lúc chờ nguồn trực tuyến
+drawGold(parseRows(fallbackGold));
+setRate(25807,'2026-10-26','Dữ liệu gần nhất');
+setStatus('Dữ liệu gần nhất · 14:00 · 26/10/2026','warn');
+
+async function update(){
+  const btn=$('#reload'),msg=$('#message');btn.disabled=true;btn.textContent='Đang cập nhật…';msg.classList.remove('show');
+  const res=await Promise.allSettled([loadGold(),loadFx()]);
+  const ok=res.filter(r=>r.status==='fulfilled').length,g=res[0].status==='fulfilled'?res[0].value:null;
+  next=Date.now()+GOLD_MS;nextFx=Date.now()+FX_MS;
+  setStatus(`Giá vàng ${stampOf(g)} · ${ok}/2 nguồn hoạt động`,ok===2?'ok':'warn');
+  if(ok<2){msg.textContent='Một phần dữ liệu chưa tải được; bảng đang giữ giá gần nhất đã có, không thay bằng số liệu ước đoán.';msg.classList.add('show')}
+  btn.disabled=false;btn.textContent='↻ Cập nhật giá';
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+  const lc=b.dataset.t==='lc';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t===b));
+  $('#allBox').hidden=lc;$('#lcBox').hidden=!lc;
+  $('#tabSub').textContent=lc?'Giá tham chiếu cho khu vực Lào Cai · đơn vị: đồng/lượng':'Giá mua – bán theo thương hiệu · đơn vị: đồng/lượng';
+}));
+if(lcShop){$('#lcName').value=lcShop.name||'';$('#lcBuy').value=lcShop.buy;$('#lcSell').value=lcShop.sell}
+$('#lcForm').addEventListener('submit',e=>{
+  e.preventDefault();const buy=+$('#lcBuy').value,sell=+$('#lcSell').value;
+  if(!(buy>0&&sell>0))return;
+  lcShop={name:$('#lcName').value.trim(),buy,sell};
+  try{localStorage.setItem('lcShop',JSON.stringify(lcShop))}catch(x){}
+  drawLC(lastRows);
+});
+$('#lcClear').addEventListener('click',()=>{lcShop=null;try{localStorage.removeItem('lcShop')}catch(x){}['#lcName','#lcBuy','#lcSell'].forEach(s=>$(s).value='');drawLC(lastRows)});
+$('#reload').addEventListener('click',update);$('#convert').addEventListener('click',convert);$('#amount').addEventListener('input',convert);
+update();
+})();
+</script>
+</body>
+</html>

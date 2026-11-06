@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#4f7717">
+<title>Tin tức địa phương - Đảng bộ xã Nghĩa Đô</title>
+<style>
+:root{--son:#59891a;--son-d:#3d5d11;--vang:#e8c86a;--ink:#202936;--muted:#667085;--line:#e6e8ec;--giay:#fdf8ec}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;display:flex;flex-direction:column;background:#f6f4ef;color:var(--ink);font:15px/1.5 "Be Vietnam Pro",Inter,"Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+header{flex:none;background:linear-gradient(100deg,var(--son-d),var(--son));color:#fff;padding:14px 64px 14px 22px;border-bottom:3px solid var(--vang)}
+header small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--vang)}
+header h1{margin:2px 0 0;font-size:19px;line-height:1.25}
+header p{margin:3px 0 0;font-size:12.5px;color:#e9f1db}
+main{flex:1;min-height:0;overflow:auto;padding:12px 16px 8px}
+.nw-list{list-style:none;margin:0 auto;padding:0;max-width:980px;display:grid;gap:8px}
+.nw-item a{display:flex;gap:14px;align-items:flex-start;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:12px;color:inherit;text-decoration:none;transition:border-color .15s,box-shadow .15s}
+.nw-item a:hover{border-color:#e2c46a;box-shadow:0 6px 16px -10px #0006}
+.nw-item a:hover .nw-t{color:var(--son)}
+.nw-item.lead a{background:linear-gradient(120deg,#fffaf0,#fff 70%);border-color:#f0e3bd}
+.nw-th{flex:none;width:96px;height:68px;border-radius:9px;object-fit:cover;background:#f1f2f4;border:1px solid var(--line)}
+.nw-dt{flex:none;width:68px;height:68px;border-radius:9px;border:1px solid var(--line);background:var(--giay);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;gap:4px}
+.nw-dt b{font-size:22px}.nw-dt small{font-size:10px;font-weight:800;color:var(--son);text-transform:uppercase}
+.nw-b{min-width:0;flex:1}
+.nw-t{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:700;font-size:15px;line-height:1.4}
+.nw-item.lead .nw-t{font-size:17px}
+.nw-s{margin:4px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.5;color:var(--muted)}
+.nw-m{display:flex;flex-wrap:wrap;gap:5px 8px;align-items:center;margin-top:6px;font-size:12px;color:var(--muted)}
+.nw-src{padding:2px 9px;border-radius:999px;background:#fbefc7;color:#7a5a0a;font-weight:700;font-size:11px}
+.nw-new{padding:2px 8px;border-radius:999px;background:var(--son);color:#fff;font-weight:800;font-size:10.5px}
+.btn{font:700 13px inherit;font-family:inherit;border:1px solid var(--son);background:#fff;color:var(--son);border-radius:999px;padding:8px 18px;cursor:pointer}
+.btn:hover{background:#fafef5}
+.nw-more{display:block;margin:4px auto 8px}
+.nw-empty{padding:40px 16px;text-align:center;color:var(--muted);font-size:14px}
+.nw-foot{flex:none;margin:0;padding:8px 16px;font-size:11.5px;color:var(--muted);background:#fff;border-top:1px solid var(--line);text-align:center}
+@media(max-width:620px){header{padding:12px 58px 12px 14px}.nw-th{width:72px;height:54px}.nw-dt{width:54px;height:54px}.nw-dt b{font-size:18px}.nw-item a{padding:10px}.nw-t{font-size:14px}}
+</style>
+</head>
+<body>
+<header><small>Đảng bộ xã Nghĩa Đô</small><h1>Tin tức địa phương</h1><p>Tin tích cực về xã Nghĩa Đô từ báo chính thống · tự cập nhật mỗi 15 phút</p></header>
+<main><ul class="nw-list" id="newsList"></ul></main>
+<p class="nw-foot" id="newsFoot"></p>
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+/* ===== Tin tức địa phương: dùng chung nguồn và bộ lọc với khối tin ở trang Tổng quan ===== */
+const NEWS_UNIT='xã Nghĩa Đô',NEWS_POOL='https://laocai-cds.github.io/tthc/news/pool.json';
+const VN7=7*36e5,vnDay=ms=>Math.floor((ms+VN7)/864e5);
+const nkeep=t=>' '+String(t||'').normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()+' ';
+const nplain=t=>nkeep(String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[đĐ]/g,'d'));
+const nmarks=t=>/[\u0300-\u036f]|[ăâêôơưđ]/i.test(String(t||'').normalize('NFD'));
+const mentions=(t,ph)=>nkeep(t).includes(nkeep(ph))||(!nmarks(t)&&nplain(t).includes(nplain(ph)));
+  const headMention=(t,b)=>{const s=String(t||'').normalize('NFC').toLowerCase().replace(/^[\s"'“”‘’\[\(]+/,''),h=String(b||'').normalize('NFC').toLowerCase();if(!h)return false;const e=h.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return(s.startsWith(h)&&/^\s*[:\-–—]/.test(s.slice(h.length)))||new RegExp('(^|[^\\p{L}])(xã|phường|đảng bộ|đảng ủy|ubnd|hđnd)\\s+'+e+'(?![\\p{L}])','u').test(s)};
+const firstSent=i=>(i.title||'')+' '+((i.desc||'').split(/(?<=[.!?…])\s+/)[0]||'').slice(0,220);
+function foreign(i){
+  const src=String(i.source||'');
+  if(/Lào Cai/i.test(src))return false;
+  if(/(Báo|Đài|Cổng)[^|]*(Phú Thọ|Lai Châu|Hà Giang|Tuyên Quang|Sơn La|Điện Biên|Thanh Hóa|Nghệ An|Hà Tĩnh|Quảng Ninh|Hải Phòng|Hà Nội|Thành phố Hồ Chí Minh|Sài Gòn|Đà Nẵng|Cần Thơ|Huế|Khánh Hòa|Lâm Đồng|Đắk Lắk|Gia Lai|Đồng Nai|Tây Ninh|An Giang|Cà Mau)/i.test(src))return true;
+  const t=firstSent(i);
+  if(/Lào Cai|Yên Bái/i.test(t))return false;
+  return /(^|[^\p{L}])(Phú Thọ|Vĩnh Phúc|Hòa Bình|TP\.? ?HCM|TP\.? Hồ Chí Minh|Thành phố Hồ Chí Minh|Hà Nội|Phú Quốc|Đà Nẵng|Hải Phòng|Thanh Hóa|Nghệ An|Quảng Ninh|Sơn La|Điện Biên|Lai Châu|Hà Giang|Tuyên Quang|Thái Nguyên|Bắc Ninh|Cần Thơ|Lâm Đồng|Đắk Lắk|Gia Lai|An Giang|Đồng Nai|Hưng Yên|Ninh Bình|Cao Bằng|Lạng Sơn|Hà Tĩnh|Quảng Trị|Quảng Ngãi|Cà Mau|Tây Ninh)(?![\p{L}])/u.test(t);
+}
+function badItem(i,seenU,seenT,lim){
+  if(!i||typeof i!=='object')return true;
+  const t=String(i.title||'').replace(/\s+/g,' ').trim();
+  if(t.length<10||/<[a-z\/!][^>]*>|&#?\w+;/i.test(t))return true;
+  if(t.length<70&&/^\s*(404|403|500|502|503)\b|not found|access denied|forbidden|just a moment|bad gateway|không tìm thấy|lỗi (máy chủ|truy cập|hệ thống)|^\s*(error|lỗi)\s*$/i.test(t))return true;
+  if(!/^https?:\/\/[^\s]+$/i.test(String(i.url||'')))return true;
+  const ms=Date.parse(i.published);if(isNaN(ms)||ms>lim)return true;
+  const ku=String(i.url).replace(/[#?].*$/,'').replace(/\/+$/,'').toLowerCase(),kt=t.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+  if(seenU.has(ku)||seenT.has(kt))return true;
+  seenU.add(ku);seenT.add(kt);return false;
+}
+function newsSummary(desc,title){
+  let t=String(desc||'').replace(/\s+/g,' ').trim();const ti=String(title||'').trim();
+  if(ti&&t.toLowerCase().startsWith(ti.toLowerCase()))t=t.slice(ti.length).replace(/^[\s:.\-–—]+/,'');
+  if(t.length<25)return'';if(t.length<=150)return t;
+  const cut=t.slice(0,150),sp=cut.lastIndexOf(' ');return cut.slice(0,sp>100?sp:150).replace(/[\s,;:.\-–—]+$/,'')+'…';
+}
+function newsWhen(ms){
+  const d=vnDay(Date.now())-vnDay(ms);
+  if(d<=0)return'Hôm nay';if(d===1)return'Hôm qua';if(d<7)return d+' ngày trước';
+  const v=new Date(ms+VN7);return String(v.getUTCDate()).padStart(2,'0')+'/'+String(v.getUTCMonth()+1).padStart(2,'0')+'/'+v.getUTCFullYear();
+}
+function newsEl(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function newsCard(it,isLead){
+  const li=newsEl('li','nw-item'+(isLead?' lead':'')),a=newsEl('a');a.href=it.url;a.target='_blank';a.rel='noopener noreferrer';
+  const ms=Date.parse(it.published),v=new Date(ms+VN7);
+  const dt=newsEl('div','nw-dt');dt.append(newsEl('b',null,String(v.getUTCDate()).padStart(2,'0')),newsEl('small',null,'Th'+(v.getUTCMonth()+1)));
+  let lead=dt;
+  if(/^https:\/\//i.test(it.img||'')){
+    const im=newsEl('img','nw-th');im.src=it.img;im.alt='';im.loading='lazy';im.decoding='async';im.referrerPolicy='no-referrer';im.width=96;im.height=68;
+    im.addEventListener('error',()=>im.replaceWith(dt));lead=im;
+  }
+  const b=newsEl('div','nw-b');b.append(newsEl('div','nw-t',it.title||'Tin tức'));
+  const sm=newsSummary(it.desc,it.title);if(sm)b.append(newsEl('p','nw-s',sm));
+  const m=newsEl('div','nw-m');
+  if(vnDay(Date.now())===vnDay(ms))m.append(newsEl('span','nw-new','MỚI'));
+  if(it.source)m.append(newsEl('span','nw-src',it.source));
+  m.append(newsEl('span',null,newsWhen(ms)));b.append(m);
+  a.append(lead,b);li.append(a);return li;
+}
+let newsState='idle',newsAt=0;
+async function loadNews(force){
+  const ul=$('#newsList'),foot=$('#newsFoot');
+  if(newsState==='loading')return;
+  if(!force&&newsState==='ok'&&Date.now()-newsAt<10*60*1000)return;
+  newsState='loading';ul.replaceChildren(newsEl('li','nw-empty','Đang tải tin tức…'));foot.textContent='';
+  try{
+    let r=await fetch(NEWS_POOL.replace(/pool\.json$/,'units/xa-nghia-do.json'),{cache:'no-cache'}).catch(()=>null);
+    if(!r||!r.ok)r=await fetch(NEWS_POOL,{cache:'no-cache'}); /* file riêng của xã nhỏ, tải nhanh; thiếu thì dùng file chung */
+    if(!r.ok)throw Error('HTTP '+r.status);
+    const d=await r.json();if(!Array.isArray(d.items))throw Error('bad');
+    const seenU=new Set(),seenT=new Set(),lim=Date.now()+864e5,bare=NEWS_UNIT.replace(/^(xã|phường)\s+/i,'');
+    const ok=d.items.filter(i=>!foreign(i)&&!badItem(i,seenU,seenT,lim));
+    const items=ok.filter(i=>!i.bad&&/^https?:\/\//i.test(i.url||'')&&((i.us||[]).includes(NEWS_UNIT)||mentions(firstSent(i),NEWS_UNIT)||headMention(i.title||'',bare)))
+      .sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0)).slice(0,30);
+    ul.replaceChildren();
+    if(!items.length){ul.append(newsEl('li','nw-empty','Chưa có tin nào nhắc tới xã Nghĩa Đô. Dữ liệu tự cập nhật mỗi 15 phút.'))}
+    else{
+      const SHOW=8;
+      items.forEach((it,i)=>{const c=newsCard(it,i===0);if(i>=SHOW){c.hidden=true;c.classList.add('nw-x')}ul.append(c)});
+      if(items.length>SHOW){
+        const li=newsEl('li'),mb=newsEl('button','btn ghost nw-more','Xem tiếp '+(items.length-SHOW)+' bài');mb.type='button';
+        mb.addEventListener('click',()=>{const open=li.dataset.open!=='1';li.dataset.open=open?'1':'0';ul.querySelectorAll('.nw-x').forEach(x=>x.hidden=!open);mb.textContent=open?'Thu gọn':'Xem tiếp '+(items.length-SHOW)+' bài'});
+        li.append(mb);ul.append(li);
+      }
+    }
+    const t=d.updatedAt?new Date(d.updatedAt).toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',timeZone:'Asia/Ho_Chi_Minh'}):'';
+    foot.textContent='Tin tổng hợp từ báo chính thống có RSS, chỉ gồm bài nhắc tới xã Nghĩa Đô; bấm vào để đọc bài gốc.'+(t?' Dữ liệu cập nhật '+t+'.':'');
+    newsState='ok';newsAt=Date.now();
+  }catch(e){
+    newsState='idle';ul.replaceChildren();
+    const li=newsEl('li','nw-empty','Chưa tải được tin tức. '),b=newsEl('button','btn ghost','Thử lại');b.type='button';b.addEventListener('click',()=>loadNews(true));
+    li.append(b);ul.append(li);
+  }
+}
+
+loadNews();
+})();
+</script>
+</body>
+</html>
