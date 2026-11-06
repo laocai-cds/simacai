@@ -1,8 +1,0 @@
-name = "simacaicds"
-compatibility_date = "2025-01-01"
-pages_build_output_dir = "."
-
-[[d1_databases]]
-binding = "DB"
-database_name = "simacai-stats"
-database_id = "5aed5527-9c64-483d-beb3-da5b6dd30b9d"
