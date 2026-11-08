@@ -1570,7 +1570,7 @@ function render(){
    const mini=(k,i,lab,val,sub,bar)=>`<div class="stat kp-mini ${k}"><i class="ico" aria-hidden="true">${IC[i]}</i><span>${lab}</span>${val}${bar!=null?`<div class="kp-bar"><i style="width:${Math.max(bar>0?1.5:0,bar*100).toFixed(1)}%"></i></div>`:''}<small>${sub}</small></div>`;
    $('#stats').classList.add('kpB');
    $('#stats').innerHTML=`<div class="stat kp-hero cardx"><i class="kp-drum" aria-hidden="true"></i>`+
-    `<div class="cx-top"><div class="cx-brand"><img src="logo.png" alt="" width="34" height="34"><div><b>Đảng bộ xã Si Ma Cai</b><small>Thẻ theo dõi đảng phí</small></div></div><div class="cx-tag">ĐẢNG PHÍ<em>Kỳ ${String(new Date().getMonth()+1).padStart(2,'0')}/${String(new Date().getFullYear()).slice(2)}</em></div></div>`+
+    `<div class="cx-top"><div class="cx-brand"><img src="logo.png" alt="" width="34" height="34"><div><b>Đảng bộ xã Si Ma Cai</b><small>Thẻ theo dõi đảng phí</small></div></div><div class="cx-tag">ĐẢNG PHÍ<em>Kỳ ${String(new Date().getMonth()+1).padStart(2,'0')}/${String(new Date().getFullYear()).slice(2)}</em><span class="cx-upd${dataSrc==='sheet'?'':' off'}" title="${dataSrc==='sheet'?'Google Sheet cập nhật':'Dữ liệu cập nhật'}"><i></i>${dataSrc==='sheet'?'Cập nhật':'Dữ liệu'} ${dataSrc==='loading'?'…':(dataStamp||'—')}</span></div></div>`+
     `<div class="cx-mid"><span class="cx-chip" aria-hidden="true"></span><svg class="cx-nfc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8.5 8.5a5 5 0 0 1 0 7"/><path d="M12 6a8.5 8.5 0 0 1 0 12"/><path d="M15.5 3.5a12 12 0 0 1 0 17"/></svg><div class="cx-pct"><b id="kpPct">0,00%</b><small>đảng viên đã nộp</small></div></div>`+
     `<div class="cx-num">${[[t.paidCount,'Đã nộp'],[t.due,'Phải nộp'],[t.exempt,'Miễn giảm'],[Math.max(0,t.due-t.paidCount),'Còn lại']].map(([x,l])=>`<div><b>${String(Math.round(x||0)).padStart(4,'0')}</b><small>${l}</small></div>`).join('')}</div>`+
     `<div class="cx-bot"><div class="cx-holder"><small>Tổng số đảng viên</small><b>${num(t.members)} đảng viên</b></div><div class="cx-bar" style="--w:${(Math.min(1,rate)*100).toFixed(2)}%"><small><span>Tiến độ</span><span>${pct2(rate).replace(' %','%')}</span></small><i></i></div><svg class="cx-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.5l2.8 6.6 7.2.6-5.5 4.7 1.7 7-6.2-3.8-6.2 3.8 1.7-7L2 9.7l7.2-.6z"/></svg></div></div>`+
@@ -3245,12 +3245,12 @@ html body :is(#stats,#heroCard) .stat.kp-hero.cardx{padding:18px!important;min-h
 <style id="heroCardCss">/* Si Ma Cai: thẻ theo dõi đảng phí thay vào khối "Tình hình thu nộp đảng phí" */
 .hero .wrap>div.has-card{padding:0!important;background:none!important;box-shadow:none!important;border:0!important;overflow:visible!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 1fr;gap:10px 12px;align-items:center}
 .has-card .loadnote{grid-column:1;grid-row:1;justify-self:start}
-.has-card .heroline{grid-column:2;grid-row:1;display:flex!important;margin:0!important;padding:0!important;justify-self:end}
+.has-card .heroline{display:none!important;margin:0!important;padding:0!important;justify-self:end}
 .has-card .heroline .kp-stamp{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:#fff;border:1px solid #dde4f0;white-space:nowrap;box-shadow:0 2px 6px #0f2a5a12}
 .has-card .heroline .kp-stamp small{display:inline;margin:0;font-size:12.5px;color:#5b6b7a;opacity:1}
 .has-card .heroline .kp-stamp b{display:inline;font:800 13px/1.2 var(--sans);color:#10283b}
 #heroCard{grid-column:1/-1;grid-row:2;align-self:stretch}
-@media(max-width:560px){.hero .wrap>div.has-card{grid-template-columns:1fr}.has-card .heroline{grid-column:1;grid-row:2;justify-self:start}#heroCard{grid-row:3}}
+
 .hero .wrap>div.has-card::before,.hero .wrap>div.has-card::after{display:none!important}
 .has-card .eyebrow,.has-card .lede{display:none!important}
 .has-card h1{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -3259,6 +3259,10 @@ html body :is(#stats,#heroCard) .stat.kp-hero.cardx{padding:18px!important;min-h
 #heroCard>.kp-hero{flex:1;grid-row:auto!important;margin:0}
 #stats.kpB{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 @media(max-width:900px){#stats.kpB{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+#heroCard .cardx .cx-tag .cx-upd{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:5px;padding:0;font:500 normal 9.5px/1.2 var(--sans)!important;letter-spacing:0!important;text-transform:none!important;color:#c9d8f5!important;opacity:.9;white-space:nowrap}
+#heroCard .cx-upd i{width:5px;height:5px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 2px #4ade8033;animation:kpDot 2s ease-in-out infinite}
+#heroCard .cx-upd.off i{background:#94a3b8;box-shadow:0 0 0 2px #94a3b833;animation:none}
+@keyframes kpDot{50%{box-shadow:0 0 0 4px #4ade8010}}
 </style>
 <script src="xa-bar.js"></script>
 </body>
