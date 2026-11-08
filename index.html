@@ -1560,7 +1560,7 @@ function render(){
   const t=totals(),rate=t.due?t.paidCount/t.due:0;
   const active=units.filter(r=>v(r,'members')>0),done=units.filter(r=>cls(r)==='complete').length;
 
-  $('#heroline').innerHTML=`<div><b>${money(t.paid)}</b><small>Đã thu</small></div><div><b>${t.paidCount}/${t.due}</b><small>Đảng viên đã nộp</small></div><div><b>${done}/${units.length}</b><small>Đơn vị hoàn thành</small></div><div><b>${dataSrc==='loading'?'…':(dataStamp||'—')}</b><small>${dataSrc==='sheet'?'Google Sheet cập nhật':'Dữ liệu cập nhật'}</small></div>`;
+  $('#heroline').innerHTML=`<div class="kp-stamp"><i class="kp-dot${dataSrc==='sheet'?'':' off'}"></i><small>${dataSrc==='sheet'?'Google Sheet cập nhật':'Dữ liệu cập nhật'}</small><b>${dataSrc==='loading'?'…':(dataStamp||'—')}</b></div>`;
   {const hd=$('#heroDate');if(hd){const d=new Date();hd.textContent='Ngày '+d.getDate()+' tháng '+(d.getMonth()+1)+' năm '+d.getFullYear()}}
   renderDonut(t,rate,active);renderMonthly();renderBanner();
 
@@ -3243,9 +3243,16 @@ html body :is(#stats,#heroCard) .stat.kp-hero.cardx{padding:18px!important;min-h
 }
 </style>
 <style id="heroCardCss">/* Si Ma Cai: thẻ theo dõi đảng phí thay vào khối "Tình hình thu nộp đảng phí" */
-.hero .wrap>div.has-card{padding:0!important;background:none!important;box-shadow:none!important;border:0!important;overflow:visible!important;display:flex!important;flex-direction:column;gap:10px}
+.hero .wrap>div.has-card{padding:0!important;background:none!important;box-shadow:none!important;border:0!important;overflow:visible!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 1fr;gap:10px 12px;align-items:center}
+.has-card .loadnote{grid-column:1;grid-row:1;justify-self:start}
+.has-card .heroline{grid-column:2;grid-row:1;display:flex!important;margin:0!important;padding:0!important;justify-self:end}
+.has-card .heroline .kp-stamp{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:#fff;border:1px solid #dde4f0;white-space:nowrap;box-shadow:0 2px 6px #0f2a5a12}
+.has-card .heroline .kp-stamp small{display:inline;margin:0;font-size:12.5px;color:#5b6b7a;opacity:1}
+.has-card .heroline .kp-stamp b{display:inline;font:800 13px/1.2 var(--sans);color:#10283b}
+#heroCard{grid-column:1/-1;grid-row:2;align-self:stretch}
+@media(max-width:560px){.hero .wrap>div.has-card{grid-template-columns:1fr}.has-card .heroline{grid-column:1;grid-row:2;justify-self:start}#heroCard{grid-row:3}}
 .hero .wrap>div.has-card::before,.hero .wrap>div.has-card::after{display:none!important}
-.has-card .eyebrow,.has-card .lede,.has-card .heroline{display:none!important}
+.has-card .eyebrow,.has-card .lede{display:none!important}
 .has-card h1{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .has-card .loadnote{margin:0!important}
 #heroCard{flex:1;display:flex}
