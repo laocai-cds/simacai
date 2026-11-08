@@ -960,12 +960,13 @@ go();document.addEventListener('DOMContentLoaded',go);
 <section class="page on" id="overview" aria-label="Tổng quan">
   <div class="hero">
     <div class="wrap">
-      <div>
+      <div class="has-card">
         <p class="eyebrow">Bảng điều hành · <span id="heroDate"></span></p>
         <h1>Tình hình thu nộp đảng phí</h1>
         <p class="lede"><strong class="lede-name">Đảng bộ xã Si Ma Cai</strong> · tổng hợp từ các chi bộ, đảng bộ trực thuộc</p>
         <p class="loadnote" id="loadNote" hidden></p>
         <div class="heroline" id="heroline"></div>
+        <div id="heroCard"></div>
       </div>
       <aside class="dpanel" aria-label="Biểu đồ tròn tình hình thu">
         <div class="dhead"><b>Tình hình thu toàn Đảng bộ</b><small>Vòng ngoài là đảng viên, vòng trong là đơn vị</small></div>
@@ -1578,6 +1579,7 @@ function render(){
     mini('k5',2,'Đơn vị hoàn thành',`<strong><span data-c="${us.done}" data-f="num">0</span><em> / ${active.length}</em></strong>`,`<b>${us.part}</b> đang thu · <b>${us.empty}</b> chưa phát sinh`,active.length?us.done/active.length:0)+
     mini('k4',3,'Hồ sơ cần xử lý',`<strong data-c="${todo}" data-f="num">0</strong>`,`<b>${num(t.approved)}</b> chưa nộp · <b>${num(t.noRecord)}</b> chưa có hồ sơ`+(t.pending?` · <b>${num(t.pending)}</b> chưa duyệt`:''));
    const kv=$('#stats .kp-val');if(kv){const go=()=>kv.setAttribute('stroke-dasharray',kv.dataset.len+' '+kv.dataset.c2);if(REDUCED)go();else requestAnimationFrame(()=>requestAnimationFrame(go))}
+   {const hc=document.getElementById('heroCard'),he=document.querySelector('#stats .kp-hero');if(hc&&he)hc.replaceChildren(he)}
    countUp($('#kpPct'),rate,x=>pct2(x).replace(' %','%'));}
 
   renderSummary(t,rate);if(cbOpen)openCb(cbOpen,true);
@@ -3161,14 +3163,14 @@ document.addEventListener('keydown',function(e){var o=ov();if(e.key==='Escape'&&
 @keyframes kpDot{50%{box-shadow:0 0 0 7px #16a34a10}}
 #stats.kpB{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);grid-auto-rows:auto;gap:14px}
 .stat.k5{--k:#d97706;--kb:#fff7ed;--kbd:#fed7aa;--kt:#b45309}
-#stats .kp-mini strong{font-size:clamp(1.25rem,1.9vw,1.6rem)!important;margin:10px 0 4px!important}
-#stats .kp-mini strong em{font-style:normal;font-size:.62em;font-weight:600;color:#5b6b7a;letter-spacing:0}
-#stats .kp-mini small b{color:var(--kt)}
+:is(#stats,#heroCard) .kp-mini strong{font-size:clamp(1.25rem,1.9vw,1.6rem)!important;margin:10px 0 4px!important}
+:is(#stats,#heroCard) .kp-mini strong em{font-style:normal;font-size:.62em;font-weight:600;color:#5b6b7a;letter-spacing:0}
+:is(#stats,#heroCard) .kp-mini small b{color:var(--kt)}
 .kp-bar{height:7px;border-radius:9px;background:#e9eef4;margin:8px 0 8px;overflow:hidden}
 .kp-bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--k),color-mix(in srgb,var(--k) 60%,#fff));transition:width 1.2s cubic-bezier(.2,.75,.25,1)}
-#stats .kp-hero{grid-row:span 2;display:flex;align-items:center;gap:24px;padding:24px 26px!important;color:#fff;border:0!important;background:radial-gradient(130% 150% at 0% 0%,#3a6fc0 0,#24529a 32%,#173a75 64%,#0c2250 100%)!important;--k:#fff6b0;box-shadow:0 18px 36px -22px #0c2250cc!important}
-#stats .kp-hero::after{background:linear-gradient(90deg,#fff6b0,#ffffff,#fff6b0,#ffffff,#fff6b0)!important;background-size:200% 100%!important;opacity:.7}
-#stats .kp-hero:hover{box-shadow:0 24px 40px -22px #0c2250ee!important}
+:is(#stats,#heroCard) .kp-hero{grid-row:span 2;display:flex;align-items:center;gap:24px;padding:24px 26px!important;color:#fff;border:0!important;background:radial-gradient(130% 150% at 0% 0%,#3a6fc0 0,#24529a 32%,#173a75 64%,#0c2250 100%)!important;--k:#fff6b0;box-shadow:0 18px 36px -22px #0c2250cc!important}
+:is(#stats,#heroCard) .kp-hero::after{background:linear-gradient(90deg,#fff6b0,#ffffff,#fff6b0,#ffffff,#fff6b0)!important;background-size:200% 100%!important;opacity:.7}
+:is(#stats,#heroCard) .kp-hero:hover{box-shadow:0 24px 40px -22px #0c2250ee!important}
 .kp-ring{position:relative;flex:none;width:clamp(120px,11vw,150px);aspect-ratio:1}
 .kp-ring svg{display:block;width:100%;height:100%;transform:rotate(-90deg)}
 .kp-ring circle{fill:none;stroke-width:11}
@@ -3179,35 +3181,35 @@ document.addEventListener('keydown',function(e){var o=ov();if(e.key==='Escape'&&
 .kp-rc b{font-weight:800;font-size:clamp(1.2rem,1.75vw,1.5rem);line-height:1;letter-spacing:-.02em;color:#fff}
 .kp-rc em{font-style:normal;font-size:11px;opacity:.8;margin-top:5px}
 .kp-hb{flex:1;min-width:0}
-#stats .kp-hero .kp-hb>span{display:block;padding:0;font-size:13.5px;font-weight:600;color:#e3ecff;letter-spacing:0;text-transform:none}
+:is(#stats,#heroCard) .kp-hero .kp-hb>span{display:block;padding:0;font-size:13.5px;font-weight:600;color:#e3ecff;letter-spacing:0;text-transform:none}
 .kp-hv{display:flex;align-items:baseline;gap:8px;margin:6px 0 12px}
-#stats .kp-hero strong{margin:0!important;font-weight:800!important;font-size:clamp(2rem,3.2vw,2.6rem)!important;line-height:1!important;color:#fff!important}
+:is(#stats,#heroCard) .kp-hero strong{margin:0!important;font-weight:800!important;font-size:clamp(2rem,3.2vw,2.6rem)!important;line-height:1!important;color:#fff!important}
 .kp-hv em{font-style:normal;font-size:1.05rem;font-weight:600;color:#c9d8f5}
 .kp-hb ul{list-style:none;margin:0;padding:0;display:grid}
 .kp-hb li{display:flex;justify-content:space-between;gap:16px;padding:7px 0;border-top:1px solid #ffffff2b;font-size:13px;color:#e3ecff}
 .kp-hb li b{color:#fff;font-weight:700}
 #stats:not(.kp-done) .stat:nth-child(5){animation-delay:.36s}
-#stats .kp-mini strong span{display:inline;padding:0;font:inherit;color:inherit;letter-spacing:inherit;text-transform:none}
-#stats .kp-hero li span{display:inline;padding:0;font-size:13px;font-weight:500;color:#e3ecff;letter-spacing:0;text-transform:none}
-@media(max-width:1100px){#stats.kpB{grid-template-columns:repeat(2,minmax(0,1fr))}#stats .kp-hero{grid-row:auto;grid-column:1/-1}}
-@media(max-width:560px){#stats .kp-hero{flex-direction:column;align-items:stretch;gap:16px;padding:18px!important}.kp-ring{width:130px;margin:0 auto}#stats .kp-mini{padding:14px!important}}
+:is(#stats,#heroCard) .kp-mini strong span{display:inline;padding:0;font:inherit;color:inherit;letter-spacing:inherit;text-transform:none}
+:is(#stats,#heroCard) .kp-hero li span{display:inline;padding:0;font-size:13px;font-weight:500;color:#e3ecff;letter-spacing:0;text-transform:none}
+@media(max-width:1100px){#stats.kpB{grid-template-columns:repeat(2,minmax(0,1fr))}:is(#stats,#heroCard) .kp-hero{grid-row:auto;grid-column:1/-1}}
+@media(max-width:560px){:is(#stats,#heroCard) .kp-hero{flex-direction:column;align-items:stretch;gap:16px;padding:18px!important}.kp-ring{width:130px;margin:0 auto}:is(#stats,#heroCard) .kp-mini{padding:14px!important}}
 @media(prefers-reduced-motion:reduce){.kp-dot{animation:none}}
-#stats .kp-hero .kp-hb,#stats .kp-hero .kp-rc{text-shadow:0 1px 2px #06143366}
+:is(#stats,#heroCard) .kp-hero .kp-hb,:is(#stats,#heroCard) .kp-hero .kp-rc{text-shadow:0 1px 2px #06143366}
 </style>
 <style id="kpDrumCss">/* Si Ma Cai: trống đồng chìm bên phải thẻ chính */
-#stats .stat.kp-hero{isolation:isolate;overflow:hidden}
-#stats .stat.kp-hero>.kp-drum{position:absolute!important;inset:0!important;z-index:0!important;pointer-events:none;background:url(trong-dong.png) right -80px center/340px no-repeat;opacity:.15}
-#stats .stat.kp-hero>.kp-ring,#stats .stat.kp-hero>.kp-hb{position:relative;z-index:1}
-@media(max-width:560px){#stats .stat.kp-hero>.kp-drum{background-position:center 30%;background-size:300px}}
+:is(#stats,#heroCard) .stat.kp-hero{isolation:isolate;overflow:hidden}
+:is(#stats,#heroCard) .stat.kp-hero>.kp-drum{position:absolute!important;inset:0!important;z-index:0!important;pointer-events:none;background:url(trong-dong.png) right -80px center/340px no-repeat;opacity:.15}
+:is(#stats,#heroCard) .stat.kp-hero>.kp-ring,:is(#stats,#heroCard) .stat.kp-hero>.kp-hb{position:relative;z-index:1}
+@media(max-width:560px){:is(#stats,#heroCard) .stat.kp-hero>.kp-drum{background-position:center 30%;background-size:300px}}
 </style>
 <style id="cardxCss">/* Si Ma Cai: thẻ chính kiểu thẻ ngân hàng */
-html body #stats .stat.kp-hero.cardx{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:space-between;gap:0;padding:22px 26px 20px!important;border-radius:20px!important;min-height:260px}
+html body :is(#stats,#heroCard) .stat.kp-hero.cardx{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:space-between;gap:0;padding:22px 26px 20px!important;border-radius:20px!important;min-height:260px}
 .cx-top,.cx-mid,.cx-num,.cx-bot{position:relative;z-index:1}
 .cx-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .cx-brand{display:flex;align-items:center;gap:10px;min-width:0}
 .cx-brand img{width:34px;height:34px;border-radius:9px;background:#fff;padding:3px;box-shadow:0 0 0 1.5px #ffe7a3;flex:none}
-#stats .cardx .cx-brand b{display:block;font:800 14px/1.15 var(--sans);letter-spacing:.06em;color:#fff;text-transform:uppercase;white-space:nowrap}
-#stats .cardx .cx-brand small{display:block;font-size:10.5px!important;letter-spacing:.14em;text-transform:uppercase;color:#ffe7a3;margin-top:2px}
+:is(#stats,#heroCard) .cardx .cx-brand b{display:block;font:800 14px/1.15 var(--sans);letter-spacing:.06em;color:#fff;text-transform:uppercase;white-space:nowrap}
+:is(#stats,#heroCard) .cardx .cx-brand small{display:block;font-size:10.5px!important;letter-spacing:.14em;text-transform:uppercase;color:#ffe7a3;margin-top:2px}
 .cx-tag{font:900 italic 18px/1 var(--sans);letter-spacing:.04em;color:#fff;text-align:right;flex:none}.cx-tag em{display:block;font:600 normal 10.5px/1.3 var(--sans);letter-spacing:.12em;color:#ffe7a3;margin-top:3px}
 .cx-mid{display:flex;align-items:center;gap:14px;margin-top:14px}
 .cx-chip{flex:none;width:52px;height:40px;border-radius:8px;background:linear-gradient(135deg,#f9e29c,#d4a53a 45%,#f5d77a 60%,#b8862b);position:relative;box-shadow:inset 0 0 0 1px #8a6418aa,0 2px 4px #0005}
@@ -3215,30 +3217,41 @@ html body #stats .stat.kp-hero.cardx{display:flex!important;flex-direction:colum
 .cx-chip::after{content:'';position:absolute;left:0;right:0;top:50%;height:1.4px;background:#8a641899;box-shadow:0 -9px 0 #8a641866,0 9px 0 #8a641866}
 .cx-nfc{flex:none;width:26px;height:26px;color:#fff;opacity:.9}
 .cx-pct{margin-left:auto;text-align:right}
-#stats .cardx .cx-pct b{display:block;font:800 30px/1 var(--sans)!important;color:#fff;text-shadow:0 2px 4px #06143388;white-space:nowrap}
-#stats .cardx .cx-pct small{font-size:11px!important;letter-spacing:.1em;text-transform:uppercase;color:#ffe7a3}
+:is(#stats,#heroCard) .cardx .cx-pct b{display:block;font:800 30px/1 var(--sans)!important;color:#fff;text-shadow:0 2px 4px #06143388;white-space:nowrap}
+:is(#stats,#heroCard) .cardx .cx-pct small{font-size:11px!important;letter-spacing:.1em;text-transform:uppercase;color:#ffe7a3}
 .cx-num{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
-#stats .cardx .cx-num b{display:block;font:600 27px/1 'Courier New',ui-monospace,monospace!important;letter-spacing:.12em;color:#fff7ea;text-shadow:0 1px 0 #ffffff55,0 -1px 0 #0006,0 2px 3px #06143388}
-#stats .cardx .cx-num small{display:block;margin-top:6px;font-size:10px!important;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#c9d8f5}
+:is(#stats,#heroCard) .cardx .cx-num b{display:block;font:600 27px/1 'Courier New',ui-monospace,monospace!important;letter-spacing:.12em;color:#fff7ea;text-shadow:0 1px 0 #ffffff55,0 -1px 0 #0006,0 2px 3px #06143388}
+:is(#stats,#heroCard) .cardx .cx-num small{display:block;margin-top:6px;font-size:10px!important;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#c9d8f5}
 .cx-bot{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:16px}
-#stats .cardx .cx-holder small{display:block;font-size:9.5px!important;letter-spacing:.16em;text-transform:uppercase;color:#c9d8f5}
-#stats .cardx .cx-holder b{display:block;font:600 15px/1.2 'Courier New',ui-monospace,monospace!important;letter-spacing:.1em;color:#fff;text-transform:uppercase;margin-top:3px;white-space:nowrap}
+:is(#stats,#heroCard) .cardx .cx-holder small{display:block;font-size:9.5px!important;letter-spacing:.16em;text-transform:uppercase;color:#c9d8f5}
+:is(#stats,#heroCard) .cardx .cx-holder b{display:block;font:600 15px/1.2 'Courier New',ui-monospace,monospace!important;letter-spacing:.1em;color:#fff;text-transform:uppercase;margin-top:3px;white-space:nowrap}
 .cx-bar{flex:1;max-width:230px}
-#stats .cardx .cx-bar small{display:flex;justify-content:space-between;margin-bottom:5px}
-#stats .cardx .cx-bar small span{display:inline;padding:0;font-size:10px!important;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c9d8f5!important}
+:is(#stats,#heroCard) .cardx .cx-bar small{display:flex;justify-content:space-between;margin-bottom:5px}
+:is(#stats,#heroCard) .cardx .cx-bar small span{display:inline;padding:0;font-size:10px!important;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c9d8f5!important}
 .cx-bar i{display:block;height:6px;border-radius:6px;background:#ffffff2e;overflow:hidden}
 .cx-bar i::before{content:'';display:block;height:100%;width:var(--w);border-radius:6px;background:linear-gradient(90deg,#ffe7a3,#ffd56b);transition:width 1.2s cubic-bezier(.2,.75,.25,1)}
 .cx-mark{flex:none;width:34px;height:34px;color:#ffd56b;filter:drop-shadow(0 2px 3px #06143388)}
 @media(max-width:560px){
-html body #stats .stat.kp-hero.cardx{padding:18px!important;min-height:0}
-#stats .cardx .cx-brand b{white-space:normal;font-size:12.5px}
+html body :is(#stats,#heroCard) .stat.kp-hero.cardx{padding:18px!important;min-height:0}
+:is(#stats,#heroCard) .cardx .cx-brand b{white-space:normal;font-size:12.5px}
 .cx-tag{font-size:15px}
-#stats .cardx .cx-pct b{font-size:24px!important}
+:is(#stats,#heroCard) .cardx .cx-pct b{font-size:24px!important}
 .cx-num{gap:6px}
-#stats .cardx .cx-num b{font-size:18px!important;letter-spacing:.04em}
-#stats .cardx .cx-num small{font-size:9px!important;letter-spacing:.06em}
+:is(#stats,#heroCard) .cardx .cx-num b{font-size:18px!important;letter-spacing:.04em}
+:is(#stats,#heroCard) .cardx .cx-num small{font-size:9px!important;letter-spacing:.06em}
 .cx-bot{flex-wrap:wrap}.cx-bar{max-width:none;flex-basis:100%;order:3}
 }
+</style>
+<style id="heroCardCss">/* Si Ma Cai: thẻ theo dõi đảng phí thay vào khối "Tình hình thu nộp đảng phí" */
+.hero .wrap>div.has-card{padding:0!important;background:none!important;box-shadow:none!important;border:0!important;overflow:visible!important;display:flex!important;flex-direction:column;gap:10px}
+.hero .wrap>div.has-card::before,.hero .wrap>div.has-card::after{display:none!important}
+.has-card .eyebrow,.has-card .lede,.has-card .heroline{display:none!important}
+.has-card h1{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.has-card .loadnote{margin:0!important}
+#heroCard{flex:1;display:flex}
+#heroCard>.kp-hero{flex:1;grid-row:auto!important;margin:0}
+#stats.kpB{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+@media(max-width:900px){#stats.kpB{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 </style>
 <script src="xa-bar.js"></script>
 </body>
