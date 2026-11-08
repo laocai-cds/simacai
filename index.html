@@ -3133,6 +3133,16 @@ document.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)r
 document.addEventListener('keydown',function(e){var o=ov();if(e.key==='Escape'&&o&&o.classList.contains('on'))closeAi()});
 })();
 </script>
+<style id="unitsFitCss">/* Si Ma Cai: bảng "Danh sách đơn vị" vừa một khung màn hình, cuộn bên trong, tiêu đề cột đứng yên */
+@media(min-width:761px){
+#units .tablepanel{display:flex;flex-direction:column;scroll-margin-top:64px}
+#units .tablepanel .tw{max-height:max(340px,calc(100vh - 165px));max-height:max(340px,calc(100dvh - 165px));overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#c3cede transparent}
+#units .tablepanel .tw::-webkit-scrollbar{width:8px;height:8px}
+#units .tablepanel .tw::-webkit-scrollbar-thumb{background:#c3cede;border-radius:8px}
+#units .tablepanel .tw thead th{position:sticky;top:0;z-index:2;background:#f3f6fa;box-shadow:inset 0 -1px 0 var(--rule,#e2e6ee)}
+#units .tablepanel .tw tbody tr:last-child td{border-bottom:0}
+}
+</style>
 <script src="xa-bar.js"></script>
 </body>
 </html>
