@@ -818,6 +818,47 @@ go();document.addEventListener('DOMContentLoaded',go);
 @keyframes brandStreak{0%{transform:translateX(0);opacity:0}10%{opacity:1}55%{opacity:1}65%,100%{transform:translateX(270px);opacity:0}}
 }
 @media(prefers-reduced-motion:reduce){.brand::after{animation:none;display:none}}
+/* === Nút thanh bên: hiệu ứng và kiểu dáng (màn hình từ 1024px) === */
+@media(min-width:1024px){
+.tabs{gap:5px}
+.tab{overflow:hidden;isolation:isolate;padding:8px 12px 8px 8px;border:1px solid transparent;color:#eef3fbd9;letter-spacing:.01em;
+  transition:background .25s ease,border-color .25s ease,color .2s ease,box-shadow .25s ease,transform .15s ease}
+.tab svg{box-sizing:content-box;width:17px;height:17px;padding:7px;border-radius:9px;background:#ffffff0f;box-shadow:inset 0 0 0 1px #ffffff14;
+  transition:background .25s ease,color .25s ease,box-shadow .25s ease,transform .25s cubic-bezier(.3,1.6,.5,1)}
+.tab span{transition:transform .25s ease}
+.tab::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(110deg,transparent 30%,#ffffff1f 50%,transparent 70%);transform:translateX(-120%)}
+.tab:hover{background:linear-gradient(90deg,#ffffff17,#ffffff08);border-color:#e9cf7a40;color:#fff;box-shadow:0 6px 16px -10px #0009}
+.tab:hover::after{transform:translateX(120%);transition:transform .7s ease}
+.tab:hover svg{color:var(--vang-l);background:#e9cf7a24;box-shadow:inset 0 0 0 1px #e9cf7a55;transform:scale(1.08) rotate(-4deg)}
+.tab:hover span{transform:translateX(3px)}
+.tab:active{transform:scale(.98)}
+.tab:focus-visible{outline:2px solid var(--vang-l);outline-offset:2px}
+.tab[aria-current=page]{background:linear-gradient(90deg,#e9cf7a3d 0%,#c9a2271f 60%,#c9a22708 100%);border-color:#e9cf7a66;color:#fff;
+  box-shadow:0 8px 20px -12px #000a,inset 0 1px 0 #ffffff1f,0 0 18px -6px #ffd65055}
+.tab[aria-current=page]::before{left:-18px;top:10px;bottom:10px;width:4px;background:linear-gradient(180deg,#fff2b8,var(--vang));box-shadow:0 0 10px #ffd650aa}
+.tab[aria-current=page] svg{color:#5a3e00;background:linear-gradient(180deg,#ffe58a,#e9b923);box-shadow:0 3px 8px -3px #000a,inset 0 1px 0 #fff8}
+.tab[aria-current=page]:hover svg{transform:none}
+.bar .btn{position:relative;overflow:hidden;isolation:isolate;padding:11px 14px;border-radius:12px;
+  background:linear-gradient(180deg,#ffffff14,#ffffff08);border:1px solid #ffffff26;box-shadow:inset 0 1px 0 #ffffff1a,0 4px 12px -8px #0008;
+  transition:transform .2s ease,box-shadow .25s ease,border-color .25s ease,background .25s ease}
+.bar .btn svg{transition:transform .25s ease,color .25s ease}
+.bar .btn::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(110deg,transparent 30%,#ffffff26 50%,transparent 70%);transform:translateX(-120%)}
+.bar .btn:hover{transform:translateY(-2px);background:linear-gradient(180deg,#ffffff21,#ffffff0d);border-color:#e9cf7a80;
+  box-shadow:inset 0 1px 0 #ffffff26,0 10px 20px -10px #000b,0 0 0 3px #e9cf7a1a}
+.bar .btn:hover::after{transform:translateX(120%);transition:transform .7s ease}
+.bar .btn:hover svg{color:var(--vang-l);transform:translateX(2px)}
+.bar .btn:active{transform:translateY(0) scale(.98)}
+.bar .btn:focus-visible{outline:2px solid var(--vang-l);outline-offset:2px}
+.bar #loginBtn{background:linear-gradient(180deg,#ffdf6e,#e2ab12);border-color:#ffe79a;color:#4a3300;
+  box-shadow:inset 0 1px 0 #fff9,0 6px 16px -8px #000c}
+.bar #loginBtn svg{color:#4a3300}
+.bar #loginBtn:hover{background:linear-gradient(180deg,#ffe88f,#eab51c);border-color:#fff1bf;box-shadow:inset 0 1px 0 #fffb,0 12px 22px -10px #000c,0 0 16px -4px #ffd650aa}
+.bar #loginBtn:hover svg{color:#4a3300}
+}
+@media(prefers-reduced-motion:reduce){.tab,.tab svg,.tab span,.bar .btn,.bar .btn svg{transition:none!important}
+  .tab::after,.bar .btn::after{display:none}.tab:hover svg,.tab:hover span,.bar .btn:hover,.bar .btn:hover svg{transform:none}}
 </style>
 <body>
 <div class="zalobar" id="zalobar"><span>Đang mở trong Zalo. Nếu không tải được file báo cáo, bấm dấu ⋯ rồi chọn “Mở bằng trình duyệt”.</span><button type="button" id="zalook">Đã hiểu</button></div>
