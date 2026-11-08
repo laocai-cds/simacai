@@ -1569,11 +1569,11 @@ function render(){
    const IC=['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.6 2.6L16 9.6"/></svg>','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h3"/></svg>','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/></svg>','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6l1 2h3v14H5V6h3z"/><path d="M9 11h6M9 15h4"/></svg>'];
    const mini=(k,i,lab,val,sub,bar)=>`<div class="stat kp-mini ${k}"><i class="ico" aria-hidden="true">${IC[i]}</i><span>${lab}</span>${val}${bar!=null?`<div class="kp-bar"><i style="width:${Math.max(bar>0?1.5:0,bar*100).toFixed(1)}%"></i></div>`:''}<small>${sub}</small></div>`;
    $('#stats').classList.add('kpB');
-   $('#stats').innerHTML=`<div class="stat kp-hero cardx"><i class="kp-drum" aria-hidden="true"></i>`+
+   $('#stats').innerHTML=`<div class="stat kp-hero cardx"><i class="kp-drum" aria-hidden="true"></i><i class="cx-sheen" aria-hidden="true"></i>`+
     `<div class="cx-top"><div class="cx-brand"><img src="logo.png" alt="" width="34" height="34"><div><b>Đảng bộ xã Si Ma Cai</b><small>Thẻ theo dõi đảng phí</small></div></div><div class="cx-tag">ĐẢNG PHÍ<em>Kỳ ${String(new Date().getMonth()+1).padStart(2,'0')}/${String(new Date().getFullYear()).slice(2)}</em><span class="cx-upd${dataSrc==='sheet'?'':' off'}" title="${dataSrc==='sheet'?'Google Sheet cập nhật':'Dữ liệu cập nhật'}"><i></i>${dataSrc==='sheet'?'Cập nhật':'Dữ liệu'} ${dataSrc==='loading'?'…':(dataStamp||'—')}</span></div></div>`+
     `<div class="cx-mid"><span class="cx-chip" aria-hidden="true"></span><svg class="cx-nfc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8.5 8.5a5 5 0 0 1 0 7"/><path d="M12 6a8.5 8.5 0 0 1 0 12"/><path d="M15.5 3.5a12 12 0 0 1 0 17"/></svg><div class="cx-pct"><b id="kpPct">0,00%</b><small>đảng viên đã nộp</small></div></div>`+
     `<div class="cx-num">${[[t.paidCount,'Đã nộp'],[t.due,'Phải nộp'],[t.exempt,'Miễn giảm'],[Math.max(0,t.due-t.paidCount),'Còn lại']].map(([x,l])=>`<div><b>${String(Math.round(x||0)).padStart(4,'0')}</b><small>${l}</small></div>`).join('')}</div>`+
-    `<div class="cx-bot"><div class="cx-holder"><small>Tổng số đảng viên</small><b>${num(t.members)} đảng viên</b></div><div class="cx-bar" style="--w:${(Math.min(1,rate)*100).toFixed(2)}%"><small><span>Tiến độ</span><span>${pct2(rate).replace(' %','%')}</span></small><i></i></div><svg class="cx-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.5l2.8 6.6 7.2.6-5.5 4.7 1.7 7-6.2-3.8-6.2 3.8 1.7-7L2 9.7l7.2-.6z"/></svg></div></div>`+
+    `<div class="cx-bot"><div class="cx-holder"><small>Tổng số đảng viên</small><b>${num(t.members)} đảng viên</b></div><div class="cx-valid"><small>Kỳ<br>thu</small><b>${String(new Date().getMonth()+1).padStart(2,'0')}/${String(new Date().getFullYear()).slice(2)}</b></div><div class="cx-bar" style="--w:${(Math.min(1,rate)*100).toFixed(2)}%"><small><span>Tiến độ</span><span>${pct2(rate).replace(' %','%')}</span></small><i></i></div><span class="cx-holo" aria-hidden="true"></span></div></div>`+
     mini('k3',0,'Đã thu trong kỳ',`<strong data-c="${t.paid}" data-f="money">0</strong>`,`<b>${pct(mr)}</b> của ${money(t.declared)}`,mr)+
     mini('k2',1,'Tổng tiền kê khai',`<strong data-c="${t.declared}" data-f="money">0</strong>`,`Còn phải thu <b>${money(left)}</b>`)+
     mini('k5',2,'Đơn vị hoàn thành',`<strong><span data-c="${us.done}" data-f="num">0</span><em> / ${active.length}</em></strong>`,`<b>${us.part}</b> đang thu · <b>${us.empty}</b> chưa phát sinh`,active.length?us.done/active.length:0)+
@@ -3275,6 +3275,50 @@ html body :is(#stats,#heroCard) .stat.kp-hero.cardx{padding:18px!important;min-h
  filter:drop-shadow(0 -1px 0 #ffffffa6) drop-shadow(1px 1.5px 0 #00000099) drop-shadow(0 3px 3px #0000004d)}
 :is(#stats,#heroCard) .cardx .cx-num b{font-size:29px!important;letter-spacing:.14em!important}
 @media(max-width:560px){:is(#stats,#heroCard) .cardx .cx-num b{font-size:19px!important;letter-spacing:.05em!important}}
+</style>
+<style id="cardUpCss">/* Si Ma Cai: thẻ theo dõi đảng phí giống thẻ ngân hàng hơn */
+html body :is(#stats,#heroCard) .stat.kp-hero.cardx{aspect-ratio:1.586/1;min-height:0!important;align-self:center;height:auto}
+.cardx .cx-tag em{display:none!important}
+.cardx>.cx-sheen{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;background:linear-gradient(115deg,transparent 0%,transparent 34%,#ffffff2e 42%,#ffffff12 48%,transparent 56%,transparent 100%),radial-gradient(120% 80% at 0% 0%,#ffffff1f,transparent 55%)}
+:is(#stats,#heroCard) .cardx .cx-num b{font-size:33px!important;font-weight:700!important;letter-spacing:.1em!important;
+ background:linear-gradient(180deg,#ffffff 0%,#ffffff 22%,#d9dfea 45%,#8f9bb3 58%,#dfe5ee 80%,#ffffff 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;
+ -webkit-text-stroke:.6px #ffffff40;filter:drop-shadow(0 -1px 0 #ffffffcc) drop-shadow(1.5px 2px 0 #000000b3) drop-shadow(0 4px 4px #00000066)!important}
+:is(#stats,#heroCard) .cardx .cx-holder b{font-size:16px!important;filter:drop-shadow(0 -1px 0 #ffffffb3) drop-shadow(1px 1.5px 0 #000000a6) drop-shadow(0 3px 3px #00000055)!important}
+:is(#stats,#heroCard) .cardx .cx-num small{font-size:8.5px!important;letter-spacing:.16em!important;opacity:.6;margin-top:4px!important}
+.cx-valid{display:flex;align-items:center;gap:6px;flex:none;margin-right:auto;margin-left:18px}
+:is(#stats,#heroCard) .cardx .cx-valid small{display:block;font-size:7.5px!important;line-height:1.05;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c9d8f5;opacity:.8}
+:is(#stats,#heroCard) .cardx .cx-valid b{font:700 16px/1 'Courier New',ui-monospace,monospace!important;letter-spacing:.08em;background:linear-gradient(180deg,#fff,#d9dfea 50%,#9aa6bd 60%,#fff)!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;filter:drop-shadow(0 -1px 0 #ffffffb3) drop-shadow(1px 1.5px 0 #000000a6)!important}
+.cardx .cx-bar{max-width:170px!important}
+.cx-holo{flex:none;width:46px;height:34px;border-radius:6px;background:linear-gradient(125deg,#ff9ad5,#ffe08a 22%,#9ff5c4 42%,#8fd3ff 62%,#c7a6ff 82%,#ff9ad5);background-size:200% 200%;box-shadow:inset 0 0 0 1px #ffffff80,inset 0 0 10px #ffffff66,0 2px 5px #0005;position:relative;overflow:hidden;animation:holo 6s ease-in-out infinite}
+.cx-holo::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,#ffffff33 0 2px,transparent 2px 5px)}
+.cx-holo::after{content:'';position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;background:#ffffffaa;clip-path:polygon(50% 0,61% 38%,100% 38%,69% 61%,80% 100%,50% 76%,20% 100%,31% 61%,0 38%,39% 38%)}
+@keyframes holo{50%{background-position:100% 100%}}
+@media(max-width:560px){html body :is(#stats,#heroCard) .stat.kp-hero.cardx{aspect-ratio:auto}:is(#stats,#heroCard) .cardx .cx-num b{font-size:21px!important;letter-spacing:.04em!important}.cx-valid{margin-left:0}}
+@media(prefers-reduced-motion:reduce){.cx-holo{animation:none}}
+html body :is(#stats,#heroCard) .cardx .cx-tag{color:#fff!important;-webkit-text-fill-color:#fff!important;-webkit-text-stroke:0!important;text-shadow:0 1px 2px #0005!important;background:none!important}
+</style>
+<style id="crispCss">/* Si Ma Cai: số dập nổi rõ nét (bóng cứng, không dùng bộ lọc làm nhòe) */
+:is(#stats,#heroCard) .cardx .cx-num b,:is(#stats,#heroCard) .cardx .cx-holder b,:is(#stats,#heroCard) .cardx .cx-valid b{
+ background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;
+ -webkit-text-fill-color:#f4f6fa!important;color:#f4f6fa!important;-webkit-text-stroke:0!important;filter:none!important;
+ text-shadow:-1px -1px 0 #ffffff,1px 1px 0 #0c2250,2px 2px 0 #061433,2px 3px 3px #00000066!important;
+ -webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+:is(#stats,#heroCard) .cardx .cx-num b{font-weight:700!important}
+:is(#stats,#heroCard) .cardx .cx-holder b,:is(#stats,#heroCard) .cardx .cx-valid b{text-shadow:-1px -1px 0 #ffffffcc,1px 1px 0 #061433,1px 2px 2px #00000059!important}
+:is(#stats,#heroCard) .cardx .cx-num small{opacity:.75!important}
+.cardx>.cx-sheen{opacity:.7}
+</style>
+<style id="cardStaticCss">/* Si Ma Cai: thẻ theo dõi đảng phí — chữ số kiểu thẻ ngân hàng, bỏ hiệu ứng */
+@font-face{font-family:'SoThe';src:url(so-the.woff2) format('woff2');font-display:swap}
+html body :is(#stats,#heroCard) .cardx .cx-num b,html body :is(#stats,#heroCard) .cardx .cx-valid b{font-family:'SoThe','Courier New',monospace!important;font-weight:400!important}
+html body :is(#stats,#heroCard) .cardx .cx-num b{font-size:34px!important;letter-spacing:.08em!important}
+html body :is(#stats,#heroCard) .stat.kp-hero,html body :is(#stats,#heroCard) .stat.kp-hero:hover,html body :is(#stats,#heroCard) .stat.kp-hero.tilting{transform:none!important;transition:none!important;will-change:auto!important;border-color:transparent!important;box-shadow:0 18px 36px -22px #0c2250cc!important;animation:none!important}
+html body :is(#stats,#heroCard) .stat.kp-hero::before{display:none!important}
+html body :is(#stats,#heroCard) .stat.kp-hero::after,html body :is(#stats,#heroCard) .stat.kp-hero:hover::after{height:4px!important;box-shadow:none!important;animation:none!important;transition:none!important}
+html body :is(#stats,#heroCard) .stat.kp-hero strong,html body :is(#stats,#heroCard) .stat.kp-hero:hover strong{transform:none!important}
+html body :is(#stats,#heroCard) .cardx .cx-holo{animation:none!important}
+@media(max-width:560px){html body :is(#stats,#heroCard) .cardx .cx-num b{font-size:22px!important;letter-spacing:.03em!important}}
+html body :is(#stats,#heroCard) .cardx .cx-tag{font-style:normal!important;font-weight:800!important;font-size:17px!important;letter-spacing:.14em!important}
 </style>
 <script src="xa-bar.js"></script>
 </body>
