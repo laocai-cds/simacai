@@ -874,6 +874,20 @@ go();document.addEventListener('DOMContentLoaded',go);
 .tab svg{padding:5px}
 .bar .btn{padding:7px 12px}
 }
+/* === Hộp "Cài đặt thông báo" vừa khung hình === */
+.back .modal{max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain}
+.ntm{padding:22px 24px}
+.ntm label.f{margin:10px 0 5px}
+.ntm .macts{margin-top:14px}
+@media(min-width:900px){
+.ntm{width:min(880px,100%);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto repeat(8,auto) 1fr auto;column-gap:22px;align-content:start}
+.ntm>*{grid-column:1}
+.ntm>h3,.ntm>h3+p,.ntm>.macts{grid-column:1/-1}
+.ntm>#xaAdm{grid-column:2;grid-row:3/12;margin:10px 0 0!important;align-self:start}
+.ntm>#xaAdm .btn{margin-top:2px}
+}
+.ntm .fieldmsg:empty{display:none}
+.ntm .macts{margin-top:16px}
 </style>
 <body>
 <div class="zalobar" id="zalobar"><span>Đang mở trong Zalo. Nếu không tải được file báo cáo, bấm dấu ⋯ rồi chọn “Mở bằng trình duyệt”.</span><button type="button" id="zalook">Đã hiểu</button></div>
