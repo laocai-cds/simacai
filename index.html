@@ -1233,6 +1233,14 @@ go();document.addEventListener('DOMContentLoaded',go);
     <div class="macts"><button class="btn" id="ntCancel" type="button">Hủy</button><button class="btn solid" id="ntSave" type="button">Lưu thông báo</button></div>
   </div>
 </div>
+<div class="back" id="rankModal" role="dialog" aria-modal="true" aria-labelledby="rankTitle">
+  <div class="modal rk-modal">
+    <div class="rkm-head"><div><h3 id="rankTitle">Xếp hạng đơn vị</h3><p id="rankSub">Xếp theo tiến độ; đồng hạng thì xét số tiền đã nộp</p></div><button type="button" class="rkm-x" data-rank-close aria-label="Đóng">×</button></div>
+    <div class="rkm-sum" id="rankSum"></div>
+    <div class="rkm-list" id="rankList"></div>
+    <p class="rkm-foot">Bấm tên đơn vị để xem thẻ chi tiết và nhắn tin đôn đốc.</p>
+  </div>
+</div>
 <div class="back" id="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle">
   <div class="modal">
     <h3 id="mtitle">Ghi nhận thu nộp</h3>
@@ -1576,7 +1584,7 @@ function render(){
     `<div class="cx-bot"><div class="cx-holder"><small>Tổng số đảng viên</small><b>${num(t.members)} đảng viên</b></div><div class="cx-valid"><small>Kỳ<br>thu</small><b>${String(new Date().getMonth()+1).padStart(2,'0')}/${String(new Date().getFullYear()).slice(2)}</b></div><div class="cx-bar" style="--w:${(Math.min(1,rate)*100).toFixed(2)}%"><small><span>Tiến độ</span><span>${pct2(rate).replace(' %','%')}</span></small><i></i></div><span class="cx-holo" aria-hidden="true"></span></div></div>`+
     mini('k3',0,'Đã thu trong kỳ',`<strong data-c="${t.paid}" data-f="money">0</strong>`,`<b>${pct(mr)}</b> của ${money(t.declared)}`,mr)+
     mini('k2',1,'Tổng tiền kê khai',`<strong data-c="${t.declared}" data-f="money">0</strong>`,`Còn phải thu <b>${money(left)}</b>`)+
-    mini('k5',2,'Đơn vị hoàn thành',`<strong><span data-c="${us.done}" data-f="num">0</span><em> / ${active.length}</em></strong>`,`<b>${us.part}</b> đang thu · <b>${us.empty}</b> chưa phát sinh`,active.length?us.done/active.length:0)+
+    mini('k5',2,'Đơn vị hoàn thành',`<strong><span data-c="${us.done}" data-f="num">0</span><em> / ${active.length}</em></strong>`,`<b>${us.part}</b> đang thu · <b>${us.empty}</b> chưa phát sinh<button type="button" class="kp-more" data-rank-open>Xem tiếp<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>`,active.length?us.done/active.length:0)+
     mini('k4',3,'Hồ sơ cần xử lý',`<strong data-c="${todo}" data-f="num">0</strong>`,`<b>${num(t.approved)}</b> chưa nộp · <b>${num(t.noRecord)}</b> chưa có hồ sơ`+(t.pending?` · <b>${num(t.pending)}</b> chưa duyệt`:''));
    const kv=$('#stats .kp-val');if(kv){const go=()=>kv.setAttribute('stroke-dasharray',kv.dataset.len+' '+kv.dataset.c2);if(REDUCED)go();else requestAnimationFrame(()=>requestAnimationFrame(go))}
    {const hc=document.getElementById('heroCard'),he=document.querySelector('#stats .kp-hero');if(hc&&he)hc.replaceChildren(he)}
@@ -3320,6 +3328,50 @@ html body :is(#stats,#heroCard) .cardx .cx-holo{animation:none!important}
 @media(max-width:560px){html body :is(#stats,#heroCard) .cardx .cx-num b{font-size:22px!important;letter-spacing:.03em!important}}
 html body :is(#stats,#heroCard) .cardx .cx-tag{font-style:normal!important;font-weight:800!important;font-size:17px!important;letter-spacing:.14em!important}
 </style>
+<style id="rankModalCss">/* Si Ma Cai: nút "Xem tiếp" và cửa sổ xếp hạng đơn vị */
+.kp-more{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:2px 9px;border:1px solid #fed7aa;border-radius:999px;background:#fff7ed;color:#b45309;font:700 12px/1.5 var(--sans);cursor:pointer;vertical-align:1px;transition:background .15s,border-color .15s}
+.kp-more svg{width:13px;height:13px;transition:transform .15s}
+.kp-more:hover{background:#ffedd5;border-color:#fdba74}.kp-more:hover svg{transform:translateX(2px)}
+.kp-more:focus-visible{outline:2px solid #d97706;outline-offset:2px}
+.modal.rk-modal{width:min(720px,100%);padding:0;border-top:4px solid #d97706;display:flex;flex-direction:column;max-height:calc(100dvh - 40px);overflow:hidden}
+.rkm-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 22px 12px}
+.rkm-head h3{margin:0;font:800 19px/1.3 var(--sans);color:var(--ink)}
+.rkm-head p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.rkm-x{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--rule);background:#fff;font-size:20px;line-height:1;color:var(--muted);cursor:pointer}
+.rkm-x:hover{background:#fff7ed;color:#b45309;border-color:#fdba74}
+.rkm-sum{display:flex;flex-wrap:wrap;gap:8px;padding:0 22px 12px;border-bottom:1px solid var(--rule)}
+.rkm-sum span{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--c-bg);color:var(--c)}
+.rkm-sum span b{font-weight:800}
+.rkm-list{overflow-y:auto;overscroll-behavior:contain;padding:6px 14px 6px}
+.rkm-row{display:grid;grid-template-columns:34px minmax(0,1fr) minmax(120px,190px) 70px;align-items:center;gap:12px;padding:10px 8px;border-bottom:1px dashed var(--rule-2,#eceef1)}
+.rkm-row:last-child{border-bottom:0}
+.rkm-row:hover{background:#fffaf3;border-radius:10px}
+.rkm-nm{min-width:0}
+.rkm-nm .uname{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-weight:700;font-size:14px;line-height:1.3;color:var(--ink)}
+.rkm-nm small{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
+.rkm-bar{display:flex;align-items:center;gap:8px}
+.rkm-bar i{flex:1;height:7px;border-radius:7px;background:#eef0f3;overflow:hidden}
+.rkm-bar i b{display:block;height:100%;border-radius:7px;background:var(--c)}
+.rkm-bar em{flex:none;width:52px;text-align:right;font-style:normal;font-weight:800;font-size:13px;color:var(--c)}
+.rkm-ct{text-align:right;font-size:12.5px;color:var(--muted)}.rkm-ct b{color:var(--ink);font-size:13.5px}
+.rkm-foot{margin:0;padding:10px 22px 14px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--muted)}
+@media(max-width:560px){.rkm-row{grid-template-columns:30px minmax(0,1fr) 64px;gap:8px}.rkm-bar{grid-column:2/4;grid-row:2}.rkm-ct{grid-column:3;grid-row:1}}
+</style>
+<script>(()=>{const M=document.getElementById('rankModal');if(!M)return;
+const C={complete:['#15803d','#f0fdf4'],partial:['#b45309','#fff7ed'],empty:['#b91c1c','#fef2f2']};
+function open(){const L=units.filter(r=>v(r,'members')>0).sort((a,b)=>(rankOf.get(a)||999)-(rankOf.get(b)||999));
+ const n={complete:0,partial:0,empty:0};L.forEach(r=>{const c=cls(r);n[c in n?c:'empty']++});
+ document.getElementById('rankSum').innerHTML=[['complete','Hoàn thành'],['partial','Đang thu'],['empty','Chưa phát sinh']].map(([k,l])=>`<span style="--c:${C[k][0]};--c-bg:${C[k][1]}">${l} <b>${n[k]}</b></span>`).join('');
+ document.getElementById('rankList').innerHTML=L.map(r=>{const c=cls(r),col=(C[c]||C.empty)[0],p=Math.max(0,Math.min(1,v(r,'progress')));
+  return `<div class="rkm-row">${rk(r)}<div class="rkm-nm"><span class="uname" data-cb="${cbSlug(r)}" title="Xem thẻ đơn vị">${esc(nm(r))}</span><small>${esc(status(r)[0])} · ${money(v(r,'paid'))}</small></div><div class="rkm-bar" style="--c:${col}"><i><b style="width:${(p*100).toFixed(1)}%"></b></i><em>${pct(p)}</em></div><div class="rkm-ct"><b>${num(v(r,'paidCount'))}</b>/${num(v(r,'due'))}<br>đảng viên</div></div>`}).join('')||'<p class="empty">Chưa có số liệu đơn vị.</p>';
+ M.classList.add('on');document.body.style.overflow='hidden';setTimeout(()=>M.querySelector('.rkm-x').focus(),30)}
+function close(){M.classList.remove('on');document.body.style.overflow=''}
+document.addEventListener('click',e=>{const t=e.target;if(!t.closest)return;
+ if(t.closest('[data-rank-open]')){e.preventDefault();open();return}
+ if(t.closest('[data-rank-close]')||t===M){close();return}
+ if(M.classList.contains('on')&&t.closest('#rankList .uname[data-cb]'))close()},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&M.classList.contains('on'))close()});
+})();</script>
 <script src="xa-bar.js"></script>
 </body>
 </html>
