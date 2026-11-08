@@ -806,6 +806,18 @@ go();document.addEventListener('DOMContentLoaded',go);
 .thmopt i{display:flex;height:22px;width:100%;border-radius:6px;overflow:hidden}
 .thmopt i b{flex:1}
 #donutpct{color:#3153b8!important;white-space:nowrap;font-size:1.7rem;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+/* === Vệt sáng dưới "Đảng bộ xã Si Ma Cai" === */
+@media(min-width:1024px){
+.brand{position:relative;border-bottom-color:transparent}
+.brand::before{content:"";position:absolute;left:-18px;right:-18px;bottom:-1px;height:2px;pointer-events:none;
+  background:linear-gradient(90deg,transparent 0%,#ffd84d40 15%,#ffe27a 42%,#fff6c8 50%,#ffe27a 58%,#ffd84d40 85%,transparent 100%);
+  box-shadow:0 0 6px #ffd650cc,0 0 14px #ffd65073}
+.brand::after{content:"";position:absolute;left:-18px;bottom:-2px;width:70px;height:4px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,#fff,transparent);filter:blur(1px);opacity:0;
+  animation:brandStreak 3.6s ease-in-out infinite}
+@keyframes brandStreak{0%{transform:translateX(0);opacity:0}10%{opacity:1}55%{opacity:1}65%,100%{transform:translateX(270px);opacity:0}}
+}
+@media(prefers-reduced-motion:reduce){.brand::after{animation:none;display:none}}
 </style>
 <body>
 <div class="zalobar" id="zalobar"><span>Đang mở trong Zalo. Nếu không tải được file báo cáo, bấm dấu ⋯ rồi chọn “Mở bằng trình duyệt”.</span><button type="button" id="zalook">Đã hiểu</button></div>
