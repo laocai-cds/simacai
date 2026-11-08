@@ -3266,6 +3266,16 @@ html body :is(#stats,#heroCard) .stat.kp-hero.cardx{padding:18px!important;min-h
 #heroCard .cardx .cx-brand img,#heroCard .cardx .cx-brand b{display:none!important}
 #heroCard .cardx .cx-brand small{margin:0;font-size:12px!important;font-weight:700;letter-spacing:.16em}
 </style>
+<style id="embossCss">/* Si Ma Cai: số trên thẻ theo dõi đảng phí dạng in nổi như thẻ ngân hàng */
+:is(#stats,#heroCard) .cardx .cx-num b,:is(#stats,#heroCard) .cardx .cx-holder b{
+ font-family:'Courier New',ui-monospace,monospace!important;font-weight:700!important;
+ background:linear-gradient(180deg,#ffffff 0%,#f3f6fb 30%,#c3ccdc 52%,#9aa6bd 60%,#e9eef6 82%,#ffffff 100%)!important;
+ -webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;
+ text-shadow:none!important;
+ filter:drop-shadow(0 -1px 0 #ffffffa6) drop-shadow(1px 1.5px 0 #00000099) drop-shadow(0 3px 3px #0000004d)}
+:is(#stats,#heroCard) .cardx .cx-num b{font-size:29px!important;letter-spacing:.14em!important}
+@media(max-width:560px){:is(#stats,#heroCard) .cardx .cx-num b{font-size:19px!important;letter-spacing:.05em!important}}
+</style>
 <script src="xa-bar.js"></script>
 </body>
 </html>
