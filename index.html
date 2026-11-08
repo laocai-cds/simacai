@@ -859,6 +859,26 @@ go();document.addEventListener('DOMContentLoaded',go);
 }
 @media(prefers-reduced-motion:reduce){.tab,.tab svg,.tab span,.bar .btn,.bar .btn svg{transition:none!important}
   .tab::after,.bar .btn::after{display:none}.tab:hover svg,.tab:hover span,.bar .btn:hover,.bar .btn:hover svg{transform:none}}
+/* === Thanh bên gọn và cuộn được khi màn hình thấp (đăng nhập có thêm mục Quản trị) === */
+@media(min-width:1024px){
+.bar .wrap{box-sizing:border-box;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#ffffff33 transparent;gap:4px;padding-top:20px;padding-bottom:16px}
+.bar .wrap::-webkit-scrollbar{width:6px}
+.bar .wrap::-webkit-scrollbar-thumb{background:#ffffff33;border-radius:6px}
+.brand{padding-bottom:16px;margin-bottom:6px}
+.tabs{gap:3px}
+.tab{padding:6px 12px 6px 7px}
+.tab svg{padding:6px}
+.barright{gap:7px;padding-top:6px}
+.bar .btn{padding:9px 14px}
+}
+@media(min-width:1024px) and (max-height:760px){
+.bar .wrap{padding-top:16px;padding-bottom:12px}
+.brand{padding-bottom:12px;margin-bottom:4px}
+.tabs::before,.barright::before{padding-top:2px;padding-bottom:2px}
+.tab{padding-top:4px;padding-bottom:4px;font-size:13.5px}
+.tab svg{padding:5px}
+.bar .btn{padding:7px 12px}
+}
 </style>
 <body>
 <div class="zalobar" id="zalobar"><span>Đang mở trong Zalo. Nếu không tải được file báo cáo, bấm dấu ⋯ rồi chọn “Mở bằng trình duyệt”.</span><button type="button" id="zalook">Đã hiểu</button></div>
