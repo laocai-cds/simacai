@@ -1239,7 +1239,7 @@ go();document.addEventListener('DOMContentLoaded',go);
   <div class="modal rk-modal">
     <div class="rkm-head"><div><h3 id="rankTitle">Xếp hạng đơn vị</h3><p id="rankSub">Xếp theo tiến độ; đồng hạng thì xét số tiền đã nộp</p></div><button type="button" class="rkm-x" data-rank-close aria-label="Đóng">×</button></div>
     <div class="rkm-sum" id="rankSum"></div>
-    <div class="rkm-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="rankQ" placeholder="Tìm tên đơn vị…" autocomplete="off" aria-label="Tìm tên đơn vị"><span id="rankCnt"></span></div>
+    <div class="rkm-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="rankQ" placeholder="Tìm tên đơn vị…" autocomplete="off" aria-label="Tìm tên đơn vị"><span id="rankCnt"></span><button type="button" class="rkm-clear" id="rankClr" aria-label="Xóa tìm kiếm" title="Xóa tìm kiếm" hidden>×</button></div>
     <div class="rkm-list" id="rankList"></div>
     <p class="rkm-foot">Bấm tên đơn vị để xem thẻ chi tiết và nhắn tin đôn đốc.</p>
   </div>
@@ -3349,6 +3349,9 @@ html body :is(#stats,#heroCard) .cardx .cx-tag{font-style:normal!important;font-
 .rkm-search input:focus{border-color:#d97706;box-shadow:0 0 0 3px rgba(217,119,6,.15)}
 .rkm-search input::-webkit-search-cancel-button{display:none}
 .rkm-search span{position:absolute;right:14px;font-size:12px;font-weight:700;color:#b45309}
+.rkm-search input{padding-right:82px!important}.rkm-search #rankCnt{right:44px!important}
+.rkm-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:26px;height:26px;border:0;border-radius:50%;background:#f1f3f5;color:#6b7280;font-size:18px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;transition:background .15s,color .15s}
+.rkm-clear:hover{background:#fee2e2;color:#b91c1c}.rkm-clear[hidden]{display:none}
 .rkm-row[hidden]{display:none!important}.rkm-none{margin:0;padding:22px;text-align:center;color:var(--muted);font-size:13.5px}
 .rkm-sum{display:flex;flex-wrap:wrap;gap:8px;padding:0 22px 12px;border-bottom:1px solid var(--rule)}
 .rkm-sum span{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--c-bg);color:var(--c)}
@@ -3448,8 +3451,9 @@ function open(){const L=units.filter(r=>v(r,'members')>0).sort((a,b)=>(rankOf.ge
  M.classList.add('on');document.body.style.overflow='hidden';setTimeout(()=>q.focus(),30)}
 function fold(x){return String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d')}
 function filt(){const k=fold(document.getElementById('rankQ').value.trim());let n=0;const rows=document.querySelectorAll('#rankList .rkm-row');rows.forEach(r=>{const ok=!k||fold(r.querySelector('.uname').textContent).includes(k);r.hidden=!ok;if(ok)n++});
- document.getElementById('rankCnt').textContent=k?n+'/'+rows.length:'';let e=document.getElementById('rankNone');if(!e){e=document.createElement('p');e.id='rankNone';e.className='rkm-none';e.textContent='Không tìm thấy đơn vị phù hợp.';document.getElementById('rankList').after(e)}e.hidden=!(k&&!n)}
+ document.getElementById('rankCnt').textContent=k?n+'/'+rows.length:'';document.getElementById('rankClr').hidden=!document.getElementById('rankQ').value;let e=document.getElementById('rankNone');if(!e){e=document.createElement('p');e.id='rankNone';e.className='rkm-none';e.textContent='Không tìm thấy đơn vị phù hợp.';document.getElementById('rankList').after(e)}e.hidden=!(k&&!n)}
 document.getElementById('rankQ').addEventListener('input',filt);
+document.getElementById('rankClr').addEventListener('click',()=>{const q=document.getElementById('rankQ');q.value='';filt();q.focus()});
 function close(){M.classList.remove('on');document.body.style.overflow=''}
 document.addEventListener('click',e=>{const t=e.target;if(!t.closest)return;
  if(t.closest('[data-rank-open]')){e.preventDefault();open();return}
