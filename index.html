@@ -1239,6 +1239,7 @@ go();document.addEventListener('DOMContentLoaded',go);
   <div class="modal rk-modal">
     <div class="rkm-head"><div><h3 id="rankTitle">Xếp hạng đơn vị</h3><p id="rankSub">Xếp theo tiến độ; đồng hạng thì xét số tiền đã nộp</p></div><button type="button" class="rkm-x" data-rank-close aria-label="Đóng">×</button></div>
     <div class="rkm-sum" id="rankSum"></div>
+    <div class="rkm-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="rankQ" placeholder="Tìm tên đơn vị…" autocomplete="off" aria-label="Tìm tên đơn vị"><span id="rankCnt"></span></div>
     <div class="rkm-list" id="rankList"></div>
     <p class="rkm-foot">Bấm tên đơn vị để xem thẻ chi tiết và nhắn tin đôn đốc.</p>
   </div>
@@ -3342,6 +3343,13 @@ html body :is(#stats,#heroCard) .cardx .cx-tag{font-style:normal!important;font-
 .rkm-head p{margin:4px 0 0;font-size:13px;color:var(--muted)}
 .rkm-x{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--rule);background:#fff;font-size:20px;line-height:1;color:var(--muted);cursor:pointer}
 .rkm-x:hover{background:#fff7ed;color:#b45309;border-color:#fdba74}
+.rkm-search{position:relative;display:flex;align-items:center;margin:12px 22px 10px}
+.rkm-search svg{position:absolute;left:12px;width:17px;height:17px;color:var(--muted);pointer-events:none}
+.rkm-search input{width:100%;height:38px;padding:0 64px 0 38px;border:1px solid var(--rule);border-radius:999px;background:#fff;font:500 14px var(--sans);color:var(--ink);outline:0}
+.rkm-search input:focus{border-color:#d97706;box-shadow:0 0 0 3px rgba(217,119,6,.15)}
+.rkm-search input::-webkit-search-cancel-button{display:none}
+.rkm-search span{position:absolute;right:14px;font-size:12px;font-weight:700;color:#b45309}
+.rkm-row[hidden]{display:none!important}.rkm-none{margin:0;padding:22px;text-align:center;color:var(--muted);font-size:13.5px}
 .rkm-sum{display:flex;flex-wrap:wrap;gap:8px;padding:0 22px 12px;border-bottom:1px solid var(--rule)}
 .rkm-sum span{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--c-bg);color:var(--c)}
 .rkm-sum span b{font-weight:800}
@@ -3436,7 +3444,12 @@ function open(){const L=units.filter(r=>v(r,'members')>0).sort((a,b)=>(rankOf.ge
  document.getElementById('rankSum').innerHTML=[['complete','Hoàn thành'],['partial','Đang thu'],['empty','Chưa phát sinh']].map(([k,l])=>`<span style="--c:${C[k][0]};--c-bg:${C[k][1]}">${l} <b>${n[k]}</b></span>`).join('');
  document.getElementById('rankList').innerHTML=L.map(r=>{const c=cls(r),col=(C[c]||C.empty)[0],p=Math.max(0,Math.min(1,v(r,'progress')));
   return `<div class="rkm-row">${rk(r)}<div class="rkm-nm"><span class="uname" data-cb="${cbSlug(r)}" title="Xem thẻ đơn vị">${esc(nm(r))}</span><small>${esc(status(r)[0])} · ${money(v(r,'paid'))}</small></div><div class="rkm-bar" style="--c:${col}"><i><b style="width:${(p*100).toFixed(1)}%"></b></i><em>${pct(p)}</em></div><div class="rkm-ct"><b>${num(v(r,'paidCount'))}</b>/${num(v(r,'due'))}<br>đảng viên</div></div>`}).join('')||'<p class="empty">Chưa có số liệu đơn vị.</p>';
- M.classList.add('on');document.body.style.overflow='hidden';setTimeout(()=>M.querySelector('.rkm-x').focus(),30)}
+ const q=document.getElementById('rankQ');q.value='';filt();
+ M.classList.add('on');document.body.style.overflow='hidden';setTimeout(()=>q.focus(),30)}
+function fold(x){return String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d')}
+function filt(){const k=fold(document.getElementById('rankQ').value.trim());let n=0;const rows=document.querySelectorAll('#rankList .rkm-row');rows.forEach(r=>{const ok=!k||fold(r.querySelector('.uname').textContent).includes(k);r.hidden=!ok;if(ok)n++});
+ document.getElementById('rankCnt').textContent=k?n+'/'+rows.length:'';let e=document.getElementById('rankNone');if(!e){e=document.createElement('p');e.id='rankNone';e.className='rkm-none';e.textContent='Không tìm thấy đơn vị phù hợp.';document.getElementById('rankList').after(e)}e.hidden=!(k&&!n)}
+document.getElementById('rankQ').addEventListener('input',filt);
 function close(){M.classList.remove('on');document.body.style.overflow=''}
 document.addEventListener('click',e=>{const t=e.target;if(!t.closest)return;
  if(t.closest('[data-rank-open]')){e.preventDefault();open();return}
