@@ -3366,6 +3366,13 @@ html body :is(#stats,#heroCard) .cardx .cx-holder small,html body :is(#stats,#he
 html body :is(#stats,#heroCard) .cardx .cx-valid small{font-size:8.5px!important;opacity:1!important;color:#e3ecff!important}
 html body #stats .kp-mini>span,html body #stats .kp-mini small{color:#4b5a6e}
 </style>
+<style id="liveIconCss">/* Đang online / Tổng truy cập: chỉ biểu tượng + số */
+html body .notice .livepill small{display:none!important}
+html body .notice .livepill .lp{padding:0 14px;gap:7px}
+html body .notice .livepill svg{width:18px;height:18px}
+html body .notice .livepill .ldot{width:12px;height:12px}
+</style>
+
 
 <script>(()=>{const M=document.getElementById('rankModal');if(!M)return;
 const C={complete:['#15803d','#f0fdf4'],partial:['#b45309','#fff7ed'],empty:['#b91c1c','#fef2f2']};
