@@ -3359,6 +3359,14 @@ html body :is(#stats,#heroCard) .cardx .cx-tag{font-style:normal!important;font-
 .rkm-foot{margin:0;padding:10px 22px 14px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--muted)}
 @media(max-width:560px){.rkm-row{grid-template-columns:30px minmax(0,1fr) 64px;gap:8px}.rkm-bar{grid-column:2/4;grid-row:2}.rkm-ct{grid-column:3;grid-row:1}}
 </style>
+<style id="legibleCss">/* chữ nhỏ/mờ rõ nét hơn */
+html body #overview .ovhead .eyebrow{font-size:12.5px!important}
+html body :is(#stats,#heroCard) .cardx .cx-num small{font-size:10px!important;opacity:1!important;color:#e3ecff!important;white-space:nowrap}
+html body :is(#stats,#heroCard) .cardx .cx-holder small,html body :is(#stats,#heroCard) .cardx .cx-bar small span{font-size:10px!important;color:#e3ecff!important}
+html body :is(#stats,#heroCard) .cardx .cx-valid small{font-size:8.5px!important;opacity:1!important;color:#e3ecff!important}
+html body #stats .kp-mini>span,html body #stats .kp-mini small{color:#4b5a6e}
+</style>
+
 <script>(()=>{const M=document.getElementById('rankModal');if(!M)return;
 const C={complete:['#15803d','#f0fdf4'],partial:['#b45309','#fff7ed'],empty:['#b91c1c','#fef2f2']};
 function open(){const L=units.filter(r=>v(r,'members')>0).sort((a,b)=>(rankOf.get(a)||999)-(rankOf.get(b)||999));
