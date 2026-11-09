@@ -3372,6 +3372,47 @@ html body .notice .livepill .lp{padding:0 14px;gap:7px}
 html body .notice .livepill svg{width:18px;height:18px}
 html body .notice .livepill .ldot{width:12px;height:12px}
 </style>
+<style id="phIconCss">/* Tiêu đề mục: băng-rôn xanh thấp, chiều ngang vừa bằng tiêu đề, biểu tượng đầu mục, sọc chéo ở đầu bên phải */
+html body .ph,html body .dhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:0;border:0;background:none;overflow:visible;min-height:0}
+html body .ph::after,html body .dhead::after{display:none}
+html body .dhead{flex-direction:column;align-items:flex-start;gap:6px}
+html body .ph h2,html body .dhead b{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:9px;width:fit-content;max-width:100%;min-height:34px;margin:0;padding:0 66px 0 12px;border-radius:4px 0 0 4px;clip-path:polygon(0 0,calc(100% - 17px) 0,100% 50%,calc(100% - 17px) 100%,0 100%);font-family:var(--sans,system-ui,sans-serif);font-weight:800;font-size:14px;line-height:34px;letter-spacing:.02em;text-transform:uppercase;color:#fff;background:linear-gradient(90deg,#2c5997,#3074cb 70%,#3d8fed)}
+html body .ph h2::before,html body .dhead b::before{display:block;content:"";position:absolute;right:20px;top:0;bottom:0;height:auto;width:30px;margin:0;border-radius:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 34'%3E%3Cpath d='M3 8l9 9-9 9' fill='none' stroke='%23fff' stroke-opacity='.45' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12 8l9 9-9 9' fill='none' stroke='%23fff' stroke-opacity='.75' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M21 8l9 9-9 9' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
+html body .ph small,html body .dhead small{margin:0;font-size:12px;color:var(--muted);text-align:right;font-weight:500}
+html body .dhead small{text-align:left}
+.hic{flex:none;display:inline-grid;place-items:center;width:22px;height:22px;color:#fff}
+.hic svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+html body .step .ph{padding:0}
+html body .step .ph h2,html body .thead .ph h2,html body .tabsum .tsPane>.tomtat>.ph h2{min-height:0;padding:0;background:none;color:inherit;text-transform:none;font:inherit;line-height:1.3;border-radius:0;overflow:visible}
+html body .step .ph h2::before,html body .thead .ph h2::before,html body .tabsum .tsPane>.tomtat>.ph h2::before{display:none}
+html body .step .ph .hic,html body .thead .ph .hic,html body .tabsum .tsPane>.tomtat>.ph .hic{display:none}
+@media(max-width:700px){html body .ph{flex-wrap:wrap}html body .ph h2,html body .dhead b{font-size:12.5px;padding:0 52px 0 10px}html body .ph h2::before,html body .dhead b::before{width:24px;right:16px}}
+@media print{html body .ph h2::before,html body .dhead b::before{display:none}}
+</style>
+<script id="phIconJs">(function(){
+var I={
+ pie:'<path d="M12 3v9h9"/><path d="M20.5 15A9 9 0 1 1 9 3.5"/>',
+ doc:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+ steps:'<path d="M4 18h4v-4h4v-4h4V6h4"/>',
+ coin:'<circle cx="12" cy="12" r="9"/><path d="M14.8 9.2c-.5-1-1.5-1.5-2.8-1.5-1.6 0-2.7.8-2.7 2s1 1.7 2.7 2.1 2.9.9 2.9 2.2-1.2 2-2.9 2c-1.4 0-2.5-.6-3-1.6M12 6v1.7M12 16.3V18"/>',
+ trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4"/>',
+ cal:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+ trend:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+ bld:'<path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/>',
+ list:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1.2 1.2L7 5M3.5 12l1.2 1.2L7 11M3.5 18l1.2 1.2L7 17"/>',
+ users:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M16 5.2a3.2 3.2 0 0 1 0 6M18 14.8c2 .6 3.5 2.3 3.5 5.2"/>',
+ pal:'<path d="M12 3a9 9 0 1 0 0 18c1.2 0 2-.8 2-1.8 0-1.4-1.2-1.6-1.2-2.8 0-.9.7-1.4 1.6-1.4H17a4 4 0 0 0 4-4C21 6.5 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/>',
+ bell:'<path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15zM10 21h4"/>',
+ bar:'<path d="M5 20V10M12 20V4M19 20v-7"/>',
+ clip:'<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h6"/>',
+ up:'<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+ bolt:'<path d="M13 3 5 13h6l-1 8 8-10h-6z"/>',
+ gen:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>'};
+var M=[[/toàn đảng bộ/i,'pie'],[/tổng hợp tình hình|tóm tắt/i,'doc'],[/tiến trình/i,'steps'],[/theo tiền/i,'coin'],[/xếp hạng/i,'trophy'],[/theo tháng/i,'cal'],[/dự báo/i,'trend'],[/các đơn vị trực thuộc|danh sách đơn vị|tình hình các đơn vị/i,'bld'],[/trạng thái/i,'list'],[/tài khoản|phân quyền/i,'users'],[/giao diện/i,'pal'],[/nhắc việc/i,'bell'],[/thống kê/i,'bar'],[/nhật ký/i,'clip'],[/gửi lên|chọn tệp/i,'up'],[/liên kết/i,'link'],[/nút api/i,'bolt']];
+function run(){document.querySelectorAll('.ph h2,.dhead b').forEach(function(h){if(h.querySelector('.hic'))return;var tx=h.textContent,k='gen';for(var i=0;i<M.length;i++)if(M[i][0].test(tx)){k=M[i][1];break}
+ var s=document.createElement('span');s.className='hic';s.setAttribute('aria-hidden','true');s.innerHTML='<svg viewBox="0 0 24 24">'+I[k]+'</svg>';h.insertBefore(s,h.firstChild)})}
+if(document.readyState!=='loading')run();else document.addEventListener('DOMContentLoaded',run);})();</script>
 
 
 <script>(()=>{const M=document.getElementById('rankModal');if(!M)return;
