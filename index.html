@@ -3462,5 +3462,22 @@ document.addEventListener('click',e=>{const t=e.target;if(!t.closest)return;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&M.classList.contains('on'))close()});
 })();</script>
 <script src="xa-bar.js"></script>
+<style id="cbmFitCss">/* Popup thông tin đơn vị: gọn, vừa khung hình, cuộn bên trong nếu màn hình thấp */
+html body .cbm{width:min(520px,100%)!important;max-height:calc(100dvh - 24px);display:flex!important;flex-direction:column}
+html body .cbm-head{flex:none;padding:14px 18px 12px!important}
+html body .cbm-head h3{font-size:1.05rem!important;margin:4px 0 0!important;padding-right:30px}
+html body .cbm-body{padding:12px 18px 14px!important;overflow-y:auto;overscroll-behavior:contain;min-height:0}
+html body .cbm-top strong{font-size:1.7rem!important}
+html body .cbm-track{margin:8px 0 10px!important}
+html body .cbm-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+html body .cbm-grid div{padding:7px 9px!important}
+html body .cbm-grid small{font-size:10.5px!important}
+html body .cbm-grid b{font-size:.92rem!important}
+html body .cbm .cbm-msgh,html body .cbm-msgh{margin:12px 0 6px!important}
+html body .cbm-msg{min-height:0!important;font-size:12.5px!important;padding:8px 10px!important}
+html body .cbm-acts{margin-top:10px!important}
+html body .cbm-acts .btn{padding:8px 10px!important}
+@media(max-width:480px){html body .cbm-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+</style>
 </body>
 </html>
