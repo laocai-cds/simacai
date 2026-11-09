@@ -3389,6 +3389,19 @@ html body .step .ph .hic,html body .thead .ph .hic,html body .tabsum .tsPane>.to
 @media(max-width:700px){html body .ph{flex-wrap:wrap}html body .ph h2,html body .dhead b{font-size:12.5px;padding:0 52px 0 10px}html body .ph h2::before,html body .dhead b::before{width:24px;right:16px}}
 @media print{html body .ph h2::before,html body .dhead b::before{display:none}}
 </style>
+<style id="heroFitCss">/* Thẻ đảng phí và khối "Tình hình thu toàn Đảng bộ" cao bằng nhau, thẳng hàng trên/dưới */
+@media(min-width:1024px){
+ html body .hero .wrap{align-items:stretch}
+ html body .hero .wrap>div.has-card{align-self:stretch;height:100%}
+ html body .hero .wrap>div.has-card{row-gap:0!important}
+ html body .has-card .loadnote{margin-bottom:10px!important}
+ html body .has-card .loadnote[hidden],html body .has-card .loadnote:empty{display:none!important}
+ html body #heroCard{align-self:stretch;display:flex;min-height:0}
+ html body #heroCard .stat.kp-hero.cardx{aspect-ratio:auto!important;align-self:stretch!important;height:auto!important;flex:1;min-height:290px!important;justify-content:space-between}
+ html body .hero .wrap>.panel,html body .hero .wrap>div:not(.has-card){align-self:stretch}
+}
+</style>
+
 <script id="phIconJs">(function(){
 var I={
  pie:'<path d="M12 3v9h9"/><path d="M20.5 15A9 9 0 1 1 9 3.5"/>',
