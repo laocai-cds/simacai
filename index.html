@@ -3372,6 +3372,11 @@ html body :is(#stats,#heroCard) .cardx .cx-tag{font-style:normal!important;font-
 .rkm-sum{display:flex;flex-wrap:wrap;gap:8px;padding:0 22px 12px;border-bottom:1px solid var(--rule)}
 .rkm-sum span{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--c-bg);color:var(--c)}
 .rkm-sum span b{font-weight:800}
+.rkm-sum span[data-g]{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;border:1.5px solid transparent;transition:transform .12s,box-shadow .15s,border-color .15s}
+.rkm-sum span[data-g]:hover{box-shadow:0 2px 8px rgba(20,40,77,.15)}
+.rkm-sum span[data-g]:active{transform:scale(.96)}
+.rkm-sum span[data-g].on{border-color:var(--c);box-shadow:0 0 0 2px var(--c-bg),0 2px 8px rgba(20,40,77,.18)}
+.rkm-sum.has-g span[data-g]:not(.on){opacity:.55}
 .rkm-list{overflow-y:auto;overscroll-behavior:contain;padding:6px 14px 6px}
 .rkm-row{display:grid;grid-template-columns:34px minmax(0,1fr) minmax(120px,190px) 70px;align-items:center;gap:12px;padding:10px 8px;border-bottom:1px dashed var(--rule-2,#eceef1)}
 .rkm-row:last-child{border-bottom:0}
@@ -3460,15 +3465,21 @@ if(document.readyState!=='loading')run();else document.addEventListener('DOMCont
 const C={complete:['#15803d','#f0fdf4'],partial:['#b45309','#fff7ed'],empty:['#b91c1c','#fef2f2']};
 function open(){const L=units.filter(r=>v(r,'members')>0).sort((a,b)=>(rankOf.get(a)||999)-(rankOf.get(b)||999));
  const n={complete:0,partial:0,empty:0};L.forEach(r=>{const c=cls(r);n[c in n?c:'empty']++});
- document.getElementById('rankSum').innerHTML=[['complete','Hoàn thành'],['partial','Đang thu'],['empty','Chưa phát sinh']].map(([k,l])=>`<span style="--c:${C[k][0]};--c-bg:${C[k][1]}">${l} <b>${n[k]}</b></span>`).join('');
+ document.getElementById('rankSum').innerHTML=[['complete','Hoàn thành'],['partial','Đang thu'],['empty','Chưa phát sinh']].map(([k,l])=>`<span data-g="${k}" role="button" tabindex="0" aria-pressed="false" title="Bấm để xem các đơn vị: ${l}" style="--c:${C[k][0]};--c-bg:${C[k][1]}">${l} <b>${n[k]}</b></span>`).join('');
  document.getElementById('rankList').innerHTML=L.map(r=>{const c=cls(r),col=(C[c]||C.empty)[0],p=Math.max(0,Math.min(1,v(r,'progress')));
-  return `<div class="rkm-row">${rk(r)}<div class="rkm-nm"><span class="uname" data-cb="${cbSlug(r)}" title="Xem thẻ đơn vị">${esc(nm(r))}</span><small>${esc(status(r)[0])} · ${money(v(r,'paid'))}</small></div><div class="rkm-bar" style="--c:${col}"><i><b style="width:${(p*100).toFixed(1)}%"></b></i><em>${pct(p)}</em></div><div class="rkm-ct"><b>${num(v(r,'paidCount'))}</b>/${num(v(r,'due'))}<br>đảng viên</div></div>`}).join('')||'<p class="empty">Chưa có số liệu đơn vị.</p>';
- const q=document.getElementById('rankQ');q.value='';filt();
+  return `<div class="rkm-row" data-c="${c==='complete'||c==='partial'?c:'empty'}">${rk(r)}<div class="rkm-nm"><span class="uname" data-cb="${cbSlug(r)}" title="Xem thẻ đơn vị">${esc(nm(r))}</span><small>${esc(status(r)[0])} · ${money(v(r,'paid'))}</small></div><div class="rkm-bar" style="--c:${col}"><i><b style="width:${(p*100).toFixed(1)}%"></b></i><em>${pct(p)}</em></div><div class="rkm-ct"><b>${num(v(r,'paidCount'))}</b>/${num(v(r,'due'))}<br>đảng viên</div></div>`}).join('')||'<p class="empty">Chưa có số liệu đơn vị.</p>';
+ const q=document.getElementById('rankQ');q.value='';grp='';filt();
  M.classList.add('on');document.body.style.overflow='hidden';setTimeout(()=>q.focus(),30)}
 function fold(x){return String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d')}
-function filt(){const k=fold(document.getElementById('rankQ').value.trim());let n=0;const rows=document.querySelectorAll('#rankList .rkm-row');rows.forEach(r=>{const ok=!k||fold(r.querySelector('.uname').textContent).includes(k);r.hidden=!ok;if(ok)n++});
- document.getElementById('rankCnt').textContent=k?n+'/'+rows.length:'';document.getElementById('rankClr').hidden=!document.getElementById('rankQ').value;let e=document.getElementById('rankNone');if(!e){e=document.createElement('p');e.id='rankNone';e.className='rkm-none';e.textContent='Không tìm thấy đơn vị phù hợp.';document.getElementById('rankList').after(e)}e.hidden=!(k&&!n)}
+let grp='';
+function filt(){const k=fold(document.getElementById('rankQ').value.trim());let n=0;const rows=document.querySelectorAll('#rankList .rkm-row');rows.forEach(r=>{const ok=(!k||fold(r.querySelector('.uname').textContent).includes(k))&&(!grp||r.dataset.c===grp);r.hidden=!ok;if(ok)n++});
+ const sm=document.getElementById('rankSum');sm.classList.toggle('has-g',!!grp);sm.querySelectorAll('[data-g]').forEach(x=>{const on=x.dataset.g===grp;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
+ document.getElementById('rankCnt').textContent=(k||grp)?n+'/'+rows.length:'';document.getElementById('rankClr').hidden=!document.getElementById('rankQ').value;let e=document.getElementById('rankNone');if(!e){e=document.createElement('p');e.id='rankNone';e.className='rkm-none';e.textContent='Không tìm thấy đơn vị phù hợp.';document.getElementById('rankList').after(e)}e.hidden=!((k||grp)&&!n)}
 document.getElementById('rankQ').addEventListener('input',filt);
+const sumEl=document.getElementById('rankSum');
+const pick=t=>{const g=t.closest&&t.closest('[data-g]');if(!g)return;grp=grp===g.dataset.g?'':g.dataset.g;filt();const l=document.getElementById('rankList');if(l)l.scrollTop=0};
+sumEl.addEventListener('click',e=>pick(e.target));
+sumEl.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(e.target)}});
 document.getElementById('rankClr').addEventListener('click',()=>{const q=document.getElementById('rankQ');q.value='';filt();q.focus()});
 function close(){M.classList.remove('on');document.body.style.overflow=''}
 document.addEventListener('click',e=>{const t=e.target;if(!t.closest)return;
