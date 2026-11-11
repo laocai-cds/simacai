@@ -371,4 +371,4 @@
 })();
 
 /* Chế độ chụp ảnh xem thử (?shot=1): ẩn dải thông báo và hộp nổi để trang TTHC lấy ảnh sạch */
-(function(){try{if(!/[?&]shot=1(&|$)/.test(location.search))return;var s=document.createElement('style');s.textContent='#notice,.toast,.back{display:none!important}';document.head.appendChild(s)}catch(_){}})();
+(function(){try{if(!/[?&]shot=1(&|$)/.test(location.search))return;var s=document.createElement('style');s.textContent='#notice,.toast,.back,.scov,#scNotice{display:none!important}';document.head.appendChild(s)}catch(_){}})();
