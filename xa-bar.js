@@ -369,3 +369,6 @@
   if (window.speechSynthesis) safe(function () { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = function () {}; });
   window.XaBar = { build: build, refresh: apply, speak: speak };
 })();
+
+/* Chế độ chụp ảnh xem thử (?shot=1): ẩn dải thông báo và hộp nổi để trang TTHC lấy ảnh sạch */
+(function(){try{if(!/[?&]shot=1(&|$)/.test(location.search))return;var s=document.createElement('style');s.textContent='#notice,.toast,.back{display:none!important}';document.head.appendChild(s)}catch(_){}})();
