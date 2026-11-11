@@ -1180,6 +1180,7 @@ go();document.addEventListener('DOMContentLoaded',go);
             <li>Kéo nút <a id="apiBm" href="#" draggable="true" style="display:inline-block;padding:4px 10px;border-radius:8px;background:#b3261e;color:#fff;font-weight:700;text-decoration:none">ĐP Si Ma Cai</a> lên thanh dấu trang (Ctrl+Shift+B để hiện thanh). Nếu không kéo được: <button class="btn" type="button" id="apiCopy" style="padding:3px 10px">sao chép mã</button> rồi bấm chuột phải thanh dấu trang → <b>Thêm trang…</b>, dán mã vào ô <b>URL</b>.</li>
             <li>Mở <b>gqtthc.dcs.vn</b> (đã đăng nhập), bấm dấu trang đó <b>một lần chuột trái</b>.</li>
             <li>Lần đầu nhập <b>mã đồng bộ</b> (giống ô ở bước 2); máy sẽ nhớ cho lần sau. Góc phải trên trang báo kết quả.</li>
+            <li>Muốn <b>tự động lặp theo thời gian</b>: trong hộp chọn tháng, chọn chu kỳ (2 – 30 phút). Giữ tab gqtthc mở và đã đăng nhập; góc trái dưới có nhãn xanh, bấm vào để tắt.</li>
           </ol>
           <p class="hint" style="margin:0">Cách khác nếu dấu trang bị chặn: mở gqtthc.dcs.vn → F12 → Console → <button class="btn" type="button" id="apiCopyJs" style="padding:3px 10px">sao chép mã Console</button> → dán → Enter.</p>
           <div class="state" id="apiMsg" role="status" style="margin-top:10px" hidden></div>
@@ -2117,7 +2118,14 @@ try{if(/zalo/i.test(navigator.userAgent)&&!sessionStorage.getItem('zalo_ok')){co
 start();startLoop();checkEndpoint();showSheetLink();
 /* ===== Nút API: dấu trang chạy trên gqtthc.dcs.vn → lấy số liệu qua API → gửi lên Google Sheet ===== */
 function apiBookmarklet(C){
-  (async()=>{
+  let AM=0;
+  /* Nhãn góc trái dưới: đang tự động lặp, lần cuối lúc nào; bấm để tắt */
+  const badge=t=>{let b=document.getElementById('__dpBmBadge');if(!window.__dpBmTimer){if(b)b.remove();return}
+    if(!b){b=document.createElement('div');b.id='__dpBmBadge';b.title='Bấm để tắt tự động đồng bộ';b.style.cssText='position:fixed;z-index:2147483646;left:14px;bottom:14px;padding:8px 14px;border-radius:20px;background:#0f8a3c;color:#fff;font:700 13px system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer';
+      b.onclick=()=>{if(confirm('Tắt tự động đồng bộ đảng phí?')){clearInterval(window.__dpBmTimer);window.__dpBmTimer=0;window.__dpBmAM=0;b.remove()}};document.body.appendChild(b)}
+    b.dataset.am=b.dataset.am||AM;b.textContent='⏱ Tự động mỗi '+b.dataset.am+' phút'+(t?' · lần cuối '+t:' · đang chờ lần đầu')};
+  const hm=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+  const go=async(auto)=>{
     const box=document.createElement('div');
     box.style.cssText='position:fixed;z-index:2147483647;top:14px;right:14px;max-width:380px;padding:12px 16px;border-radius:12px;background:#27487b;color:#fff;font:600 14px/1.45 system-ui,sans-serif;white-space:pre-line;box-shadow:0 8px 28px rgba(0,0,0,.35)';
     let T0=performance.now(),curMsg='',curBad=false,curOk=false,tick=null;
@@ -2128,25 +2136,28 @@ function apiBookmarklet(C){
     try{
       if(!/gqtthc\.dcs\.vn$/.test(location.hostname)){alert('Hãy bấm dấu trang này khi đang mở trang gqtthc.dcs.vn (đã đăng nhập).');return}
       const tk=localStorage.getItem('token');
-      if(!tk){alert('Chưa đăng nhập gqtthc.dcs.vn.');return}
+      if(!tk){if(auto){say('⏱ Tự động: chưa đăng nhập gqtthc.dcs.vn — hãy đăng nhập lại.',true);setTimeout(()=>box.remove(),15000)}else alert('Chưa đăng nhập gqtthc.dcs.vn.');return}
       if(!C.ep){alert('Chưa có địa chỉ Google Sheet trên trang đồng bộ.');return}
       let pw=localStorage.getItem(C.k)||'';
+      if(!pw&&auto)return;
       if(!pw){pw=(prompt('Mã đồng bộ ('+C.name+'):')||'').trim();if(!pw)return}
       /* chọn tháng: chỉ các tháng của năm hiện tại (sheet Thang1…Thang12 không phân biệt năm) */
       const now=new Date();
-      const PK=await new Promise(res=>{
+      const PK=auto?(now.getFullYear()+'-'+(now.getMonth()+1)):await new Promise(res=>{
         const ov=document.createElement('div');
         ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font:14px/1.45 system-ui,sans-serif';
         let o='';for(let i=0;i<12;i++){const d=new Date(now.getFullYear(),now.getMonth()-i,1),y=d.getFullYear(),m=d.getMonth()+1;o+='<option value="'+y+'-'+m+'"'+(i?'':' selected')+'>Tháng '+m+'/'+y+(i?'':' (hiện tại)')+'</option>'}
-        ov.innerHTML='<div style="background:#fff;color:#27487b;padding:20px 24px;border-radius:12px;min-width:300px;box-shadow:0 8px 28px rgba(0,0,0,.35)"><div style="font-weight:700;font-size:16px">Lấy số liệu đảng phí</div><div data-n style="font-size:13px;color:#555;margin-top:2px"></div><select style="width:100%;margin:14px 0;padding:8px;font-size:14px;border:1px solid #bbb;border-radius:8px">'+o+'</select><div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" data-x style="padding:7px 14px;border:1px solid #bbb;background:#fff;border-radius:8px;cursor:pointer">Hủy</button><button type="button" data-ok style="padding:7px 16px;border:0;background:#b3261e;color:#fff;font-weight:700;border-radius:8px;cursor:pointer">Lấy dữ liệu</button></div></div>';
+        ov.innerHTML='<div style="background:#fff;color:#27487b;padding:20px 24px;border-radius:12px;min-width:300px;box-shadow:0 8px 28px rgba(0,0,0,.35)"><div style="font-weight:700;font-size:16px">Lấy số liệu đảng phí</div><div data-n style="font-size:13px;color:#555;margin-top:2px"></div><select style="width:100%;margin:14px 0;padding:8px;font-size:14px;border:1px solid #bbb;border-radius:8px">'+o+'</select><div data-amst style="font-size:13px;font-weight:700;margin:0 0 8px;color:#6b7280"></div><div style="font-size:13px;color:#12315f;margin:0 0 6px">Tự động lặp lại (tháng hiện tại)</div><select data-am style="width:100%;margin:0 0 14px;padding:8px;font-size:14px;border:1px solid #bbb;border-radius:8px"><option value="0" selected>Không — chỉ lấy một lần</option><option value="2">Mỗi 2 phút</option><option value="5">Mỗi 5 phút</option><option value="10">Mỗi 10 phút</option><option value="15">Mỗi 15 phút</option><option value="30">Mỗi 30 phút</option></select><div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" data-x style="padding:7px 14px;border:1px solid #bbb;background:#fff;border-radius:8px;cursor:pointer">Hủy</button><button type="button" data-ok style="padding:7px 16px;border:0;background:#b3261e;color:#fff;font-weight:700;border-radius:8px;cursor:pointer">Lấy dữ liệu</button></div></div>';
         ov.querySelector('[data-n]').textContent=C.name;
-        const sel=ov.querySelector('select'),done=v=>{ov.remove();document.removeEventListener('keydown',kd,true);res(v)};
+        {const st=ov.querySelector('[data-amst]'),am=ov.querySelector('[data-am]');if(window.__dpBmTimer&&window.__dpBmAM){am.value=String(window.__dpBmAM);st.textContent='⏱ Đang chạy tự động: '+window.__dpBmAM+' phút';st.style.color='#0f8a3c'}else st.textContent='Hiện chưa chạy tự động'}
+        const sel=ov.querySelector('select'),done=v=>{if(v)AM=+ov.querySelector('[data-am]').value||0;ov.remove();document.removeEventListener('keydown',kd,true);res(v)};
         const kd=e=>{if(e.key==='Escape'){e.preventDefault();done(0)}else if(e.key==='Enter'){e.preventDefault();done(sel.value)}};
         ov.querySelector('[data-x]').onclick=()=>done(0);ov.querySelector('[data-ok]').onclick=()=>done(sel.value);
         ov.onclick=e=>{if(e.target===ov)done(0)};document.addEventListener('keydown',kd,true);
         document.body.appendChild(ov);sel.focus();
       });
       if(!PK)return;
+      if(!auto){if(window.__dpBmTimer){clearInterval(window.__dpBmTimer);window.__dpBmTimer=0}if(AM>0)window.__dpBmTimer=setInterval(()=>{if(window.__dpBmBusy)return;window.__dpBmBusy=true;go(true).finally(()=>{window.__dpBmBusy=false;badge(hm())})},AM*60000);window.__dpBmAM=window.__dpBmTimer?AM:0;const ob=document.getElementById('__dpBmBadge');if(ob)ob.remove();badge()}
       const cy=+PK.split('-')[0],SM=+PK.split('-')[1];
       T0=performance.now();
       if(navigator.onLine===false)throw new Error('Máy đang mất kết nối mạng. Kiểm tra mạng rồi bấm lại.');
@@ -2229,11 +2240,13 @@ function apiBookmarklet(C){
       if(ok){try{localStorage.setItem(C.k,pw)}catch(e){}}else{try{localStorage.removeItem(C.k)}catch(e){}}
       const apiT=tC-tA,nc=navigator.connection||{};
       const speed=apiT<2500?'🟢 Nhanh':apiT<6000?'🟡 Bình thường':'🔴 Chậm';
-      const detail='\n⏱ Tổng '+f1(tF-T0)+' · Kết nối '+speed+'\nAPI '+f1(apiT)+' (chờ '+f1(tB-tA)+', tải '+Math.max(1,Math.round(raw.length/1024))+' KB) · Gửi Sheet '+f1(tE-tD)+' · Xác nhận '+f1(tF-tE)+(nc.effectiveType?'\nMạng: '+nc.effectiveType+(nc.rtt?' · rtt '+nc.rtt+' ms':''):'');
+      const detail=(window.__dpBmTimer?'\n⏱ Tự động lặp mỗi '+AM+' phút — giữ tab này mở; tải lại trang sẽ dừng.':'')+'\n⏱ Tổng '+f1(tF-T0)+' · Kết nối '+speed+'\nAPI '+f1(apiT)+' (chờ '+f1(tB-tA)+', tải '+Math.max(1,Math.round(raw.length/1024))+' KB) · Gửi Sheet '+f1(tE-tD)+' · Xác nhận '+f1(tF-tE)+(nc.effectiveType?'\nMạng: '+nc.effectiveType+(nc.rtt?' · rtt '+nc.rtt+' ms':''):'');
       say(ok?'✅ HOÀN THÀNH — đã đồng bộ '+list.length+' đơn vị tháng '+SM+'/'+cy+' lên Google Sheet ('+T+').'+detail:'Đã gửi '+list.length+' đơn vị nhưng chưa thấy Google Sheet cập nhật. Kiểm tra mã đồng bộ rồi bấm lại (sẽ hỏi lại mã).'+detail,!ok,false,!!ok);
-      setTimeout(()=>box.remove(),ok?25000:30000);
-    }catch(e){say('✕ '+(e&&e.name==='AbortError'?'API phản hồi quá chậm (đã thử 3 lần, mỗi lần 60 giây). Tải lại trang gqtthc, đăng nhập lại rồi bấm lại.':e.message)+'   (sau '+f1(performance.now()-T0)+')',true);setTimeout(()=>box.remove(),20000)}
-  })();
+      setTimeout(()=>box.remove(),auto?6000:ok?25000:30000);
+    }catch(e){say('✕ '+(e&&e.name==='AbortError'?'API phản hồi quá chậm (đã thử 3 lần, mỗi lần 60 giây). Tải lại trang gqtthc, đăng nhập lại rồi bấm lại.':e.message)+'   (sau '+f1(performance.now()-T0)+')',true);setTimeout(()=>box.remove(),auto?15000:20000)}
+  };
+  window.__dpBmBusy=true;
+  go(false).finally(()=>{window.__dpBmBusy=false;badge(hm())});
 }
 function apiBmSrc(){return '('+apiBookmarklet.toString()+')('+JSON.stringify({pid:2122408,name:'Đảng bộ xã Si Ma Cai',max:0,skip0:true,k:'sm_apipw',src:'website-si-ma-cai-api',m:true,ep:(sheetEndpoint())||''})+');void 0'}
 (function(){
