@@ -1173,6 +1173,19 @@ go();document.addEventListener('DOMContentLoaded',go);
           </div>
           <p class="hint" style="margin:12px 0 0">Trình duyệt không đọc được phản hồi của Apps Script, nên sau khi gửi hãy mở Google Sheet kiểm tra trước khi gửi lại.</p>
         </div>
+        <div class="panel pad step" id="appPanel">
+          <div class="ph"><h2>🖥️ Ứng dụng ĐP cho Windows · đồng bộ đảng phí từ gqtthc</h2></div>
+          <p class="hint" style="margin:0 0 10px">Cài ứng dụng một lần, đăng nhập gqtthc ngay trong ứng dụng, bấm nút <b>ĐP</b> của xã là số liệu tự lấy qua API và gửi lên Google Sheet; có thể hẹn giờ tự lấy lại, ứng dụng tự báo khi có bản mới.</p>
+          <div class="sendrow">
+            <a class="btn solid" id="appDl" href="https://github.com/laocai-cds/dp-app/releases/latest/download/DP-DangPhi-Setup.exe" target="_blank" rel="noopener">⬇ Tải ứng dụng ĐP (Windows)</a>
+            <a class="btn" id="appRel" href="https://github.com/laocai-cds/dp-app/releases/latest" target="_blank" rel="noopener">Các bản phát hành</a>
+          </div>
+          <ol style="margin:10px 0 0 18px;padding:0;font-size:13.5px;line-height:1.6">
+            <li>Tải file <b>DP-DangPhi-Setup.exe</b>, bấm đôi để cài (không cần quyền quản trị). Nếu Windows cảnh báo, chọn <b>More info → Run anyway</b>.</li>
+            <li>Mở ứng dụng, đăng nhập <b>gqtthc.dcs.vn</b> trong khung bên dưới, rồi bấm nút <b>ĐP</b> của xã.</li>
+            <li>Lần đầu nhập <b>mã đồng bộ</b> (máy sẽ nhớ cho lần sau). Cập nhật phiên bản mới: bấm <b>Kiểm tra cập nhật</b> trong ứng dụng.</li>
+          </ol>
+        </div>
         <div class="panel pad step" id="apiPanel">
           <div class="ph"><h2>⚡ Nút API · đồng bộ thẳng từ gqtthc.dcs.vn</h2></div>
           <p class="hint" style="margin:0 0 10px">Không cần xuất file Excel: bấm một lần trên trang gqtthc, số liệu Đảng bộ xã Si Ma Cai được lấy qua API và gửi lên Google Sheet (chọn tháng khi bấm nút).</p>
