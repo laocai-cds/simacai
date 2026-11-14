@@ -971,7 +971,7 @@ go();document.addEventListener('DOMContentLoaded',go);
         <div id="heroCard"></div>
       </div>
       <aside class="dpanel" aria-label="Biểu đồ tròn tình hình thu">
-        <div class="dhead"><b>Tình hình thu toàn Đảng bộ</b><small>Vòng ngoài là đảng viên, vòng trong là đơn vị</small></div>
+        <div class="dhead"><b>Tình hình thu toàn Đảng bộ</b><small>Vòng ngoài là đảng viên, vòng trong là đơn vị</small><a class="kp-prov" data-prov-rank href="https://laocai-tthc.pages.dev/" target="_blank" rel="noopener" title="Xem bảng xếp hạng thu đảng phí 103 đơn vị trực thuộc Tỉnh ủy">🏆 Xếp hạng toàn tỉnh: <span class="pv">…</span></a></div>
         <div class="dbody">
           <div class="donut"><svg viewBox="0 0 220 220" id="donutsvg" role="img"></svg><div class="dcenter"><strong id="donutpct">0,00 %</strong><span>đảng viên đã nộp đảng phí</span></div></div>
           <div class="dlegend" id="dlegend"></div>
@@ -1521,6 +1521,7 @@ function start(){
   if(hasEp&&cached&&Array.isArray(cached.headers)&&applySheet({ok:true,headers:cached.headers,rows:cached.rows,lastSync:cached.lastSync,t:cached.t})){dataSrc='cache'}
   else{dataSrc=hasEp?'loading':'backup';if(hasEp)setLoading(true);else showBackupNote(true)}
   render();
+  provLoad();setInterval(()=>{if(!document.hidden)provLoad()},300000);
   const guard=dataSrc==='loading'?setTimeout(()=>{if(dataSrc==='loading'){dataSrc='backup';setLoading(false);showBackupNote(true);render()}},10000):0;
   loadFromSheet().then(()=>{clearTimeout(guard);if(dataSrc!=='sheet'){setLoading(false);if(dataSrc==='backup')showBackupNote(true)}render();syncMonthly()});
   const tick=()=>{if(document.hidden)return;const before=sigOf(liveUnits);loadFromSheet().then(x=>{if(x.state==='ok'&&sigOf(liveUnits)!==before)render()})};
@@ -1581,6 +1582,32 @@ function startLoop(){
   clearInterval(loopTimer);return;
   loopTimer=setInterval(()=>{if(document.hidden||!$('#overview').classList.contains('on'))return;growBars('.chartwrap')},4000);
 }
+/* ===== Xếp hạng toàn tỉnh: đọc cùng Google Sheet 103 đơn vị của DVC Lào Cai, tính hạng đúng công thức bảng xếp hạng bên đó ===== */
+const PROV={sheet:'1N8o54EORq0rgQ2yV62tJUeOh_89n-toiD-M1AGkWO4g',name:'dang bo xa si ma cai',rank:0,total:0,st:'idle'};
+function provNorm(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[đĐ]/g,'d').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
+function provTab(y,m){return 'Thang'+m+(y===2026?'':'_'+y)}
+function provFetch(tab){return new Promise(res=>{const cb='__provRank_'+Date.now()+'_'+Math.random().toString(36).slice(2),sc=document.createElement('script');let end=false;
+  const fin=v=>{if(end)return;end=true;clearTimeout(tm);delete window[cb];sc.remove();res(v)},tm=setTimeout(()=>fin(null),20000);
+  window[cb]=p=>fin(p&&p.table?p:null);sc.onerror=()=>fin(null);
+  sc.src='https://docs.google.com/spreadsheets/d/'+PROV.sheet+'/gviz/tq?tqx=out:json;responseHandler:'+cb+'&sheet='+encodeURIComponent(tab)+'&headers=2&_='+Date.now();sc.async=true;document.head.appendChild(sc)})}
+function provParse(p){
+  const tx=c=>String(c?(c.v!=null?c.v:(c.f!=null?c.f:'')):'').trim(),nm=c=>{if(!c)return 0;if(typeof c.v==='number')return c.v;const q=String(c.f!=null?c.f:(c.v!=null?c.v:'')).replace(/[^\d-]/g,'');return q?parseInt(q,10):0};
+  const rows=((p&&p.table&&p.table.rows)||[]).map(r=>r.c||[]).filter(c=>/^\d+$/.test(tx(c[0]).replace(/\.0$/,''))&&tx(c[1])).map(c=>{
+    const d={name:tx(c[1]),t:nm(c[2]),ct:nm(c[3]),tt:nm(c[4]),chuyen:nm(c[5]),mien:nm(c[6]),dn:nm(c[9]),nop:nm(c[12])};
+    d.need=Math.max(0,d.ct+d.tt-d.chuyen-d.mien);d.rate=d.need>0?Math.min(100,d.dn/d.need*100):0;return d}).filter(d=>d.t>0);
+  return rows.length?rows:null}
+function provShow(){$$('[data-prov-rank] .pv').forEach(e=>{e.textContent=PROV.st==='ok'?(PROV.rank+'/'+PROV.total):(PROV.st==='err'?'chưa đọc được':'…')})}
+async function provLoad(){
+  if(PROV.busy)return;PROV.busy=1;if(PROV.st!=='ok')PROV.st='loading';
+  try{
+    const n=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Ho_Chi_Minh'}));let y=n.getFullYear(),m=n.getMonth()+1,rows=null;
+    for(let i=0;i<2&&!rows;i++){rows=provParse(await provFetch(provTab(y,m)));if(!rows){m--;if(m<1){m=12;y--}}}
+    if(!rows)throw 0;
+    rows.sort((a,b)=>Math.round(b.rate*100)-Math.round(a.rate*100)||b.nop-a.nop||b.dn-a.dn||a.name.localeCompare(b.name,'vi'));
+    let i=rows.findIndex(r=>provNorm(r.name)===PROV.name);if(i<0)i=rows.findIndex(r=>/\bxa si ma cai$/.test(provNorm(r.name)));if(i<0)throw 0;
+    PROV.rank=i+1;PROV.total=rows.length;PROV.st='ok'
+  }catch(e){if(PROV.st!=='ok')PROV.st='err'}
+  PROV.busy=0;provShow()}
 function render(){
   const t=totals(),rate=t.due?t.paidCount/t.due:0;
   const active=units.filter(r=>v(r,'members')>0),done=units.filter(r=>cls(r)==='complete').length;
@@ -3518,6 +3545,7 @@ html body .cbm-msg{min-height:0!important;font-size:12.5px!important;padding:8px
 html body .cbm-acts{margin-top:10px!important}
 html body .cbm-acts .btn{padding:8px 10px!important}
 @media(max-width:480px){html body .cbm-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+html body .dhead .kp-prov{display:inline-flex;align-items:center;margin-top:8px;color:var(--lac-d,#0b4f9c);font:700 12px/1.3 var(--display,inherit);text-decoration:none}html body .dhead .kp-prov:hover{text-decoration:underline}
 </style>
 </body>
 </html>
