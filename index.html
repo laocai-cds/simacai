@@ -662,11 +662,11 @@ label.f{display:block;font-size:13px;font-weight:600;margin:14px 0 6px;color:var
 @media(max-width:760px){.kp2{gap:12px;margin-bottom:14px}.fn-row{grid-template-columns:96px minmax(0,1fr) 78px;gap:8px}.fn-lab{font-size:12px}.fn-bar{height:22px}.fn-val b{font-size:14px}.fn-loss{margin-left:0}.mr-big strong{font-size:2.1rem}}
 /* ảnh phong cảnh dưới dải thông báo */
 .scenic-box{margin-left:var(--side);padding-top:24px}
-.scenic{position:relative;margin:0;height:clamp(150px,17vw,280px);overflow:hidden;background:var(--son-d);border-radius:var(--r);box-shadow:var(--sh)}
+.scenic{position:relative;margin:0;height:clamp(210px,30vw,460px);overflow:hidden;background:var(--son-d);border-radius:var(--r);box-shadow:var(--sh)}
 .scenic img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
 .scenic::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(180deg,rgba(0,0,0,0) 65%,rgba(33,62,100,.28) 100%)}
 .scenic figcaption{position:absolute;right:14px;bottom:10px;z-index:1;font:500 11px var(--sans);color:#fff;opacity:.9;text-shadow:0 1px 3px #000c}
-@media(max-width:760px){.scenic-box{padding-top:14px}.scenic{height:120px}.scenic img{object-position:50% 52%}.scenic figcaption{font-size:10px;right:10px;bottom:7px}}
+@media(max-width:760px){.scenic-box{padding-top:14px}.scenic{height:clamp(170px,46vw,240px)}.scenic img{object-position:50% 52%}.scenic figcaption{font-size:10px;right:10px;bottom:7px}}
 @media print{.scenic-box{display:none}}
 /* Đang online + Tổng truy cập: góc phải dải thông báo */
 .notice .livepill{flex:none;display:flex;align-items:stretch;gap:0;padding:0;margin:0;border:0;border-left:1px solid var(--rule);border-radius:0;background:linear-gradient(180deg,#fff,#fbfbfc);color:var(--ink);white-space:nowrap}
