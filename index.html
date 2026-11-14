@@ -3265,9 +3265,11 @@ document.addEventListener('keydown',function(e){var o=ov();if(e.key==='Escape'&&
 </style>
 <style id="kpDrumCss">/* Si Ma Cai: trống đồng chìm bên phải thẻ chính */
 :is(#stats,#heroCard) .stat.kp-hero{isolation:isolate;overflow:hidden}
-:is(#stats,#heroCard) .stat.kp-hero>.kp-drum{position:absolute!important;inset:0!important;z-index:0!important;pointer-events:none;background:url(trong-dong.png) right -80px center/340px no-repeat;opacity:.15}
+:is(#stats,#heroCard) .stat.kp-hero>.kp-drum{position:absolute!important;inset:auto!important;left:50%!important;top:50%!important;z-index:0!important;pointer-events:none;width:min(340px,92%);aspect-ratio:1;margin:0;background:url(trong-dong.png) center/contain no-repeat;opacity:.17;transform:translate(-50%,-50%) rotate(0deg);animation:kpDrumSpin 70s linear infinite;will-change:transform}
+@keyframes kpDrumSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){:is(#stats,#heroCard) .stat.kp-hero>.kp-drum{animation:none}}
 :is(#stats,#heroCard) .stat.kp-hero>.kp-ring,:is(#stats,#heroCard) .stat.kp-hero>.kp-hb{position:relative;z-index:1}
-@media(max-width:560px){:is(#stats,#heroCard) .stat.kp-hero>.kp-drum{background-position:center 30%;background-size:300px}}
+
 </style>
 <style id="cardxCss">/* Si Ma Cai: thẻ chính kiểu thẻ ngân hàng */
 html body :is(#stats,#heroCard) .stat.kp-hero.cardx{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:space-between;gap:0;padding:22px 26px 20px!important;border-radius:20px!important;min-height:260px}
