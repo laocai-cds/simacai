@@ -809,31 +809,42 @@ function conv(txt,T){
   txt=txt.replace(/#([0-9a-fA-F]{6})([0-9a-fA-F]{2})?(?![0-9a-zA-Z_-])/g,function(m,c6,a){if(KEEP[c6.toLowerCase()])return m;var n=parseInt(c6,16),o=tf(n>>16,(n>>8)&255,n&255,T);return o?'#'+hx(o[0])+hx(o[1])+hx(o[2])+(a||''):m});
   return txt.replace(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/g,function(m,r,g,b){var o=tf(+r,+g,+b,T);return o?m.slice(0,m.indexOf('(')+1)+o[0]+','+o[1]+','+o[2]:m})}
 window.THEMES=THEMES;window.THEME_KEY=K;window.THEME_CUR=null;
+window.GOPT={};try{window.GOPT=JSON.parse(localStorage.getItem('glass_'+K.slice(6))||'{}')||{}}catch(e){}
+function progRate(){var e=document.getElementById('donutpct'),m=e&&/(\d+(?:[.,]\d+)?)/.exec(e.textContent||'');return m?parseFloat(m[1].replace(',','.')):null}
+window.applyGlass=function(T){
+  var O=window.GOPT||{};
+  var bg=document.getElementById('themeBg');if(!bg){bg=document.createElement('style');bg.id='themeBg';bg.setAttribute('data-notheme','');document.head.appendChild(bg)}
+  var im=document.querySelector('.scenic img');
+  var bgc='';if(O.bg){if(im&&im.src)bgc='url("'+im.src+'") center/cover no-repeat';else{var sw=(T&&T.sw&&T.sw.length>2?T.sw:['#7b5cff','#20c997','#ff8a3d','#ff5c7c']);bgc='radial-gradient(circle at 12% 18%,'+sw[0]+' 0,transparent 42%),radial-gradient(circle at 88% 26%,'+sw[1%sw.length]+' 0,transparent 40%),radial-gradient(circle at 30% 92%,'+sw[2%sw.length]+' 0,transparent 42%),radial-gradient(circle at 92% 88%,'+sw[3%sw.length]+' 0,transparent 38%)'}}
+  bg.textContent=bgc?'html body::before{content:"";position:fixed;inset:-40px;z-index:-1;background:'+bgc+';filter:blur(38px) saturate(1.5);opacity:.42;pointer-events:none}':'';
+  var gs=document.getElementById('themeGlass');if(!gs){gs=document.createElement('style');gs.id='themeGlass';gs.setAttribute('data-notheme','');document.head.appendChild(gs)}
+  if(!T||!T.glass){gs.textContent='';return}
+  var tr=O.tr==null?30:+O.tr,bl=O.bl==null?16:+O.bl,rd=O.rd==null?20:+O.rd,cr=!!T.crystal;
+  var a1=Math.max(.08,.78-.0068*tr),a2=a1*.38;
+  var rg=function(h,al){var n=parseInt(h.slice(1),16);return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+al+')'},dk=function(h,f){var n=parseInt(h.slice(1),16);return 'rgb('+Math.round((n>>16)*f)+','+Math.round(((n>>8)&255)*f)+','+Math.round((n&255)*f)+')'};
+  var N=':not(.kp-hero)',S='html body .stat.stat'+N,css='';
+  if(cr){css+=S+'{border:1px solid rgba(255,255,255,.85)!important;border-radius:'+rd+'px!important;isolation:isolate;backdrop-filter:blur('+bl+'px) saturate(1.8);-webkit-backdrop-filter:blur('+bl+'px) saturate(1.8)}'
+    +S+'::before{content:"";position:absolute!important;inset:0!important;left:0!important;top:0!important;bottom:0!important;width:auto!important;transform:none!important;animation:none!important;background:linear-gradient(118deg,rgba(255,255,255,.75) 0%,rgba(255,255,255,.18) 32%,rgba(255,255,255,0) 52%),radial-gradient(120% 80% at 0% 0%,rgba(255,255,255,.55),rgba(255,255,255,0) 60%)!important;z-index:0;pointer-events:none}'
+    +S+'::after{content:"";position:absolute!important;left:auto!important;top:auto!important;right:-30px!important;bottom:-44px!important;width:160px!important;height:160px!important;border-radius:50%!important;animation:none!important;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.6),rgba(255,255,255,.08) 70%)!important;border:1px solid rgba(255,255,255,.6);z-index:0;pointer-events:none}'
+    +S+' .ico{background:rgba(255,255,255,.6)!important;border:1px solid rgba(255,255,255,.95)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 #fff,0 8px 16px -8px rgba(0,0,0,.25)!important}'}
+  else{css+='html body .stat'+N+'{color:#fff!important;border:1px solid rgba(255,255,255,.38)!important;isolation:isolate}'
+    +'html body .stat'+N+'::before{content:"";position:absolute!important;inset:0!important;left:0!important;top:0!important;bottom:0!important;width:auto!important;transform:none!important;animation:none!important;background:repeating-linear-gradient(115deg,rgba(255,255,255,.07) 0 14px,rgba(255,255,255,0) 14px 30px),linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 46%)!important;z-index:0;pointer-events:none;opacity:1}'
+    +'html body .stat'+N+'::after{content:"";position:absolute!important;left:auto!important;top:auto!important;right:-34px!important;bottom:-46px!important;width:170px!important;height:170px!important;border-radius:50%!important;animation:none!important;background:rgba(255,255,255,.16)!important;backdrop-filter:blur(2px);z-index:0;pointer-events:none}'
+    +S+' *:not(svg):not(path){color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.2)}'+S+' strong{text-decoration:none!important}'
+    +S+' .ico{background:rgba(255,255,255,.26)!important;color:#fff!important;border:1px solid rgba(255,255,255,.45)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 6px 14px -6px rgba(0,0,0,.3)!important}'
+    +S+'{border-radius:'+rd+'px!important}'}
+  var card=function(sel,pair){var q=pair.split(',');
+    if(cr){var d=dk(q[0],.62);return sel+'{background:linear-gradient(135deg,'+rg(q[0],a1)+' 0%,'+rg(q[1],a2)+' 100%)!important;box-shadow:0 18px 36px -16px '+rg(q[0],.7)+',inset 0 1px 0 #fff,inset 0 -1px 0 rgba(255,255,255,.35),inset 0 0 26px rgba(255,255,255,.35)!important}'+sel+' *:not(svg):not(path){color:'+d+'!important;text-shadow:0 1px 0 rgba(255,255,255,.6)}'+sel+' .ico{color:'+d+'!important}'}
+    return sel+'{background:linear-gradient(135deg,'+q[0]+' 0%,'+q[1]+' 100%)!important;box-shadow:0 18px 34px -14px '+q[0]+'cc,inset 0 1px 0 rgba(255,255,255,.5)!important}'};
+  if(T.glass.length===1)css+=card(S,T.glass[0]);else T.glass.forEach(function(g,i){css+=card(S.replace('.stat.stat','.stat.stat.k'+(i+1)),g)});
+  if(O.pg){var pr=progRate();if(pr!=null){css+=card(S.replace('.stat.stat','.stat.stat.k3'),pr>=80?'#12a874,#4fd3a0':pr>=50?'#e08a00,#ffd45c':'#ff2a52,#ff6b86')}}
+  gs.textContent=css};
+setInterval(function(){if(window.GOPT&&window.GOPT.pg&&window.THEME_CUR){var T=THEMES.filter(function(x){return x.id===window.THEME_CUR})[0],r=progRate();if(T&&T.glass&&r!==window.__pr){window.__pr=r;window.applyGlass(T)}}},2000);
 window.applyTheme=function(id){
   var T=THEMES.filter(function(x){return x.id===id})[0];if(!T)return;
   prep();window.THEME_CUR=id;
   styles().forEach(function(e){var o=e.__o;if(T.h===null){if(e.textContent!==o)e.textContent=o}else{e.textContent=conv(o,T)}});
-  var gs=document.getElementById('themeGlass');if(!gs){gs=document.createElement('style');gs.id='themeGlass';gs.setAttribute('data-notheme','');document.head.appendChild(gs)}
-  if(!T.glass){gs.textContent='';return}
-  if(T.crystal){var rg=function(h,al){var n=parseInt(h.slice(1),16);return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+al+')'},dk=function(h,f){var n=parseInt(h.slice(1),16);return 'rgb('+Math.round((n>>16)*f)+','+Math.round(((n>>8)&255)*f)+','+Math.round((n&255)*f)+')'};
-    var cc='html body .stat.stat:not(.kp-hero){border:1px solid rgba(255,255,255,.85)!important;border-radius:20px!important;isolation:isolate;backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8)}'
-    +'html body .stat.stat:not(.kp-hero)::before{content:"";position:absolute!important;inset:0!important;left:0!important;top:0!important;bottom:0!important;width:auto!important;transform:none!important;animation:none!important;background:linear-gradient(118deg,rgba(255,255,255,.75) 0%,rgba(255,255,255,.18) 32%,rgba(255,255,255,0) 52%),radial-gradient(120% 80% at 0% 0%,rgba(255,255,255,.55),rgba(255,255,255,0) 60%)!important;z-index:0;pointer-events:none}'
-    +'html body .stat.stat:not(.kp-hero)::after{content:"";position:absolute!important;left:auto!important;top:auto!important;right:-30px!important;bottom:-44px!important;width:160px!important;height:160px!important;border-radius:50%!important;animation:none!important;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.6),rgba(255,255,255,.08) 70%)!important;border:1px solid rgba(255,255,255,.6);z-index:0;pointer-events:none}'
-    +'html body .stat.stat:not(.kp-hero) .ico{background:rgba(255,255,255,.6)!important;border:1px solid rgba(255,255,255,.95)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 #fff,0 8px 16px -8px rgba(0,0,0,.25)!important}';
-    T.glass.forEach(function(g,i){var q=g.split(','),n=T.glass.length>1?'.k'+(i+1):'',d=dk(q[0],.62);
-      cc+='html body .stat.stat:not(.kp-hero)'+n+'{background:linear-gradient(135deg,'+rg(q[0],.52)+' 0%,'+rg(q[1],.20)+' 100%)!important;box-shadow:0 18px 36px -16px '+rg(q[0],.7)+',inset 0 1px 0 #fff,inset 0 -1px 0 rgba(255,255,255,.35),inset 0 0 26px rgba(255,255,255,.35)!important}'
-      +'html body .stat.stat:not(.kp-hero)'+n+' *:not(svg):not(path){color:'+d+'!important;text-shadow:0 1px 0 rgba(255,255,255,.6)}html body .stat.stat:not(.kp-hero)'+n+' .ico{color:'+d+'!important}'});
-    gs.textContent=cc;return}
-  var css='html body .stat:not(.kp-hero){color:#fff!important;border:1px solid rgba(255,255,255,.38)!important;isolation:isolate}'
-  +'html body .stat.stat:not(.kp-hero)::before{content:"";position:absolute!important;inset:0!important;left:0!important;top:0!important;bottom:0!important;width:auto!important;transform:none!important;animation:none!important;background:repeating-linear-gradient(115deg,rgba(255,255,255,.07) 0 14px,rgba(255,255,255,0) 14px 30px),linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 46%)!important;z-index:0;pointer-events:none;opacity:1}'
-  +'html body .stat.stat:not(.kp-hero)::after{content:"";position:absolute!important;left:auto!important;top:auto!important;right:-34px!important;bottom:-46px!important;width:170px!important;height:170px!important;border-radius:50%!important;animation:none!important;background:rgba(255,255,255,.16)!important;backdrop-filter:blur(2px);z-index:0;pointer-events:none}'
-  +'html body .stat.stat:not(.kp-hero) *:not(svg):not(path){color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.2)}html body .stat.stat:not(.kp-hero) strong{text-decoration:none!important}'
-  +'html body .stat.stat:not(.kp-hero) .ico{background:rgba(255,255,255,.26)!important;color:#fff!important;border:1px solid rgba(255,255,255,.45)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 6px 14px -6px rgba(0,0,0,.3)!important}'
-  +'html body .stat:not(.kp-hero){border-radius:20px!important}';
-  T.glass.forEach(function(g,i){var p=g.split(',');var n=T.glass.length>1?'.k'+(i+1):'';
-    css+='html body .stat.stat:not(.kp-hero)'+n+'{background:linear-gradient(135deg,'+p[0]+' 0%,'+p[1]+' 100%)!important;box-shadow:0 18px 34px -14px '+p[0]+'cc,inset 0 1px 0 rgba(255,255,255,.5)!important}'});
-  if(T.glass.length===1){var q=T.glass[0].split(',');css+='html body{--glassA:'+q[0]+';--glassB:'+q[1]+'}'}
-  gs.textContent=css};
+  window.applyGlass(T)};
 window.themeBase=function(){prep();var m,o=(styles().map(function(e){return e.__o}).join('')),r=[];m=o.match(/--(?:son|lac)\s*:\s*(#[0-9a-fA-F]{6})/);r.push(m?m[1]:'#3163aa');m=o.match(/--(?:son-d|lac-d)\s*:\s*(#[0-9a-fA-F]{6})/);r.push(m?m[1]:'#2a5899');m=o.match(/--(?:vang|gold)\s*:\s*(#[0-9a-fA-F]{6})/);r.push(m?m[1]:'#c9a227');return r};
 var sv=null;try{sv=localStorage.getItem(K)}catch(e){}
 function go(){if(sv&&sv!=='mac-dinh')window.applyTheme(sv)}
@@ -1156,6 +1167,16 @@ go();document.addEventListener('DOMContentLoaded',go);
           <div class="ph"><h2>Giao diện của site</h2></div>
           <p class="hint" style="margin:0 0 10px">Chọn một mẫu để xem trước ngay, rồi bấm “Lưu giao diện” để áp dụng cho mọi máy (lưu trong tab “Giao diện” của Google Sheet, cần Mã đồng bộ ở mục Kết nối Google Sheet).</p>
           <div class="thmgrid" id="thmGrid"></div>
+          <div id="gxBox" style="margin:2px 0 12px;padding:12px;border:1px solid var(--rule);border-radius:12px;background:#fafafa">
+            <div style="font-weight:700;font-size:13px;margin-bottom:8px">Tinh chỉnh kính / pha lê</div>
+            <label class="hint" style="display:flex;align-items:center;gap:10px;margin:6px 0">Độ trong suốt<input type="range" id="gxTr" min="0" max="100" step="1" style="flex:1"><b id="gxTrV" style="min-width:34px;text-align:right"></b></label>
+            <label class="hint" style="display:flex;align-items:center;gap:10px;margin:6px 0">Độ mờ nền<input type="range" id="gxBl" min="0" max="30" step="1" style="flex:1"><b id="gxBlV" style="min-width:34px;text-align:right"></b></label>
+            <label class="hint" style="display:flex;align-items:center;gap:10px;margin:6px 0">Độ bo góc<input type="range" id="gxRd" min="6" max="34" step="1" style="flex:1"><b id="gxRdV" style="min-width:34px;text-align:right"></b></label>
+            <label class="hint" style="display:flex;align-items:center;gap:8px;margin:8px 0 4px"><input type="checkbox" id="gxBg"> Nền ảnh banner làm mờ phía sau (rõ nhất với mẫu Pha lê)</label>
+            <label class="hint" style="display:flex;align-items:center;gap:8px;margin:4px 0"><input type="checkbox" id="gxPg"> Màu thẻ “Đã thu trong kỳ” theo tiến độ: xanh từ 80%, vàng 50–80%, đỏ dưới 50%</label>
+            <button class="btn" id="gxReset" type="button" style="margin-top:6px">Đặt lại mặc định</button>
+            <p class="hint" style="margin:6px 0 0">Chỉ có tác dụng với các mẫu Kính và Pha lê (ô nền ảnh dùng được với mọi mẫu). Bấm “Lưu giao diện” để áp dụng cho mọi máy.</p>
+          </div>
           <div class="macts" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn solid" id="thmSave" type="button">Lưu giao diện</button><button class="btn" id="thmUndo" type="button">Hoàn tác xem trước</button></div>
           <p class="hint" style="margin:10px 0 0" id="thmMsg"></p>
         </div>
@@ -2574,20 +2595,30 @@ function thBuild(){const g=document.getElementById('thmGrid');if(!g)return;
 async function thLoad(){const ep=sheetEndpoint();if(!ep)return;
   try{const d=await bootRead(ep,TH_TAB);
     const r=d&&d.ok&&Array.isArray(d.rows)&&d.rows[0];
-    if(r&&Array.isArray(d.headers)&&d.headers[0]===TH_HEAD&&THEMES.some(t=>t.id===String(r[0]))){thSaved=thPick=String(r[0]);try{localStorage.setItem(THEME_KEY,thSaved)}catch(_){}applyTheme(thSaved);thMark()}}catch(_){}}
+    if(r&&Array.isArray(d.headers)&&d.headers[0]===TH_HEAD&&THEMES.some(t=>t.id===String(r[0]))){thSaved=thPick=String(r[0]);try{localStorage.setItem(THEME_KEY,thSaved)}catch(_){}applyTheme(thSaved);thMark()}const gr=d&&d.ok&&Array.isArray(d.rows)&&d.rows.find(x=>x[0]==='glass');if(gr&&window.GX){try{GX.load(JSON.parse(String(gr[1])))}catch(_){}}}catch(_){}}
 (function(){const sv=document.getElementById('thmSave'),un=document.getElementById('thmUndo'),m=document.getElementById('thmMsg');if(!sv)return;
-  un.onclick=()=>{thPick=thSaved;applyTheme(thSaved);thMark();m.textContent='';};
+  un.onclick=()=>{thPick=thSaved;applyTheme(thSaved);if(window.GX)GX.revert();thMark();m.textContent='';};
   sv.onclick=async()=>{const bad=t=>{m.textContent=t;m.className='hint';m.style.color='#b3261e'},ep=sheetEndpoint(),tk=(document.getElementById('syncToken')&&document.getElementById('syncToken').value.trim())||'';
     m.style.color='';if(!AUTH.isAdmin())return bad('Cần đăng nhập quản trị.');if(!ep)return bad('Chưa cấu hình URL Web App.');if(!tk)return bad('Nhập Mã đồng bộ ở mục Kết nối Google Sheet rồi lưu lại.');
     sv.disabled=true;m.className='hint';m.textContent='Đang lưu lên Google Sheet...';
     let base='';try{const d0=await jsonp(ep+'?action=read&tab='+encodeURIComponent(TH_TAB),9000);const r0=d0&&d0.ok&&Array.isArray(d0.rows)&&d0.rows[0];base=r0?String(r0[1]||''):''}catch(_){}
     const stamp=new Date().toLocaleString('vi-VN',{hour12:false});
-    try{fetch(ep,{method:'POST',mode:'no-cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({tab:TH_TAB,headers:[TH_HEAD,'Cập nhật'],rows:[[thPick,stamp]].concat(window.SITECFG?SITECFG.rows():[]),token:tk,idToken:AUTH.t(),source:'website-theme'})})}catch(_){}
+    try{fetch(ep,{method:'POST',mode:'no-cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({tab:TH_TAB,headers:[TH_HEAD,'Cập nhật'],rows:[[thPick,stamp],['glass',JSON.stringify(window.GOPT||{})]].concat(window.SITECFG?SITECFG.rows():[]),token:tk,idToken:AUTH.t(),source:'website-theme'})})}catch(_){}
     let ok=false;for(let i=0;i<4&&!ok;i++){await new Promise(r=>setTimeout(r,i?1800:2200));
       try{const d=await jsonp(ep+'?action=read&tab='+encodeURIComponent(TH_TAB),9000);const r=d&&d.ok&&Array.isArray(d.rows)&&d.rows[0];ok=!!(r&&Array.isArray(d.headers)&&d.headers[0]===TH_HEAD&&String(r[0])===thPick&&String(r[1]||'')!==base)}catch(_){}}
     sv.disabled=false;
-    if(ok){thSaved=thPick;try{localStorage.setItem(THEME_KEY,thSaved)}catch(_){}m.textContent='Đã lưu giao diện. Các máy khác sẽ đổi khi tải lại trang.'}
+    if(ok){thSaved=thPick;if(window.GX)GX.commit();try{localStorage.setItem(THEME_KEY,thSaved)}catch(_){}m.textContent='Đã lưu giao diện. Các máy khác sẽ đổi khi tải lại trang.'}
     else bad('Chưa lưu được. Kiểm tra Mã đồng bộ, đăng nhập quản trị và Apps Script đã cập nhật (tab “Giao diện”), rồi thử lại.')}})();
+(function(){const g=id=>document.getElementById(id),D={tr:30,bl:16,rd:20,bg:0,pg:0},GK='glass_'+THEME_KEY.slice(6);
+  let savedG=Object.assign({},D,window.GOPT||{});
+  const cur=()=>THEMES.filter(t=>t.id===(window.THEME_CUR||thPick))[0];
+  const sync=()=>{const o=window.GOPT;g('gxTr').value=o.tr;g('gxBl').value=o.bl;g('gxRd').value=o.rd;g('gxBg').checked=!!o.bg;g('gxPg').checked=!!o.pg;g('gxTrV').textContent=o.tr+'%';g('gxBlV').textContent=o.bl+'px';g('gxRdV').textContent=o.rd+'px'};
+  const put=()=>{const o=window.GOPT;o.tr=+g('gxTr').value;o.bl=+g('gxBl').value;o.rd=+g('gxRd').value;o.bg=g('gxBg').checked?1:0;o.pg=g('gxPg').checked?1:0;sync();window.applyGlass(cur());const m=g('thmMsg');m.textContent='Đang xem trước. Bấm “Lưu giao diện” để áp dụng cho mọi máy.';m.className='hint'};
+  window.GOPT=Object.assign({},D,window.GOPT||{});sync();
+  ['gxTr','gxBl','gxRd'].forEach(i=>g(i).addEventListener('input',put));['gxBg','gxPg'].forEach(i=>g(i).addEventListener('change',put));
+  g('gxReset').onclick=()=>{window.GOPT=Object.assign({},D);sync();window.applyGlass(cur())};
+  window.GX={saved:()=>savedG,commit:()=>{savedG=Object.assign({},window.GOPT);try{localStorage.setItem(GK,JSON.stringify(savedG))}catch(_){}},revert:()=>{window.GOPT=Object.assign({},savedG);sync();window.applyGlass(cur())},load:o=>{window.GOPT=Object.assign({},D,o);savedG=Object.assign({},window.GOPT);try{localStorage.setItem(GK,JSON.stringify(savedG))}catch(_){}sync();window.applyGlass(cur())}};
+  const t=cur();if(t)window.applyGlass(t)})();
 thBuild();setTimeout(thLoad,1200);
 AUTH.init();
 
