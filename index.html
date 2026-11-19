@@ -2300,6 +2300,28 @@ function apiBookmarklet(C){
       const sigRows=a=>{let n=0,s=0,p=0;(a||[]).forEach(r=>{if(r&&/^\d+$/.test(String(r[0]==null?'':r[0]).trim())){n++;s+=Number(String(r[2]).replace(/[^\d]/g,''))||0;p+=Number(String(r[12]).replace(/[^\d]/g,''))||0}});return n+'|'+s+'|'+p},want=sigRows(rows);
       for(let k=0;k<12&&!ok;k++){await new Promise(r2=>setTimeout(r2,1000));const x=await jp(rd,9000);if(x&&x.ok&&((x.lastSync||'')!==before||sigRows(x.rows)===want))ok=x}
       const tF=performance.now();
+      let subMsg='';
+      if(ok&&C.sub){try{
+        const schools=list.filter(x=>new RegExp(C.sub,'i').test(String(x.tenDonVi||'').trim()));
+        let done=0,nSub=0,nSch=0;const subRows=[],errs=[];
+        const candIds=x=>{const cand=[],seen=new Set(),add=vv=>{if(vv==null||typeof vv==='object')return;const t=String(vv).trim();if(t&&!seen.has(t)&&(/^\d{5,}$/.test(t)||/^[A-Za-z0-9._-]{3,}$/.test(t))){seen.add(t);cand.push(/^\d+$/.test(t)?Number(t):t)}};
+          const w2=(o,d)=>{if(!o||typeof o!=='object'||d>2)return;for(const k in o){const vv=o[k];if(vv&&typeof vv==='object')w2(vv,d+1);else if(/id|ma|donVi|code/i.test(k)&&!/soLuong|tongSo|tien|ty|muc|ky/i.test(k))add(vv)}};
+          if(x.donVi&&typeof x.donVi==='object')w2(x.donVi,0);else add(x.donVi);w2(x,0);return cand.filter(c=>String(c)!==String(C.pid)&&String(c)!==String(C.cid)).slice(0,6)};
+        const one=async x=>{const nmx=String(x.tenDonVi||'').trim();let got=null;
+          const sck='dp_sc_'+(C.k||'dp')+'_'+nmx;let svc=null;try{svc=localStorage.getItem(sck)}catch(e){}
+          const cands=candIds(x);if(svc){const sv=/^\d+$/.test(svc)?Number(svc):svc;const ix=cands.findIndex(z=>String(z)===String(sv));if(ix>0)cands.splice(ix,1);if(ix!==0)cands.unshift(sv)}/* mã đã dùng được lần trước: thử trước, khỏi dò lần lượt */
+          for(const c of cands){let X;try{X=await getL(c)}catch(e){continue}
+            if(X.list.length&&!X.list.some(y=>/tỉnh Lào Cai/i.test(String(y.tenDonVi||''))||String(y.tenDonVi||'').trim()===C.name||String(y.tenDonVi||'').trim()===nmx)){got=X.list;try{localStorage.setItem(sck,String(c))}catch(e){}break}}
+          done++;say('Đang lấy chi bộ trực thuộc đảng bộ trường… '+done+'/'+schools.length+'\n'+nmx.replace(/^đảng bộ\s*/i,''),false,true);
+          if(got){nSch++;const seenN=new Set();got.filter(y=>{const t=String(y.tenDonVi||'').trim().toLowerCase();if(!t||seenN.has(t)||!(+y.tongSoLuongDangVien>0))return false;seenN.add(t);return true}).forEach(y=>{nSub++;subRows.push([nmx,cy+'-'+p2(SM),subRows.length+1,y.tenDonVi,n(y.tongSoLuongDangVien),n(y.soLuongDangVienChinhThuc),n(y.soLuongDangVienTamThoi),n(y.soLuongChuyenTamThoi),n(y.soLuongDangVienMienGiam),n(y.tongSoHoSoChuaDuyet),n(y.tongSoHoSoDaDuyetChuaNop),n(y.tongSoHoSoDaDuyetDaNop),n(y.soLuongHoSoChuaKhaiBao),n(y.tongSoTienDaKhaiBao),n(y.tongSoTienDaNop),Math.round(n(y.mucDoThucHien)*100)/10000])})}
+          else errs.push(nmx)};
+        let qi=0;await Promise.all(Array.from({length:5},async()=>{while(qi<schools.length){if(dead)return;await one(schools[qi++])}}));
+        if(subRows.length&&!dead){
+          const hd=['Đảng bộ cha','Kỳ','STT','Tên đơn vị'].concat(h2.slice(2));
+          await fetch(C.chung||C.ep,{method:'POST',mode:'no-cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({tab:'Chi bộ trường',headers:hd,rows:subRows,token:pw,source:C.src,sentAt:new Date().toISOString()})});
+          subMsg='\nChi bộ trực thuộc đảng bộ trường: '+nSub+' chi bộ của '+nSch+'/'+schools.length+' đảng bộ'+(errs.length?' (chưa thấy chi bộ con: '+errs.length+' đảng bộ)':'');
+        }else subMsg='\nChi bộ trực thuộc đảng bộ trường: chưa lấy được chi bộ con nào ('+schools.length+' đảng bộ trường)';
+      }catch(e3){subMsg='\n⚠ Chưa lấy được chi bộ con của đảng bộ trường ('+(e3&&e3.message||e3)+') — đồng bộ chính vẫn xong.'}}
       if(ok&&C.m){say('Đang cập nhật tab “Thu theo tháng”…',false,true);
         const MK=cy+'-'+String(SM).padStart(2,'0'),paid=rows.slice(1).reduce((a,r)=>a+(Number(r[12])||0),0);
         const x=await jp(C.ep+'?action=read&tab='+encodeURIComponent('Thu theo tháng'),9000);
@@ -2309,7 +2331,7 @@ function apiBookmarklet(C){
       if(ok){try{localStorage.setItem(C.k,pw)}catch(e){}}else{try{localStorage.removeItem(C.k)}catch(e){}}
       const apiT=tC-tA,nc=navigator.connection||{};
       const speed=apiT<2500?'🟢 Nhanh':apiT<6000?'🟡 Bình thường':'🔴 Chậm';
-      const detail=(window.__dpBmTimer?'\n⏱ Tự động lặp mỗi '+AM+' phút — giữ tab này mở; tải lại trang sẽ dừng.':'')+'\n⏱ Tổng '+f1(tF-T0)+' · Kết nối '+speed+'\nAPI '+f1(apiT)+' (chờ '+f1(tB-tA)+', tải '+Math.max(1,Math.round(raw.length/1024))+' KB) · Gửi Sheet '+f1(tE-tD)+' · Xác nhận '+f1(tF-tE)+(nc.effectiveType?'\nMạng: '+nc.effectiveType+(nc.rtt?' · rtt '+nc.rtt+' ms':''):'');
+      const detail=subMsg+(window.__dpBmTimer?'\n⏱ Tự động lặp mỗi '+AM+' phút — giữ tab này mở; tải lại trang sẽ dừng.':'')+'\n⏱ Tổng '+f1(tF-T0)+' · Kết nối '+speed+'\nAPI '+f1(apiT)+' (chờ '+f1(tB-tA)+', tải '+Math.max(1,Math.round(raw.length/1024))+' KB) · Gửi Sheet '+f1(tE-tD)+' · Xác nhận '+f1(tF-tE)+(nc.effectiveType?'\nMạng: '+nc.effectiveType+(nc.rtt?' · rtt '+nc.rtt+' ms':''):'');
       say(ok?'✅ HOÀN THÀNH — đã đồng bộ '+list.length+' đơn vị tháng '+SM+'/'+cy+' lên Google Sheet ('+T+').'+detail:'Đã gửi '+list.length+' đơn vị nhưng chưa thấy Google Sheet cập nhật. Kiểm tra mã đồng bộ rồi bấm lại (sẽ hỏi lại mã).'+detail,!ok,false,!!ok);
       setTimeout(()=>box.remove(),auto?6000:ok?25000:30000);
     }catch(e){say('✕ '+(e&&e.name==='AbortError'?'API phản hồi quá chậm (đã thử 3 lần, mỗi lần 60 giây). Tải lại trang gqtthc, đăng nhập lại rồi bấm lại.':e.message)+'   (sau '+f1(performance.now()-T0)+')',true);setTimeout(()=>box.remove(),auto?15000:20000)}
