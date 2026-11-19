@@ -2639,6 +2639,9 @@ const FB_CFG={apiKey:"AIzaSyDJnqDkggMnmh-ooYSgBUew-56w8Ie6mhU",authDomain:"simac
     if(/Lào Cai|Yên Bái/i.test(t))return false;
     return /(^|[^\p{L}])(Phú Thọ|Vĩnh Phúc|Hòa Bình|TP\.? ?HCM|TP\.? Hồ Chí Minh|Thành phố Hồ Chí Minh|Hà Nội|Phú Quốc|Đà Nẵng|Hải Phòng|Thanh Hóa|Nghệ An|Quảng Ninh|Sơn La|Điện Biên|Lai Châu|Hà Giang|Tuyên Quang|Thái Nguyên|Bắc Ninh|Cần Thơ|Lâm Đồng|Đắk Lắk|Gia Lai|An Giang|Đồng Nai|Hưng Yên|Ninh Bình|Cao Bằng|Lạng Sơn|Hà Tĩnh|Quảng Trị|Quảng Ngãi|Cà Mau|Tây Ninh)(?![\p{L}])/u.test(t)||/(^|[^\p{L}])(tỉnh|thành phố|TP\.?)\s+(Khánh Hòa|Huế)/iu.test(t)||/(Khánh Hòa)/.test(t)&&!/(xã|phường)\s+Khánh Hòa/i.test(t);
   }
+  /* Tin đầu tiên (3 tin hiển thị) lấy từ các báo khác nhau: hai báo Lào Cai coi là một nguồn; các tin còn lại theo thời gian. */
+  const srcGrp=i=>/Báo Lào Cai/i.test(i.source||'')?'baolaocai':String(i.source||'');
+  const mixSrc=(arr,n)=>{const top=[],seen=new Set();for(const i of arr){const g=srcGrp(i);if(!seen.has(g)){seen.add(g);top.push(i);if(top.length>=3)break}}const rest=arr.filter(i=>!top.includes(i));return top.sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0)).concat(rest).slice(0,n)};
   const poolCache={};
   async function getPool(url){
     url=url||POOL_URL;
@@ -2817,7 +2820,7 @@ const FB_CFG={apiKey:"AIzaSyDJnqDkggMnmh-ooYSgBUew-56w8Ie6mhU",authDomain:"simac
     box.setAttribute('aria-busy','true');btn.disabled=true;sub.textContent='Đang tải tin…';skeleton();
     try{
       let d;try{d=await getPool(unitUrl(cur))}catch(_){d=await getPool()}
-      const matched=d.items.filter(i=>/^https?:\/\//i.test(i.url||'')&&!(window.RSS_PRAISE_ONLY&&i.bad)&&((cur===PROV&&inProv(i))||(i.us||[]).includes(cur)||mentions((i.title||'')+' '+((i.desc||'').split(/(?<=[.!?…])\s+/)[0]||'').slice(0,220),cur)||(bare(cur)&&headMention(i.title||'',bare(cur))))).sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0));const items=matched.slice(0,30);
+      const matched=d.items.filter(i=>/^https?:\/\//i.test(i.url||'')&&!(window.RSS_PRAISE_ONLY&&i.bad)&&((cur===PROV&&inProv(i))||(i.us||[]).includes(cur)||mentions((i.title||'')+' '+((i.desc||'').split(/(?<=[.!?…])\s+/)[0]||'').slice(0,220),cur)||(bare(cur)&&headMention(i.title||'',bare(cur))))).sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0));const items=mixSrc(matched,30);
       const today=vnDay(nowMs()),isToday=i=>{const x=Date.parse(i.published);return !isNaN(x)&&vnDay(x)===today},fm=n=>n.toLocaleString('vi-VN');
       lastCtx={d,matched,isToday,fm,cur,mt:d.matchedTotal};countView(cur);
       const stat=fm(d.matchedTotal!=null?d.matchedTotal:matched.length)+' tin'+(matched.filter(isToday).length?' · '+fm(matched.filter(isToday).length)+' mới hôm nay':'')+' · toàn tỉnh '+fm(d.provTotal!=null?d.provTotal:d.items.length)+' tin từ '+fm(d.provSources!=null?d.provSources:new Set(d.items.map(i=>i.source)).size)+' nguồn';
