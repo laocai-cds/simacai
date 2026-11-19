@@ -1275,7 +1275,7 @@ go();document.addEventListener('DOMContentLoaded',go);
    (kiểm tra mã đăng nhập idToken và danh sách Gmail quản trị), không dựa vào trình duyệt. */
 window.AUTH=(function(){
   const CFG={apiKey:"AIzaSyDJnqDkggMnmh-ooYSgBUew-56w8Ie6mhU",authDomain:"simacai-76254.firebaseapp.com",projectId:"simacai-76254",appId:"1:759109446196:web:5683b248c0d0a39439f861"};
-  const V='https://www.gstatic.com/firebasejs/10.12.2/';
+  const V='https://www.gstatic.com/firebasejs/10.14.1/';
   const H=document.documentElement,g=id=>document.getElementById(id);
   let auth=null,user=null,tok='',loading=null,role=null,gen=0;
   const say=t=>{try{toast(t)}catch(_){alert(t)}};
@@ -2512,7 +2512,7 @@ const FB_CFG={apiKey:"AIzaSyDJnqDkggMnmh-ooYSgBUew-56w8Ie6mhU",authDomain:"simac
   const set=(k,n)=>document.querySelectorAll('[data-live="'+k+'"]').forEach(e=>{e.textContent=nf.format(n)});
   const show=()=>{const a=document.getElementById('liveBar'),b=document.getElementById('livePill');if(a)a.hidden=false;if(b)b.hidden=false};
   const load=u=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=u;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
-  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  const base='https://www.gstatic.com/firebasejs/10.14.1/';
   const go=()=>load(base+'firebase-app-compat.js').then(()=>load(base+'firebase-database-compat.js')).then(()=>{
     firebase.initializeApp(FB_CFG);const db=firebase.database();
     let sid='';try{sid=sessionStorage.getItem('sm_sid')||'';if(!sid){sid=Math.random().toString(36).slice(2,10)+Date.now().toString(36);sessionStorage.setItem('sm_sid',sid)}}catch(_){sid=Math.random().toString(36).slice(2,10)}
