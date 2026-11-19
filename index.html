@@ -1379,8 +1379,29 @@ const nkey=x=>String(x||'').toLocaleLowerCase('vi').replace(/[^\p{L}\p{N}]+/gu,'
 let liveStale=false,liveUnits=[],viewKey=null,msnap={};try{msnap=JSON.parse(localStorage.getItem('sm_msnap')||'{}')||{}}catch(_){}
 const curKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
 const viewingPast=()=>!!(viewKey&&viewKey!==curKey()&&msnap[viewKey]);
+var kidsMap=new Map(),openKids=new Set();
+const kfold=t=>String(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').toLowerCase().replace(/\s+/g,' ').trim();
+function schoolParent(n){const t=String(n),k=t.indexOf(' › ');if(k>0)return kfold(t.slice(0,k));
+ const f=kfold(t);if(!/^chi bo /.test(f))return null;
+  return null}
+const kidName=n=>{const t=String(n),k=t.indexOf(' › ');return k>0?t.slice(k+3):t};
+function kidsOf(r){return kidsMap.get(kfold(nm(r)))||[]}
+function kidRows(r,t2){const K=kidsOf(r);if(!K.length||!openKids.has(kfold(nm(r))))return '';
+ return K.map(k=>{const bar=`<div class="pbar"><div class="track"><i class="${cls(k)}" data-w="${Math.min(100,v(k,'progress')*100)}%"></i></div><b>${pct(v(k,'progress'))}</b></div>`;
+  return t2?`<tr class="row kid"><td class="hint"></td><td></td><td class="uname kidn">└ ${esc(kidName(nm(k)))}</td><td class="n">${v(k,'members')}</td><td class="n zero">0</td><td class="n pc"><b>${v(k,'paidCount')}</b></td><td class="n mny"><b>${money(v(k,'paid'))}</b></td><td>${bar}</td></tr>`
+  :`<tr class="row kid"><td></td><td class="uname kidn">└ ${esc(kidName(nm(k)))}</td><td class="n pc"><b>${v(k,'paidCount')}</b>/${v(k,'due')}</td><td class="n zero">0</td><td class="n zero">0</td><td class="n">${money(v(k,'declared'))}</td><td class="n mny"><b>${money(v(k,'paid'))}</b></td><td>${bar}</td><td><span class="pill ${status(k)[1]}">${status(k)[0]}</span></td></tr>`}).join('')}
+function kidTg(r){const n=kidsOf(r).length;if(!n)return '';const o=openKids.has(kfold(nm(r)));return ` <button type="button" class="kid-tg" data-kid="${esc(kfold(nm(r)))}" aria-expanded="${o}">${o?'▾':'▸'} ${n} chi bộ</button>`}
+/* ===== Chi bộ trực thuộc đảng bộ trường học: tab "Chi bộ trường" do nút API ghi; chỉ hiển thị xổ ra dưới đảng bộ cha, KHÔNG cộng vào tổng/xếp hạng (số đảng bộ cha đã gồm chi bộ con) ===== */
+let SUBS={},SUBS_KEY='',SUBS_PERIOD='';
+async function loadSubs(){const ep=sheetEndpoint();if(!ep)return false;
+  try{const d=await jsonp(ep+'?action=read&tab='+encodeURIComponent('Chi bộ trường'),15000);
+    const H=d&&d.ok&&Array.isArray(d.headers)?d.headers.map(h=>String(h).trim()):[];const pi=H.indexOf('Đảng bộ cha'),ni=H.indexOf(KEYS.name)>=0?H.indexOf(KEYS.name):3;if(ni===3)H[3]=KEYS.name;
+    let m={},per='';if(pi>=0&&ni>=0&&Array.isArray(d.rows)){d.rows.forEach(row=>{const o={};H.forEach((h,i)=>o[h]=row[i]==null?'':String(row[i]));const k=nkey(o['Đảng bộ cha']);if(!k||!o[KEYS.name])return;per=o['Kỳ']||per;if(!(+String(o[KEYS.members]).replace(/[^\d.-]/g,'')>0))return;const L=m[k]=m[k]||[];if(L.some(z=>nkey(z[KEYS.name])===nkey(o[KEYS.name])))return;L.push(o)})}
+    const sig=JSON.stringify(m)+per;if(sig===SUBS_KEY)return false;SUBS_KEY=sig;SUBS=m;SUBS_PERIOD=per;return true}catch(e){return false}}
+function mergeSubs(top){if(viewingPast()||(SUBS_PERIOD&&SUBS_PERIOD!==curKey()))return;top.forEach(r=>{const L=SUBS[nkey(nm(r))];if(L&&L.length&&!kidsMap.has(kfold(nm(r))))kidsMap.set(kfold(nm(r)),L.slice().sort((a,b)=>v(b,'progress')-v(a,'progress')))})}
 function applyView(){const src=viewingPast()?msnap[viewKey].rows:liveUnits;
-  units=[...src].sort((a,b)=>v(b,'progress')-v(a,'progress')||v(b,'paid')-v(a,'paid'));rankOf=new Map();units.forEach((r,i)=>rankOf.set(r,i+1));if(window.SITECFG)SITECFG.post()}
+  kidsMap=new Map();const top=[];src.forEach(r=>{const p=schoolParent(nm(r));if(p){if(!kidsMap.has(p))kidsMap.set(p,[]);kidsMap.get(p).push(r)}else top.push(r)});
+  mergeSubs(top);units=[...top].sort((a,b)=>v(b,'progress')-v(a,'progress')||v(b,'paid')-v(a,'paid'));rankOf=new Map();units.forEach((r,i)=>rankOf.set(r,i+1));if(window.SITECFG)SITECFG.post()}
 function renderBanner(){let b=$('#viewBanner');if(!b){b=document.createElement('div');b.id='viewBanner';const o=$('#overview');o.insertBefore(b,o.firstChild)}
   if(!viewingPast()){b.style.display='none';return}
   const [y,m]=viewKey.split('-'),t=new Date(msnap[viewKey].t||Date.now());
@@ -1525,8 +1546,8 @@ function start(){
   render();
   provLoad();setInterval(()=>{if(!document.hidden)provLoad()},300000);
   const guard=dataSrc==='loading'?setTimeout(()=>{if(dataSrc==='loading'){dataSrc='backup';setLoading(false);showBackupNote(true);render()}},10000):0;
-  loadFromSheet().then(()=>{clearTimeout(guard);if(dataSrc!=='sheet'){setLoading(false);if(dataSrc==='backup')showBackupNote(true)}render();syncMonthly()});
-  const tick=()=>{if(document.hidden)return;const before=sigOf(liveUnits);loadFromSheet().then(x=>{if(x.state==='ok'&&sigOf(liveUnits)!==before)render()})};
+  loadFromSheet().then(()=>{clearTimeout(guard);if(dataSrc!=='sheet'){setLoading(false);if(dataSrc==='backup')showBackupNote(true)}render();syncMonthly();loadSubs().then(ch=>{if(ch){applyView();render()}})});
+  const tick=()=>{if(document.hidden)return;const before=sigOf(liveUnits);loadFromSheet().then(x=>{if(x.state==='ok'&&sigOf(liveUnits)!==before)render()});loadSubs().then(ch=>{if(ch){applyView();render()}})};
   setInterval(tick,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick()});
   const h=location.hash.slice(1);page(['overview','units','import'].includes(h)?h:'overview',true);
 }
@@ -1712,10 +1733,10 @@ function fillTables(){
   list=sorted(list);
   $('#rowcount').textContent=`Hiển thị ${list.length} / ${units.length} đơn vị`;
   $('#noresult').hidden=list.length>0;
-  $('#tbody').innerHTML=list.map(r=>{const[s,c]=status(r);return `<tr class="row ${cls(r)}"><td>${rk(r)}</td><td class="uname" data-cb="${cbSlug(r)}" title="Xem thẻ đơn vị">${esc(nm(r))}</td><td class="n pc"><b>${v(r,'paidCount')}</b>/${v(r,'due')}</td>${zc(v(r,'pending'),'amb')}${zc(v(r,'noRecord'),'red')}<td class="n">${money(v(r,'declared'))}</td><td class="n mny"><b>${money(v(r,'paid'))}</b></td><td>${progCell(r)}</td><td><span class="pill ${c}">${s}</span></td></tr>`}).join('');
+  $('#tbody').innerHTML=list.map(r=>{const[s,c]=status(r);return `<tr class="row ${cls(r)}"><td>${rk(r)}</td><td class="uname" data-cb="${cbSlug(r)}" title="Xem thẻ đơn vị">${esc(nm(r))}${kidTg(r)}</td><td class="n pc"><b>${v(r,'paidCount')}</b>/${v(r,'due')}</td>${zc(v(r,'pending'),'amb')}${zc(v(r,'noRecord'),'red')}<td class="n">${money(v(r,'declared'))}</td><td class="n mny"><b>${money(v(r,'paid'))}</b></td><td>${progCell(r)}</td><td><span class="pill ${c}">${s}</span></td></tr>`+kidRows(r,false)}).join('');
   const q2=($('#search2').value||'').toLocaleLowerCase('vi');
   const l2=sorted(units.filter(r=>nm(r).toLocaleLowerCase('vi').includes(q2)));
-  $('#tbody2').innerHTML=l2.map(r=>`<tr class="row ${cls(r)}"><td class="hint">${esc(r[KEYS.stt])}</td><td>${rk(r)}</td><td class="uname" data-cb="${cbSlug(r)}" title="Xem thẻ đơn vị">${esc(nm(r))}</td><td class="n">${v(r,'members')}</td>${zc(v(r,'pending'),'amb')}<td class="n pc"><b>${v(r,'paidCount')}</b></td><td class="n mny"><b>${money(v(r,'paid'))}</b></td><td>${progCell(r)}</td></tr>`).join('');
+  $('#tbody2').innerHTML=l2.map(r=>`<tr class="row ${cls(r)}"><td class="hint">${esc(r[KEYS.stt])}</td><td>${rk(r)}</td><td class="uname" data-cb="${cbSlug(r)}" title="Xem thẻ đơn vị">${esc(nm(r))}${kidTg(r)}</td><td class="n">${v(r,'members')}</td>${zc(v(r,'pending'),'amb')}<td class="n pc"><b>${v(r,'paidCount')}</b></td><td class="n mny"><b>${money(v(r,'paid'))}</b></td><td>${progCell(r)}</td></tr>`+kidRows(r,true)).join('');
   $$('th[data-sort]').forEach(th=>th.setAttribute('aria-sort',th.dataset.sort===state.sort.k?(state.sort.dir>0?'ascending':'descending'):'none'));
   growBars('#overview .tw');growBars('#units .tw');
 }
@@ -1788,6 +1809,8 @@ $('#ttRemind').onclick=openRemindAll;
 const cbSlug=r=>nm(r).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').toLowerCase().replace(/^(chi bo|dang bo)\s+/,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 let cbOpen=null;
 function cbUrl(slug){return location.origin+location.pathname+'#cb='+slug}
+function cbKids(r){const K=kidsOf(r);if(!K.length)return '';
+  return `<p class="cbm-msgh">Các chi bộ trực thuộc (${K.length})</p><div class="cbm-kids">`+K.map(k=>{const p=Math.max(0,Math.min(1,v(k,'progress')));return `<div class="cbm-kid"><b>${esc(kidName(nm(k)))}</b><span><i style="width:${(p*100).toFixed(1)}%"></i></span><em>${pct(p)}</em><small>${num(v(k,'paidCount'))}/${num(v(k,'due'))} đảng viên · ${money(v(k,'paid'))}${v(k,'declared')>v(k,'paid')?' / kê khai '+money(v(k,'declared')):''}</small></div>`}).join('')+`</div>`}
 function openCb(slug,refresh){
   const r=units.find(x=>cbSlug(x)===slug);if(!r){if(!refresh)toast('Không tìm thấy đơn vị trong link.');return}
   cbOpen=slug;let bk=$('#cbModal');
@@ -1799,7 +1822,7 @@ function openCb(slug,refresh){
   <p class="cbm-rank">Xếp hạng <b>${rk}/${units.length}</b> đơn vị · <b>${num(v(r,'paidCount'))}/${num(v(r,'due'))}</b> đảng viên đã nộp</p>
   <div class="track"><i class="${cls(r)}" style="width:${(p*100).toFixed(1)}%"></i></div>
   <div class="cbm-grid"><div class="${v(r,'noRecord')?'warn':''}"><small>Chưa có hồ sơ</small><b>${num(v(r,'noRecord'))}</b></div><div class="${v(r,'pending')?'warn':''}"><small>Chưa được duyệt</small><b>${num(v(r,'pending'))}</b></div><div class="${v(r,'approved')?'warn':''}"><small>Đã duyệt, chưa nộp</small><b>${num(v(r,'approved'))}</b></div><div><small>Đã nộp</small><b>${money(v(r,'paid'))}</b></div><div><small>Kê khai</small><b>${money(v(r,'declared'))}</b></div><div class="${left?'warn':''}"><small>Còn phải thu</small><b>${money(left)}</b></div></div>
-  <p class="cbm-msgh">Tin nhắn đôn đốc (soạn sẵn, sửa được trước khi gửi)</p><textarea class="input cbm-msg" id="cbMsg" rows="5">${esc(unitMsg(r))}</textarea>
+  ${cbKids(r)}<p class="cbm-msgh">Tin nhắn đôn đốc (soạn sẵn, sửa được trước khi gửi)</p><textarea class="input cbm-msg" id="cbMsg" rows="5">${esc(unitMsg(r))}</textarea>
   <div class="cbm-acts">${IS_PHONE?'<button class="btn solid" type="button" id="cbSms">Nhắn SMS</button>':''}<button class="btn ${IS_PHONE?'':'solid'}" type="button" id="cbZalo">${navigator.share?'Gửi Zalo / khác':'Sao chép tin nhắn'}</button><button class="btn" type="button" data-cbclose>Xem toàn Đảng bộ</button></div></div></div>`;
   const msg=()=>$('#cbMsg').value;
   if($('#cbSms'))$('#cbSms').onclick=()=>sendSms(msg());
@@ -2293,7 +2316,7 @@ function apiBookmarklet(C){
   window.__dpBmBusy=true;
   go(false).finally(()=>{window.__dpBmBusy=false;badge(hm())});
 }
-function apiBmSrc(){return '('+apiBookmarklet.toString()+')('+JSON.stringify({pid:2122408,name:'Đảng bộ xã Si Ma Cai',max:0,skip0:true,k:'sm_apipw',src:'website-si-ma-cai-api',m:true,ep:(sheetEndpoint())||''})+');void 0'}
+function apiBmSrc(){return '('+apiBookmarklet.toString()+')('+JSON.stringify({pid:2122408,name:'Đảng bộ xã Si Ma Cai',max:0,skip0:true,k:'sm_apipw',src:'website-si-ma-cai-api',m:true,sub:'^đảng bộ\\s+trường\\b',ep:(sheetEndpoint())||''})+');void 0'}
 (function(){
   const a=document.getElementById('apiBm'),c=document.getElementById('apiCopy'),cj=document.getElementById('apiCopyJs'),m=document.getElementById('apiMsg');if(!a)return;
   const say=t=>{m.hidden=false;m.textContent=t};
@@ -3510,19 +3533,24 @@ if(document.readyState!=='loading')run();else document.addEventListener('DOMCont
 
 <script>(()=>{const M=document.getElementById('rankModal');if(!M)return;
 const C={complete:['#15803d','#f0fdf4'],partial:['#b45309','#fff7ed'],empty:['#b91c1c','#fef2f2']};
+const openRk=new Set();
+function rkTg(r){const n=kidsOf(r).length;if(!n)return '';return ` <button type="button" class="rk-tg" data-kid="${esc(kfold(nm(r)))}" aria-expanded="false">▸ ${n} chi bộ</button>`}
+function rkKids(r){return kidsOf(r).map(k=>{const c=cls(k),p=Math.max(0,Math.min(1,v(k,'progress'))),cc=C[c]||C.empty;
+  return `<div class="rkm-row kid" hidden data-kp="${esc(kfold(nm(r)))}" data-c="${c==='complete'||c==='partial'?c:'empty'}"><span class="rk" style="visibility:hidden">·</span><div class="rkm-nm"><span class="uname">└ ${esc(kidName(nm(k)))}</span><small>${esc(status(k)[0])} · ${money(v(k,'paid'))}</small></div><div class="rkm-bar" style="--c:${cc[0]}"><i><b style="width:${(p*100).toFixed(1)}%"></b></i><em>${pct(p)}</em></div><div class="rkm-ct"><b>${num(v(k,'paidCount'))}</b>/${num(v(k,'due'))}<br>đảng viên</div></div>`}).join('')}
 function open(){const L=units.filter(r=>v(r,'members')>0).sort((a,b)=>(rankOf.get(a)||999)-(rankOf.get(b)||999));
  const n={complete:0,partial:0,empty:0};L.forEach(r=>{const c=cls(r);n[c in n?c:'empty']++});
  document.getElementById('rankSum').innerHTML=[['complete','Hoàn thành'],['partial','Đang thu'],['empty','Chưa phát sinh']].map(([k,l])=>`<span data-g="${k}" role="button" tabindex="0" aria-pressed="false" title="Bấm để xem các đơn vị: ${l}" style="--c:${C[k][0]};--c-bg:${C[k][1]}">${l} <b>${n[k]}</b></span>`).join('');
  document.getElementById('rankList').innerHTML=L.map(r=>{const c=cls(r),col=(C[c]||C.empty)[0],p=Math.max(0,Math.min(1,v(r,'progress')));
-  return `<div class="rkm-row" data-c="${c==='complete'||c==='partial'?c:'empty'}">${rk(r)}<div class="rkm-nm"><span class="uname" data-cb="${cbSlug(r)}" title="Xem thẻ đơn vị">${esc(nm(r))}</span><small>${esc(status(r)[0])} · ${money(v(r,'paid'))}</small></div><div class="rkm-bar" style="--c:${col}"><i><b style="width:${(p*100).toFixed(1)}%"></b></i><em>${pct(p)}</em></div><div class="rkm-ct"><b>${num(v(r,'paidCount'))}</b>/${num(v(r,'due'))}<br>đảng viên</div></div>`}).join('')||'<p class="empty">Chưa có số liệu đơn vị.</p>';
- const q=document.getElementById('rankQ');q.value='';grp='';filt();
+  return `<div class="rkm-row" data-c="${c==='complete'||c==='partial'?c:'empty'}">${rk(r)}<div class="rkm-nm"><span class="uname" data-cb="${cbSlug(r)}" title="Xem thẻ đơn vị">${esc(nm(r))}</span>${rkTg(r)}<small>${esc(status(r)[0])} · ${money(v(r,'paid'))}</small></div><div class="rkm-bar" style="--c:${col}"><i><b style="width:${(p*100).toFixed(1)}%"></b></i><em>${pct(p)}</em></div><div class="rkm-ct"><b>${num(v(r,'paidCount'))}</b>/${num(v(r,'due'))}<br>đảng viên</div></div>`+rkKids(r)}).join('')||'<p class="empty">Chưa có số liệu đơn vị.</p>';
+ openRk.clear();const q=document.getElementById('rankQ');q.value='';grp='';filt();
  M.classList.add('on');document.body.style.overflow='hidden';setTimeout(()=>q.focus(),30)}
 function fold(x){return String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d')}
 let grp='';
-function filt(){const k=fold(document.getElementById('rankQ').value.trim());let n=0;const rows=document.querySelectorAll('#rankList .rkm-row');rows.forEach(r=>{const ok=(!k||fold(r.querySelector('.uname').textContent).includes(k))&&(!grp||r.dataset.c===grp);r.hidden=!ok;if(ok)n++});
+function filt(){const k=fold(document.getElementById('rankQ').value.trim());let n=0;const rows=document.querySelectorAll('#rankList .rkm-row');rows.forEach(r=>{const ok=(!k||fold(r.querySelector('.uname').textContent).includes(k))&&(!grp||r.dataset.c===grp);const kid=r.classList.contains('kid'),sh=kid?((!k||fold(r.querySelector('.uname').textContent).includes(k))&&(openRk.has(r.dataset.kp)||!!k)&&(!grp||!!k||openRk.has(r.dataset.kp))):ok;r.hidden=!sh;if(sh)n++});document.querySelectorAll('#rankList .rk-tg').forEach(bt=>{const o=openRk.has(bt.dataset.kid);bt.textContent=(o?'▾ ':'▸ ')+bt.textContent.replace(/^[▸▾]\s*/,'');bt.setAttribute('aria-expanded',o)});
  const sm=document.getElementById('rankSum');sm.classList.toggle('has-g',!!grp);sm.querySelectorAll('[data-g]').forEach(x=>{const on=x.dataset.g===grp;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
  document.getElementById('rankCnt').textContent=(k||grp)?n+'/'+rows.length:'';document.getElementById('rankClr').hidden=!document.getElementById('rankQ').value;let e=document.getElementById('rankNone');if(!e){e=document.createElement('p');e.id='rankNone';e.className='rkm-none';e.textContent='Không tìm thấy đơn vị phù hợp.';document.getElementById('rankList').after(e)}e.hidden=!((k||grp)&&!n)}
 document.getElementById('rankQ').addEventListener('input',filt);
+document.getElementById('rankList').addEventListener('click',e=>{const bt=e.target.closest&&e.target.closest('.rk-tg');if(!bt)return;e.stopPropagation();const k=bt.dataset.kid;if(openRk.has(k))openRk.delete(k);else openRk.add(k);filt()});
 const sumEl=document.getElementById('rankSum');
 const pick=t=>{const g=t.closest&&t.closest('[data-g]');if(!g)return;grp=grp===g.dataset.g?'':g.dataset.g;filt();const l=document.getElementById('rankList');if(l)l.scrollTop=0};
 sumEl.addEventListener('click',e=>pick(e.target));
@@ -3609,5 +3637,8 @@ html body .podium .step .meta span{background:#fff!important;border:1px solid va
 html body .podium .step .meta b{color:var(--cd)!important}
 html body .podium .step .go{color:var(--cd)!important}
 </style>
+<style id="kidCss">html body .kid-tg{margin-left:8px;padding:2px 9px;border:1px solid currentColor;border-radius:999px;background:transparent;color:var(--lac,var(--son,#1a5fb4));font:600 .72rem/1.4 inherit;cursor:pointer;white-space:nowrap}html body .kid-tg:hover{background:rgba(100,116,139,.1)}html body tr.kid td{background:rgba(100,116,139,.05)}html body tr.kid .kidn{padding-left:34px;font-weight:500;opacity:.9}html body .rk-tg{margin-left:8px;padding:1px 8px;border:1px solid currentColor;border-radius:999px;background:transparent;color:var(--lac,var(--son,#1a5fb4));font:600 .7rem/1.4 inherit;cursor:pointer;white-space:nowrap}html body .rkm-row.kid{padding-left:34px;background:rgba(100,116,139,.05)}</style>
+<script>(function(){document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.kid-tg');if(!b)return;e.stopPropagation();e.preventDefault();var k=b.getAttribute('data-kid');if(openKids.has(k))openKids.delete(k);else openKids.add(k);fillTables()},true)})()</script>
+<style id="cbKidsCss">html body .cbm-kids{display:grid;gap:6px;margin:4px 0 10px}html body .cbm-kid{display:grid;grid-template-columns:1fr 70px 52px;gap:2px 8px;align-items:center;padding:6px 9px;border-radius:8px;background:rgba(100,116,139,.07)}html body .cbm-kid b{font-size:.82rem;font-weight:600;grid-column:1}html body .cbm-kid span{height:6px;border-radius:99px;background:rgba(0,0,0,.1);overflow:hidden}html body .cbm-kid span i{display:block;height:100%;background:var(--lac,var(--son,#1a5fb4))}html body .cbm-kid em{font-style:normal;font-weight:700;font-size:.78rem;text-align:right}html body .cbm-kid small{grid-column:1/-1;opacity:.75;font-size:.72rem}</style>
 </body>
 </html>
