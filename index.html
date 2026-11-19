@@ -1393,10 +1393,11 @@ function kidRows(r,t2){const K=kidsOf(r);if(!K.length||!openKids.has(kfold(nm(r)
 function kidTg(r){const n=kidsOf(r).length;if(!n)return '';const o=openKids.has(kfold(nm(r)));return ` <button type="button" class="kid-tg" data-kid="${esc(kfold(nm(r)))}" aria-expanded="${o}">${o?'▾':'▸'} ${n} chi bộ</button>`}
 /* ===== Chi bộ trực thuộc đảng bộ trường học: tab "Chi bộ trường" do nút API ghi; chỉ hiển thị xổ ra dưới đảng bộ cha, KHÔNG cộng vào tổng/xếp hạng (số đảng bộ cha đã gồm chi bộ con) ===== */
 let SUBS={},SUBS_KEY='',SUBS_PERIOD='';
+function kyNorm(s){s=String(s||'').trim();if(/^\d{4}-\d{2}$/.test(s))return s;const d=new Date(s);if(isNaN(d))return s;const t=new Date(d.getTime()+7*36e5);return t.getUTCFullYear()+'-'+String(t.getUTCMonth()+1).padStart(2,'0')}
 async function loadSubs(){const ep=sheetEndpoint();if(!ep)return false;
   try{const d=await jsonp(ep+'?action=read&tab='+encodeURIComponent('Chi bộ trường'),15000);
     const H=d&&d.ok&&Array.isArray(d.headers)?d.headers.map(h=>String(h).trim()):[];const pi=H.indexOf('Đảng bộ cha'),ni=H.indexOf(KEYS.name)>=0?H.indexOf(KEYS.name):3;if(ni===3)H[3]=KEYS.name;
-    let m={},per='';if(pi>=0&&ni>=0&&Array.isArray(d.rows)){d.rows.forEach(row=>{const o={};H.forEach((h,i)=>o[h]=row[i]==null?'':String(row[i]));const k=nkey(o['Đảng bộ cha']);if(!k||!o[KEYS.name])return;per=o['Kỳ']||per;if(!(+String(o[KEYS.members]).replace(/[^\d.-]/g,'')>0))return;const L=m[k]=m[k]||[];if(L.some(z=>nkey(z[KEYS.name])===nkey(o[KEYS.name])))return;L.push(o)})}
+    let m={},per='';if(pi>=0&&ni>=0&&Array.isArray(d.rows)){d.rows.forEach(row=>{const o={};H.forEach((h,i)=>o[h]=row[i]==null?'':String(row[i]));const k=nkey(o['Đảng bộ cha']);if(!k||!o[KEYS.name])return;per=kyNorm(o['Kỳ'])||per;if(!(+String(o[KEYS.members]).replace(/[^\d.-]/g,'')>0))return;const L=m[k]=m[k]||[];if(L.some(z=>nkey(z[KEYS.name])===nkey(o[KEYS.name])))return;L.push(o)})}
     const sig=JSON.stringify(m)+per;if(sig===SUBS_KEY)return false;SUBS_KEY=sig;SUBS=m;SUBS_PERIOD=per;return true}catch(e){return false}}
 function mergeSubs(top){if(viewingPast()||(SUBS_PERIOD&&SUBS_PERIOD!==curKey()))return;top.forEach(r=>{const L=SUBS[nkey(nm(r))];if(L&&L.length&&!kidsMap.has(kfold(nm(r))))kidsMap.set(kfold(nm(r)),L.slice().sort((a,b)=>v(b,'progress')-v(a,'progress')))})}
 function applyView(){const src=viewingPast()?msnap[viewKey].rows:liveUnits;
