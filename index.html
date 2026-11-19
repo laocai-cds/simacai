@@ -1373,6 +1373,8 @@ function sheetEndpoint(){let e='';try{e=localStorage.getItem('sm_endpoint')||''}
 function jsonp(url,ms){return new Promise((res,rej)=>{const cb='__bt_'+Date.now()+Math.random().toString(36).slice(2),sc=document.createElement('script');let ok=false;
   const fin=(e,v)=>{clearTimeout(tm);delete window[cb];sc.remove();e?rej(e):res(v)};const tm=setTimeout(()=>fin(new Error('timeout')),ms||12000);
   window[cb]=d=>{ok=true;fin(null,d)};sc.onerror=()=>fin(new Error('load'));sc.src=url+(url.includes('?')?'&':'?')+'callback='+cb+'&t='+Date.now();document.head.appendChild(sc)})}
+/* Đọc tab lúc mở trang: nhiều khối cùng cần một tab thì dùng chung 1 lần gọi (nhớ 10 giây). Các lần kiểm tra sau khi ghi vẫn gọi jsonp trực tiếp để lấy dữ liệu mới. */
+function bootRead(ep,tab,ms){const C=bootRead.c||(bootRead.c={}),k=tab,e=C[k];if(e&&Date.now()-e.t<10000)return e.p;const p=jsonp(ep+'?action=read&tab='+encodeURIComponent(tab),ms||9000);C[k]={t:Date.now(),p};p.catch(()=>{if(C[k]&&C[k].p===p)delete C[k]});return p}
 const nkey=x=>String(x||'').toLocaleLowerCase('vi').replace(/[^\p{L}\p{N}]+/gu,'');
 let liveStale=false,liveUnits=[],viewKey=null,msnap={};try{msnap=JSON.parse(localStorage.getItem('sm_msnap')||'{}')||{}}catch(_){}
 const curKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
@@ -2392,7 +2394,7 @@ function remApply(r){if(!r)return;$('#remOn').value=/^(có|co|1|true|bật|bat)$
   const set=new Set(String(r[2]||'').split(/[,;\s]+/).filter(Boolean));$('#remBefore').querySelectorAll('input').forEach(i=>i.checked=set.has(i.value));
   $('#remHour').value=String(Math.min(23,Math.max(0,parseInt(r[3])||8)));$('#remCc').value=String(r[4]||'')}
 async function remLoad(){const ep=sheetEndpoint();if(!ep)return;
-  try{const d=await jsonp(ep+'?action=read&tab='+encodeURIComponent(REM_TAB),9000);if(d&&d.ok&&Array.isArray(d.rows)&&d.rows[0])remApply(d.rows[0])}catch(_){}
+  try{const d=await bootRead(ep,REM_TAB);if(d&&d.ok&&Array.isArray(d.rows)&&d.rows[0])remApply(d.rows[0])}catch(_){}
   try{const d=await jsonp(ep+'?action=read&tab='+encodeURIComponent(REM_CT),9000);remCt={};if(d&&d.ok&&Array.isArray(d.rows)){remCtOk=true;d.rows.forEach(r=>{if(r[0]&&/@/.test(String(r[1]||'')))remCt[nkey(r[0])]=String(r[1]).trim()})}else remCtOk=false}catch(_){remCtOk=false}
   remPaintList()}
 if($('#remSave')){
@@ -2419,7 +2421,7 @@ const fcDay=x=>{const s=String(x||'').trim();const m=s.match(/^(\d{4})-(\d{2})-(
 async function fcLoad(){const ep=sheetEndpoint();if(!ep)return;
   try{const d=await jsonp(ep+'?action=read&tab='+encodeURIComponent(FC_TAB),15000);
     if(d&&d.ok&&Array.isArray(d.rows)){fcHist={};d.rows.forEach(r=>{const day=fcDay(r[0]);if(!day||!r[1])return;(fcHist[day]||(fcHist[day]={}))[nkey(r[1])]=[pnum(r[2]),pnum(r[3])]})}}catch(_){}
-  try{const d=await jsonp(ep+'?action=read&tab='+encodeURIComponent(REM_TAB),9000);const r=d&&d.ok&&d.rows&&d.rows[0];if(r){const x=parseInt(r[1]);if(x>=1&&x<=31)fcDl=x}}catch(_){}
+  try{const d=await bootRead(ep,REM_TAB);const r=d&&d.ok&&d.rows&&d.rows[0];if(r){const x=parseInt(r[1]);if(x>=1&&x<=31)fcDl=x}}catch(_){}
   fcRender()}
 /* chuỗi tỷ lệ theo ngày của một tháng: key=null → toàn xã, hoặc khóa đơn vị */
 function fcSeries(ym,key){const out=[];Object.keys(fcHist||{}).filter(d=>d.startsWith(ym)).sort().forEach(d=>{let due=0,paid=0;const o=fcHist[d];
@@ -2485,7 +2487,7 @@ function thBuild(){const g=document.getElementById('thmGrid');if(!g)return;
   g.querySelectorAll('.thmopt').forEach(b=>b.onclick=()=>{thPick=b.dataset.id;applyTheme(thPick);thMark();const m=document.getElementById('thmMsg');m.textContent='Đang xem trước. Bấm “Lưu giao diện” để áp dụng cho mọi máy.';m.className='hint'});
   thMark()}
 async function thLoad(){const ep=sheetEndpoint();if(!ep)return;
-  try{const d=await jsonp(ep+'?action=read&tab='+encodeURIComponent(TH_TAB),9000);
+  try{const d=await bootRead(ep,TH_TAB);
     const r=d&&d.ok&&Array.isArray(d.rows)&&d.rows[0];
     if(r&&Array.isArray(d.headers)&&d.headers[0]===TH_HEAD&&THEMES.some(t=>t.id===String(r[0]))){thSaved=thPick=String(r[0]);try{localStorage.setItem(THEME_KEY,thSaved)}catch(_){}applyTheme(thSaved);thMark()}}catch(_){}}
 (function(){const sv=document.getElementById('thmSave'),un=document.getElementById('thmUndo'),m=document.getElementById('thmMsg');if(!sv)return;
@@ -3099,7 +3101,7 @@ async function save(){const e=ep(),tk=(g('syncToken')&&g('syncToken').value.trim
   if(ok){saved=json;dirty=false;try{localStorage.setItem(KEY,json)}catch(_){}msg('Đã lưu. Các máy khác sẽ cập nhật khi tải lại trang.');paintAudit()}
   else msg('Chưa lưu được. Kiểm tra Mã đồng bộ, đăng nhập quản trị và Apps Script, rồi thử lại.',1)}
 async function load(){const e=ep();if(!e)return;
-  try{const d=await jsonp(e+'?action=read&tab='+encodeURIComponent(TAB),9000);const r=d&&d.ok&&Array.isArray(d.rows)&&d.rows.find(x=>x[0]==='cfg');
+  try{const d=await bootRead(e,TAB);const r=d&&d.ok&&Array.isArray(d.rows)&&d.rows.find(x=>x[0]==='cfg');
     if(!d||!d.ok)return;loaded=true;
     if(r){const j=String(r[1]||'');if(j&&!dirty){cfg=merge(JSON.parse(j));saved=JSON.stringify(cfg);try{localStorage.setItem(KEY,saved)}catch(_){}}}
   }catch(_){return}
