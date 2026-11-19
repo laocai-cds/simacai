@@ -1653,7 +1653,7 @@ function render(){
 
   // top 3
   const lead=units.filter(r=>v(r,'paidCount')>0).sort((a,b)=>v(b,'progress')-v(a,'progress')||v(b,'paid')-v(a,'paid')).slice(0,3);
-  $('#podium').innerHTML=[0,1,2].filter(i=>lead[i]).map(i=>{const r=lead[i],pc=Math.max(0,Math.min(100,v(r,'progress')*100)),lab=['Dẫn đầu','Hạng nhì','Hạng ba'][i];return `<button type="button" class="step s${i+1}" data-cb="${cbSlug(r)}" aria-label="${lab}: ${esc(nm(r))}, ${pct(v(r,'progress'))}. Bấm để xem chi tiết"><span class="hd"><span class="no">${i+1}</span><span class="nm"><em>${lab}</em><b title="${esc(nm(r))}">${esc(nm(r))}</b></span></span><span class="val"><strong>${pct(v(r,'progress'))}</strong><small>tỷ lệ đã nộp</small></span><i class="pb"><u style="width:${pc}%"></u></i><span class="meta"><span><b>${num(v(r,'paidCount'))}/${num(v(r,'due'))}</b> đảng viên</span><span><b>${money(v(r,'paid'))}</b></span></span><span class="go">Xem chi tiết đơn vị<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></button>`}).join('');
+  $('#podium').innerHTML=[0,1,2].filter(i=>lead[i]).map(i=>{const r=lead[i],pc=Math.max(0,Math.min(100,v(r,'progress')*100)),lab=['Dẫn đầu','Hạng nhì','Hạng ba'][i];return `<button type="button" class="step s${i+1}" data-cb="${cbSlug(r)}" aria-label="${lab}: ${esc(nm(r))}, ${pct(v(r,'progress'))}. Bấm để xem chi tiết"><span class="rg" style="--p:${pc.toFixed(1)}"><i>${pct(v(r,'progress'))}</i></span><span class="bd"><span class="nm"><em>${i==0?'★ ':''}${lab}</em><b title="${esc(nm(r))}">${esc(nm(r))}</b></span><span class="meta"><span><b>${num(v(r,'paidCount'))}/${num(v(r,'due'))}</b> đảng viên</span><span><b>${money(v(r,'paid'))}</b></span></span><span class="go">Xem chi tiết<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></span></button>`}).join('');
 
   // column chart: tiến độ từng đơn vị, theo hạng
   const n=units.length,lab=s=>s.length>64?s.slice(0,63)+'…':s;
@@ -3566,17 +3566,45 @@ html body .dgroup div{padding:2px 0}
 }
 </style>
 <style id="sealFlag">html body .seal img{padding:2px;box-sizing:border-box;object-fit:contain}</style>
+<style id="xh-podium-c">
+html body .podium{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important}
+html body .podium .step{all:unset;box-sizing:border-box;position:relative;display:flex!important;flex-direction:row!important;align-items:center;gap:14px;padding:16px 16px 16px 20px;border-radius:18px;background:#fff!important;border:1px solid #dfe8da!important;box-shadow:0 2px 6px rgba(16,54,31,.06);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;min-width:0}
+html body .podium .step::before{content:""!important;position:absolute;left:0;top:0;bottom:0;right:auto;width:5px;height:auto!important;background:var(--c)!important}
+html body .podium .step::after{content:none!important}
+html body .podium .step:hover{transform:translateY(-3px);box-shadow:0 14px 26px -14px rgba(16,54,31,.45);border-color:var(--c)!important}
+html body .podium .step:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+html body .podium .step.s1,html body .podium .step.s2,html body .podium .step.s3{background:#fff!important;background-image:none!important;border-color:#dfe8da!important}
+html body .podium .step .go{border-top:0!important;padding-top:0!important}
+html body .podium .step.s1{--c:#d8a022}html body .podium .step.s2{--c:#7b8798}html body .podium .step.s3{--c:#bf7a47}
+html body .podium .step .rg{flex:none;width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--c) calc(var(--p)*1%),#e8efe4 0)}
+html body .podium .step .rg i{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:#fff;font:800 16px var(--serif,serif);font-style:normal;color:#22331f}
+html body .podium .step .bd{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+html body .podium .step .nm{display:flex;flex-direction:column;gap:3px;min-width:0}
+html body .podium .step .nm em{font:800 10px/1 var(--sans);font-style:normal;letter-spacing:.13em;text-transform:uppercase;color:var(--c)!important}
+html body .podium .step .nm b{font:700 14px/1.3 var(--sans);color:#22331f!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+html body .podium .step .meta{display:flex;flex-wrap:wrap;gap:5px}
+html body .podium .step .meta span{display:inline-flex;gap:4px;padding:3px 9px;border-radius:99px;background:#f2f6ef;border:1px solid #dfe8da;font-size:11.5px;color:#5a6a57}
+html body .podium .step .meta b{font-weight:700;color:#22331f}
+html body .podium .step .go{display:inline-flex;align-items:center;gap:5px;font:700 12px var(--sans);color:var(--c);border:0;padding:0;margin:0}
+html body .podium .step:hover .go svg{transform:translateX(4px)}html body .podium .step .go svg{transition:transform .2s}
+@media(max-width:900px){html body .podium{grid-template-columns:1fr!important;gap:10px!important}}
+</style>
+
 <style id="podiumVivid">
 /* Top 3: màu tươi sáng hơn (vàng - xanh da trời - cam) */
-html body .podium .step.s1{--grad:linear-gradient(135deg,#ffcb3d,#f5a300);--bd:#ffd76a;--tx:#8a5a00;--sh2:#f5a300;background:linear-gradient(135deg,#fff4d1,#fff 62%)!important}
-html body .podium .step.s2{--grad:linear-gradient(135deg,#63b3fa,#2f8ee5);--bd:#a9d1f8;--tx:#17508f;--sh2:#2f8ee5;background:linear-gradient(135deg,#e6f2ff,#fff 62%)!important}
-html body .podium .step.s3{--grad:linear-gradient(135deg,#ff9a66,#ff6a2a);--bd:#ffc2a3;--tx:#a83f10;--sh2:#ff7a3d;background:linear-gradient(135deg,#ffeadf,#fff 62%)!important}
-html body .podium .step{border:1.5px solid var(--bd)!important;box-shadow:0 6px 16px -8px var(--sh2)!important}
-html body .podium .step::before{height:6px!important}
-html body .podium .step .pb{background:#fff!important;box-shadow:inset 0 0 0 1px var(--bd)}
-html body .podium .step .meta span{background:#fff!important;border:1px solid var(--bd)!important;color:var(--tx)!important}
-html body .podium .step .meta b{color:var(--tx)!important}
+html body .podium .step.s1{--c:#f5a300;--cd:#8a5a00;--cl:#fff4d1;--cb:#ffd76a}
+html body .podium .step.s2{--c:#2f8ee5;--cd:#17508f;--cl:#e6f2ff;--cb:#a9d1f8}
+html body .podium .step.s3{--c:#ff7a3d;--cd:#a83f10;--cl:#ffeadf;--cb:#ffc2a3}
+html body .podium .step.s1,html body .podium .step.s2,html body .podium .step.s3{background:linear-gradient(135deg,var(--cl),#fff 62%)!important;border:1.5px solid var(--cb)!important;box-shadow:0 6px 16px -8px var(--c)!important}
+html body .podium .step::before{width:7px!important}
+html body .podium .step:hover{box-shadow:0 16px 28px -14px var(--c)!important;border-color:var(--c)!important}
+html body .podium .step .rg{background:conic-gradient(var(--c) calc(var(--p)*1%),var(--cl) 0)!important;box-shadow:0 0 0 3px #fff,0 4px 12px -4px var(--c)}
+html body .podium .step .rg i{color:var(--cd)!important}
+html body .podium .step .nm em{color:var(--cd)!important}
 html body .podium .step .nm b{color:#1b2a3a!important}
+html body .podium .step .meta span{background:#fff!important;border:1px solid var(--cb)!important;color:var(--cd)!important}
+html body .podium .step .meta b{color:var(--cd)!important}
+html body .podium .step .go{color:var(--cd)!important}
 </style>
 </body>
 </html>
