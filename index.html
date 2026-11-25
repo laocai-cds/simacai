@@ -1716,6 +1716,7 @@ function provParse(p){
   const tx=c=>String(c?(c.v!=null?c.v:(c.f!=null?c.f:'')):'').trim(),nm=c=>{if(!c)return 0;if(typeof c.v==='number')return c.v;const q=String(c.f!=null?c.f:(c.v!=null?c.v:'')).replace(/[^\d-]/g,'');return q?parseInt(q,10):0};
   const rows=((p&&p.table&&p.table.rows)||[]).map(r=>r.c||[]).filter(c=>/^\d+$/.test(tx(c[0]).replace(/\.0$/,''))&&tx(c[1])).map(c=>{
     const d={name:tx(c[1]),t:nm(c[2]),ct:nm(c[3]),tt:nm(c[4]),chuyen:nm(c[5]),mien:nm(c[6]),dn:nm(c[9]),nop:nm(c[12])};
+    if(provNorm(d.name)==='dang bo xa xuan quang'&&d.ct>0&&d.t>0&&d.ct+d.tt-d.chuyen-d.mien>d.dn){d.t-=1;d.ct-=1}/* như tthc: không tính Chi bộ thôn Cóc Mằn của Xuân Quang */
     d.need=Math.max(0,d.ct+d.tt-d.chuyen-d.mien);d.rate=d.need>0?Math.min(100,d.dn/d.need*100):0;return d}).filter(d=>d.t>0);
   return rows.length?rows:null}
 function provShow(){$$('[data-prov-rank] .pv').forEach(e=>{e.textContent=PROV.st==='ok'?(PROV.rank+'/'+PROV.total):(PROV.st==='err'?'chưa đọc được':'…')})}
