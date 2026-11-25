@@ -1725,7 +1725,7 @@ async function provLoad(){
     const n=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Ho_Chi_Minh'}));let y=n.getFullYear(),m=n.getMonth()+1,rows=null;
     for(let i=0;i<2&&!rows;i++){rows=provParse(await provFetch(provTab(y,m)));if(!rows){m--;if(m<1){m=12;y--}}}
     if(!rows)throw 0;
-    rows.sort((a,b)=>Math.round(b.rate*100)-Math.round(a.rate*100)||b.nop-a.nop||b.dn-a.dn||a.name.localeCompare(b.name,'vi'));
+    rows.sort((a,b)=>Math.round(b.rate*100)-Math.round(a.rate*100)||b.dn-a.dn||b.nop-a.nop||a.name.localeCompare(b.name,'vi'));
     let i=rows.findIndex(r=>provNorm(r.name)===PROV.name);if(i<0)i=rows.findIndex(r=>/\bxa si ma cai$/.test(provNorm(r.name)));if(i<0)throw 0;
     PROV.rank=i+1;PROV.total=rows.length;PROV.st='ok'
   }catch(e){if(PROV.st!=='ok')PROV.st='err'}
