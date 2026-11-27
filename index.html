@@ -1325,7 +1325,7 @@ go();document.addEventListener('DOMContentLoaded',go);
 </section>
 </main>
 
-<footer class="foot"><div class="wrap"><div class="fcard"><div class="credit"><span class="cr-ic" aria-hidden="true">★</span><div class="cr-t"><span class="cr-k">Thiết kế và phát triển</span><span class="cr-o">Hồ Tuấn Cầu</span></div></div><p class="copyr"><span aria-hidden="true">©</span> Bản quyền 2026 - <b>Đảng ủy xã Si Ma Cai</b></p></div></div></footer>
+<footer class="foot"><div class="wrap"><div class="fcard"><div class="credit"><span class="cr-ic" aria-hidden="true">★</span><div class="cr-t"><span class="cr-k">Thiết kế và phát triển</span><span class="cr-o">Hồ Tuấn Cầu</span></div></div><p class="copyr"><span aria-hidden="true">©</span> Bản quyền 2026 - <b>Đảng ủy xã Si Ma Cai</b> <span id="dataFresh" style="margin-left:10px;white-space:nowrap"></span></p></div></div></footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="back" id="ntModal" role="dialog" aria-modal="true" aria-labelledby="ntTitle">
@@ -3772,5 +3772,15 @@ html body .podium .step .go{color:var(--cd)!important}
 <style id="kidCss">html body .kid-tg{margin-left:8px;padding:2px 9px;border:1px solid currentColor;border-radius:999px;background:transparent;color:var(--lac,var(--son,#1a5fb4));font:600 .72rem/1.4 inherit;cursor:pointer;white-space:nowrap}html body .kid-tg:hover{background:rgba(100,116,139,.1)}html body tr.kid td{background:rgba(100,116,139,.05)}html body tr.kid .kidn{padding-left:34px;font-weight:500;opacity:.9}html body .rk-tg{margin-left:8px;padding:1px 8px;border:1px solid currentColor;border-radius:999px;background:transparent;color:var(--lac,var(--son,#1a5fb4));font:600 .7rem/1.4 inherit;cursor:pointer;white-space:nowrap}html body .rkm-row.kid{padding-left:34px;background:rgba(100,116,139,.05)}</style>
 <script>(function(){document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.kid-tg');if(!b)return;e.stopPropagation();e.preventDefault();var k=b.getAttribute('data-kid');if(openKids.has(k))openKids.delete(k);else openKids.add(k);fillTables()},true)})()</script>
 <style id="cbKidsCss">html body .cbm-kids{display:grid;gap:6px;margin:4px 0 10px}html body .cbm-kid{display:grid;grid-template-columns:1fr 70px 52px;gap:2px 8px;align-items:center;padding:6px 9px;border-radius:8px;background:rgba(100,116,139,.07)}html body .cbm-kid b{font-size:.82rem;font-weight:600;grid-column:1}html body .cbm-kid span{height:6px;border-radius:99px;background:rgba(0,0,0,.1);overflow:hidden}html body .cbm-kid span i{display:block;height:100%;background:var(--lac,var(--son,#1a5fb4))}html body .cbm-kid em{font-style:normal;font-weight:700;font-size:.78rem;text-align:right}html body .cbm-kid small{grid-column:1/-1;opacity:.75;font-size:.72rem}</style>
+<script id="data-fresh">
+/* Chân trang: hiện giờ dữ liệu được đồng bộ lần cuối; quá 2 giờ chuyển vàng, quá 6 giờ chuyển đỏ */
+(function(){const el=document.getElementById('dataFresh');if(!el)return;
+ function paint(){let st='';try{st=dataStamp}catch(e){}
+  const m=/^(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)/.exec(st||'');if(!m){el.textContent='';return}
+  const t=new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5]).getTime(),h=(Date.now()-t)/36e5;
+  el.textContent='· Dữ liệu cập nhật lúc '+st;el.style.color=h>6?'#ff9d92':h>2?'#ffd23f':'';el.style.fontWeight=h>2?'700':'';
+  el.title=h>6?'Dữ liệu đã cũ (trên 6 giờ)':h>2?'Dữ liệu chưa được làm mới trên 2 giờ':'Dữ liệu mới'}
+ paint();setInterval(paint,5000)})();
+</script>
 </body>
 </html>
